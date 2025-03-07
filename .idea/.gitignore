@@ -1,0 +1,50 @@
+# IntelliJ IDEA specific files
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# User-specific files
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Java build directories
+/target/
+/out/
+
+/build/
+
+# Maven
+*.log
+*.jar
+*.war
+*.ear
+
+# Gradle
+.gradle/
+build/
+
+# Eclipse
+.settings/
+.project
+.classpath
+
+# Log files
+*.log
+
+# IntelliJ IDEA - Dependency manager files
+.idea/modules.xml
+.idea/.name
+
+# Mac OS specific files
+*.swp
+*.swo
+
+# Linux swap files
+*~
