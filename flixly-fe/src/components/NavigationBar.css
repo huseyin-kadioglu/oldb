@@ -1,0 +1,11 @@
+.navbar {
+    background-color: #EFB036;
+    width: 100%; /* Navbar'ın genişliği */
+    display: flex;
+    justify-content: center; /* Ortaya hizalar */
+  }
+  
+  .navbar p {
+    margin-left: 20px;
+  }
+  

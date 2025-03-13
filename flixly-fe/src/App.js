@@ -1,25 +1,20 @@
-import logo from './logo.svg';
 import './App.css';
+import NavigationBar from './components/NavigationBar';
+import Content from './components/Content';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {
+ 
+ 
+return( <div className="App">
+  <NavigationBar></NavigationBar>
+  <h2>Welcome back, huseyinkadioglu. Here’s what we’ve been watching…  </h2>
+  <p>This homepage will become customized as you follow active members on Letterboxd.</p>
+
+  <hr></hr>
+  <Content></Content>
+</div>
+);
+    
 }
 
 export default App;
