@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
-import Content from './components/Content';
+import Content from './components/content/Content';
 import Profile from './components/Profile';
 const App = () => {
  

@@ -11,7 +11,7 @@ const NavigationBar = ({}) => {
     <nav className="navbar">
       <div className="logo">
       <img 
-        src="/logo.png"  
+        src="/logo192.png"  
         alt="xxx"
         className="logo"
         onClick={() => navigate("/")} // Clickable logo

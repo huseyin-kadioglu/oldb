@@ -1,6 +1,6 @@
 import './Content.css';
-import PhotoFrame from './PhotoFrame';
-import NavigationBar from './NavigationBar';
+import PhotoFrame from '../frame/PhotoFrame';
+import NavigationBar from '../navbar/NavigationBar';
 
 const Content = () => {
 

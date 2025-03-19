@@ -1,7 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
-import NavigationBar from './NavigationBar';
-import './Content.css'
-
+import NavigationBar from './navbar/NavigationBar';
 
 const Profile = () => {
 
