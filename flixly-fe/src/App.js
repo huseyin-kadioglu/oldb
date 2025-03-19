@@ -1,17 +1,16 @@
 import './App.css';
-import NavigationBar from './components/NavigationBar';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
 import Content from './components/Content';
-
+import Profile from './components/Profile';
 const App = () => {
  
- 
 return( <div className="App">
-  <NavigationBar></NavigationBar>
-  <h2>Welcome back, huseyinkadioglu. Here’s what we’ve been watching…  </h2>
-  <p>This homepage will become customized as you follow active members on Letterboxd.</p>
-
-  <hr></hr>
-  <Content></Content>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Content />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </Router>
 </div>
 );
     

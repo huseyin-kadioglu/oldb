@@ -1,13 +1,13 @@
 body, html {
   display: flex;
   justify-content: center;
-  background-color: #3B6790;
+  background-color: #1e242b;
 }
 
 .App {
   width: 90%; /* %50 genişlik */
   padding: 20px; /* İç boşluk */
-  background-color: #3B6790;
+  background-color:  #1e242b;
 }
 
 .App h2 {

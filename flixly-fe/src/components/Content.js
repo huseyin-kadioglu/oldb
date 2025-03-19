@@ -1,5 +1,6 @@
 import './Content.css';
 import PhotoFrame from './PhotoFrame';
+import NavigationBar from './NavigationBar';
 
 const Content = () => {
 
@@ -30,6 +31,9 @@ const Content = () => {
 ];
   
   return( <div className="container">
+    <NavigationBar />
+
+    <h2>Welcome back!</h2>
     <h1>Film Afişleri</h1>
     <div className="gallery">
       {bookCovers.map((book, index) => (

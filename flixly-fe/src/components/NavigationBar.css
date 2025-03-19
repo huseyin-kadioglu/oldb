@@ -1,11 +1,52 @@
 .navbar {
-    background-color: #EFB036;
+    background-color: #14181c;
     width: 100%; /* Navbar'ın genişliği */
     display: flex;
-    justify-content: center; /* Ortaya hizalar */
+    justify-content: space-between;
+    margin-bottom: 50px;
+  }
+
+  .navbar .logo {
+  margin-left: 20px;
+  height: 40px;  /* Logo yüksekliğini ayarlıyoruz */
+  width: auto;   /* Yüksekliği ayarladığında genişlik otomatik ayarlanır */
+  object-fit: contain;  /* Logo düzgün şekilde görünmesini sağlar */
+  cursor: pointer;
+  background: transparent;  /* Arka planı şeffaf yapıyoruz */
+  }
+
+  .navbar .navbar-content{
+    background-color: #14181c;
+    width: 100%; /* Navbar'ın genişliği */
+    display: flex;
+    justify-content: right;
   }
   
   .navbar p {
+    color: #9D9FA0;
     margin-left: 20px;
   }
+
+  .navbar p:hover{
+    color: #E7EEEE;
+  }
   
+ 
+
+  
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-item {
+  cursor: pointer;
+  font-size: 18px;
+  color: black;
+  transition: color 0.3s ease;
+  margin-left: 30px;
+}
+
+.nav-item:hover {
+  color: blue;
+}
