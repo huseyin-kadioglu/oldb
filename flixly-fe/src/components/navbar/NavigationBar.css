@@ -1,9 +1,14 @@
 .navbar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 60px; /* Sabit yükseklik */
     background-color: #14181c;
-    width: 100%; /* Navbar'ın genişliği */
     display: flex;
     justify-content: space-between;
+    align-items: center; /* Dikey hizalama */
     margin-bottom: 50px;
+    z-index: 1000;
   }
 
   .navbar .logo {
@@ -20,6 +25,7 @@
     width: 100%; /* Navbar'ın genişliği */
     display: flex;
     justify-content: right;
+  
   }
   
   .navbar p {

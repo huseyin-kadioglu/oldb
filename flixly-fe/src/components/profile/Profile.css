@@ -1,0 +1,80 @@
+.container {
+    max-width: 1000px; /* İçeriğin maksimum genişliği */
+    width: 100%; /* Navbar'ın genişliği */
+    height: 100%;
+    display: grid;
+    justify-items: center;
+  }
+
+.user-profile {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Sol ve sağ blokları ayırır */
+    width: 100%;
+    max-width: 400px; /* Profilin genişliğini sınırla */
+    padding: 10px;
+}
+
+.profile-summary {
+    display: flex;
+    flex-direction: row; 
+}
+
+
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Ortadaki bilgi alanı genişleyebilir */
+    margin-left: 12px;
+}
+
+.username {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.location {
+    font-size: 14px;
+    color: gray;
+}
+
+.profile-link {
+    font-size: 14px;
+    color: blue;
+    text-decoration: none;
+    margin-top: 4px;
+}
+
+.profile-link:hover {
+    text-decoration: underline;
+}
+
+.stats {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: center;
+}
+
+.stat {
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-number {
+    font-size: 20px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: gray;
+}
+
+.stat-divider {
+    width: 40px; /* Uzunluğunu buradan ayarlayabilirsiniz */
+    height: 1px;
+    background-color: #ccc; /* Çubuğun rengini ayarlıyoruz */
+    transform: rotate(90deg); /* Çubuğu 90 derece döndürür */
+}

@@ -1,0 +1,11 @@
+.profile-image {
+    flex-shrink: 0; /* Resmin küçülmesini önler */
+}
+
+.profile-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ccc;
+}
