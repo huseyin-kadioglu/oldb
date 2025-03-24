@@ -5,7 +5,7 @@ body, html {
 }
 
 .App {
-  width: 90%; /* %50 genişlik */
+  width: 1000px; /* %50 genişlik */
   padding: 20px; /* İç boşluk */
   background-color:  #1e242b;
 }

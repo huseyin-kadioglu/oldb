@@ -1,37 +1,14 @@
-.container {
-    max-width: 1000px; /* İçeriğin maksimum genişliği */
-    width: 100%; /* Navbar'ın genişliği */
-    height: 100%;
-    display: grid;
-    justify-items: center;
-  }
-
-.user-profile {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Sol ve sağ blokları ayırır */
-    width: 100%;
-    max-width: 400px; /* Profilin genişliğini sınırla */
-    padding: 10px;
-}
-
 .profile-summary {
     display: flex;
     flex-direction: row; 
 }
 
-
-
 .user-info {
-    display: flex;
-    flex-direction: column;
     flex-grow: 1; /* Ortadaki bilgi alanı genişleyebilir */
     margin-left: 12px;
 }
 
 .username {
-    font-size: 18px;
     font-weight: bold;
 }
 
@@ -40,36 +17,46 @@
     color: gray;
 }
 
-.profile-link {
-    font-size: 14px;
-    color: blue;
-    text-decoration: none;
-    margin-top: 4px;
-}
 
-.profile-link:hover {
-    text-decoration: underline;
-}
 
 .stats {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    text-align: center;
+    margin: 0;
 }
 
 .stat {
     flex-direction: column;
     align-items: center;
+    font-family: Graphik-Regular-Web, sans-serif;
+    color: #9ab;
 }
 
-.stat-number {
-    font-size: 20px;
+.value {
+    display: block;
+    font-size: 1.61538462rem;
+    font-family: TiemposTextWeb-Semibold, Georgia, serif;
+    font-weight: 400;
+    color: #d8e0e8;
+}
+
+.definition {
+    display: block;
+    font-family: Graphik-Regular-Web, sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    color: #9ab;
+    text-transform: uppercase;
+    letter-spacing: .075em;
+    font-size: .76923077rem;
+    margin-top: .75em;
+    color: #678;
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 5px;
     color: gray;
+    font-family: Graphik-Regular-Web, sans-serif;
 }
 
 .stat-divider {
