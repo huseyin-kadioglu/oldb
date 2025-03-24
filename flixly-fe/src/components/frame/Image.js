@@ -5,7 +5,7 @@ const Image = () => {
     return(
         <div className="profile-image">
               <img 
-                    src="/logo192.png"  
+                    src="/pp.jpg"  
                     alt="xxx"
                     className="profile-img"
                 />

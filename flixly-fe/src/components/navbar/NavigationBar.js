@@ -1,13 +1,9 @@
+import "font-awesome/css/font-awesome.min.css";
 import React from "react";
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  useNavigate,
+  useNavigate
 } from "react-router-dom";
 import "./NavigationBar.css";
-import "font-awesome/css/font-awesome.min.css";
 
 const NavigationBar = ({}) => {
   const navigate = useNavigate();

@@ -3,8 +3,8 @@
 }
 
 .profile-img {
-    width: 64px;
-    height: 64px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ccc;

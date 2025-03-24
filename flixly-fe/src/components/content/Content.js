@@ -1,6 +1,6 @@
-import "./Content.css";
 import PhotoFrame from "../frame/PhotoFrame";
-import NavigationBar from "../navbar/NavigationBar";
+import "./Content.css";
+import FrameBlock from "../common/FrameBlock";
 
 const Content = () => {
   // db'den alınacak.
@@ -120,12 +120,8 @@ const Content = () => {
   return (
     <div className="container">
       <h2>Welcome back!</h2>
-      <h1>Film Afişleri</h1>
-      <div className="gallery">
-        {bookCovers.map((book, index) => (
-          <PhotoFrame key={index} imageUrl={book.imageUrl} title={book.title} />
-        ))}
-      </div>
+      <FrameBlock title = "Popular Films"></FrameBlock>
+
     </div>
   );
 };

@@ -1,7 +1,5 @@
 .container {
     max-width: 1000px; /* İçeriğin maksimum genişliği */
-    width: 100%; /* Navbar'ın genişliği */
-    height: 100%;
     display: grid;
     justify-items: center;
   }
@@ -9,8 +7,8 @@
  .gallery {
     width: 100%; /* Navbar'ın genişliği */
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 10px;
     justify-items: center;
-    margin: auto;
+    
   }

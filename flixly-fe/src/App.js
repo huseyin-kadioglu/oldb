@@ -1,8 +1,8 @@
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Content from "./components/content/Content";
-import Profile from "./components/profile/Profile";
 import NavigationBar from "./components/navbar/NavigationBar";
+import Profile from "./components/profile/Profile";
 const App = () => {
   return (
     <div className="App">
