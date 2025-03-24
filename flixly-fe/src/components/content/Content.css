@@ -1,14 +1,24 @@
 .container {
-    max-width: 1000px; /* İçeriğin maksimum genişliği */
-    display: grid;
-    justify-items: center;
-  }
-  
- .gallery {
-    width: 100%; /* Navbar'ın genişliği */
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    justify-items: center;
-    
-  }
+  max-width: 1000px; /* İçeriğin maksimum genişliği */
+  display: grid;
+  justify-items: center;
+}
+
+.container .h2 {
+  text-align: center;
+  font-size: 2rem;
+  line-height: 1.23076923;
+  color: rgb(46, 153, 46);
+  font-family: Graphik-Light-Web, sans-serif;
+  font-weight: 400;
+  text-align: center;
+  margin: 0 0 2.46153846rem;
+}
+
+.gallery {
+  width: 100%; /* Navbar'ın genişliği */
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  justify-items: center;
+}
