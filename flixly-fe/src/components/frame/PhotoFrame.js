@@ -2,11 +2,11 @@ import React from "react";
 import "./PhotoFrame.css";
 import { Link } from "react-router-dom";
 
-const PhotoFrame = ({ imageUrl, title }) => {
+const PhotoFrame = ({ coverUrl, title }) => {
   return (
     <div className="photo-frame">
       <Link to={"/"}>
-        <img src={imageUrl} alt={title} className="cover" />
+        <img src={coverUrl} alt={title} className="cover" />
       </Link>
       <p className="title">{title}</p>
     </div>
