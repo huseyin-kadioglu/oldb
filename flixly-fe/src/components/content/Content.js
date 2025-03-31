@@ -12,20 +12,20 @@ const Content = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const data = await getBooks(); // Servis çağrısı
-        console.log(data);
-        setBooks(data);
-      } catch (err) {
-        setError("Kitaplar yüklenirken bir hata oluştu.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBooks();
   }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const data = await getBooks(); // Servis çağrısı
+      console.log(data);
+      setBooks(data);
+    } catch (err) {
+      setError("Kitaplar yüklenirken bir hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container">
