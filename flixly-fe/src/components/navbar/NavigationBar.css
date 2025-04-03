@@ -1,44 +1,38 @@
 .navbar {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    height: 60px; /* Sabit yükseklik */
-    background-color: #14181c;
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* Dikey hizalama */
-    margin-bottom: 50px;
-  }
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 60px; /* Sabit yükseklik */
+  background-color: #14181c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Dikey hizalama */
+  margin-bottom: 50px;
+}
 
-  .navbar .logo {
+.navbar .logo p {
+  font-family: Papyrus;
+  letter-spacing: 3px;
+  color: white;
+  margin-left: 40px;
+}
+
+.navbar .navbar-content {
+  background-color: #14181c;
+  width: 100%; /* Navbar'ın genişliği */
+  display: flex;
+  justify-content: right;
+}
+
+.navbar p {
+  color: #9d9fa0;
   margin-left: 20px;
-  height: 40px;  /* Logo yüksekliğini ayarlıyoruz */
-  width: auto;   /* Yüksekliği ayarladığında genişlik otomatik ayarlanır */
-  object-fit: contain;  /* Logo düzgün şekilde görünmesini sağlar */
-  cursor: pointer;
-  background: transparent;  /* Arka planı şeffaf yapıyoruz */
-  }
+}
 
-  .navbar .navbar-content{
-    background-color: #14181c;
-    width: 100%; /* Navbar'ın genişliği */
-    display: flex;
-    justify-content: right;
-  
-  }
-  
-  .navbar p {
-    color: #9D9FA0;
-    margin-left: 20px;
-  }
+.navbar p:hover {
+  color: #e7eeee;
+}
 
-  .navbar p:hover{
-    color: #E7EEEE;
-  }
-  
- 
-
-  
 .nav-links {
   display: flex;
   gap: 20px;

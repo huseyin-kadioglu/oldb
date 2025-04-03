@@ -5,18 +5,13 @@ import {
 } from "react-router-dom";
 import "./NavigationBar.css";
 
-const NavigationBar = ({}) => {
+const NavigationBar = ({handleDialog}) => {
   const navigate = useNavigate();
 
   return (
     <nav className="navbar">
       <div className="logo">
-        <img
-          src="/logo192.png"
-          alt="xxx"
-          className="logo"
-          onClick={() => navigate("/")} // Clickable logo
-        />
+        <p>LEONARDO</p>
       </div>
 
       <div className="navbar-content">
@@ -32,7 +27,7 @@ const NavigationBar = ({}) => {
         <p onClick={() => console.log("search books")} className="nav-item">
           <i className="fa-solid fa-magnifying-glass"></i>
         </p>
-        <p onClick={() => console.log("+LOG")} className="nav-item">
+        <p onClick={() => handleDialog(true)} className="nav-item">
           <i class="fa-solid fa-pen-nib"></i>
         </p>
       </div>
