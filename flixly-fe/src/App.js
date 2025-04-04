@@ -7,12 +7,19 @@ import NavigationBar from "./components/navbar/NavigationBar";
 import Profile from "./components/profile/Profile";
 import Books from "./components/books/Books";
 import DialogUtil from "./components/common/Dialog";
+import SelectedBookDialog from "./components/common/SelectedBookDialog";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
+  const [selectedBookDialog, setSelectedBookDialog] = useState(false);
 
   const handleDialog = (state) => {
     setActivityDialog(state);
+  };
+
+  const selectedBookHandler = (event) => {
+    setActivityDialog(false);
+    setSelectedBookDialog(event);
   };
 
   return (
@@ -26,7 +33,18 @@ const App = () => {
         </Routes>
       </Router>
       {activityDialog && (
-        <DialogUtil open={activityDialog} handleDialog={handleDialog} />
+        <DialogUtil
+          open={activityDialog}
+          handleDialog={handleDialog}
+          selectedBookHandler={selectedBookHandler}
+        />
+      )}
+
+      {selectedBookDialog && (
+        <SelectedBookDialog
+          open={selectedBookDialog}
+          selectedBookHandler={selectedBookHandler}
+        />
       )}
     </div>
   );

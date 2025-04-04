@@ -8,7 +8,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 
-const DialogUtil = ({ open, handleDialog }) => {
+const DialogUtil = ({ open, handleDialog, selectedBookHandler }) => {
   const [searchValue, setSearchValue] = useState("");
 
   const books = [
@@ -39,7 +39,7 @@ const DialogUtil = ({ open, handleDialog }) => {
               const selectedBook = formJson.book;
               console.log("Selected Book:", selectedBook); // Seçilen kitabı burada işleyebilirsiniz
               handleDialog(false);
-            }
+            },
           },
         }}
       >
@@ -70,30 +70,25 @@ const DialogUtil = ({ open, handleDialog }) => {
                   .includes(state.inputValue.toLowerCase())
               )
             }
-            onChange={(event, newValue) =>
-              setSearchValue(newValue ? newValue.title : "")
-            }
+            onChange={(event, newValue) => {
+              setSearchValue(newValue ? newValue.title : "");
+              console.log("onChange");
+              console.log(event);
+              console.log(newValue);
+              selectedBookHandler(event);
+            }}
+            //onSelect={(event, newValue) => selectedBookHandler(event)}
             renderInput={(params) => (
               <TextField
                 {...params}
                 autoFocus
                 required
+                defaultValue="Search for book..."
                 margin="dense"
                 name="book"
                 label="Search for books"
                 type="text"
-                fullWidth
                 variant="standard"
-                InputProps={{
-                  style: {
-                    color: "white",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    padding: "8px",
-                  },
-                  disableUnderline: true,
-                }}
-                InputLabelProps={{ style: { color: "white" } }}
               />
             )}
           />
