@@ -8,19 +8,8 @@ import {
   Autocomplete,
 } from "@mui/material";
 
-const DialogUtil = ({ open, handleDialog, selectedBookHandler }) => {
+const DialogUtil = ({ open, handleDialog, selectedBookHandler, data }) => {
   const [searchValue, setSearchValue] = useState("");
-
-  const books = [
-    { title: "The Great Gatsby" },
-    { title: "Moby Dick" },
-    { title: "1984" },
-    { title: "To Kill a Mockingbird" },
-    { title: "Pride and Prejudice" },
-    { title: "The Catcher in the Rye" },
-    { title: "The Hobbit" },
-    // Diğer kitaplar burada
-  ];
 
   return (
     <>
@@ -61,7 +50,7 @@ const DialogUtil = ({ open, handleDialog, selectedBookHandler }) => {
         </DialogTitle>
         <DialogContent>
           <Autocomplete
-            options={books}
+            options={data}
             getOptionLabel={(option) => option.title}
             filterOptions={(options, state) =>
               options.filter((option) =>
@@ -72,12 +61,9 @@ const DialogUtil = ({ open, handleDialog, selectedBookHandler }) => {
             }
             onChange={(event, newValue) => {
               setSearchValue(newValue ? newValue.title : "");
-              console.log("onChange");
-              console.log(event);
-              console.log(newValue);
-              selectedBookHandler(event);
+              selectedBookHandler(newValue);
             }}
-            //onSelect={(event, newValue) => selectedBookHandler(event)}
+            
             renderInput={(params) => (
               <TextField
                 {...params}

@@ -7,8 +7,11 @@ import {
   TextField,
   Autocomplete,
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PhotoFrame from "../frame/PhotoFrame";
 
-const SelectedBookDialog = ({ open, book, selectedBookHandler }) => {
+const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
+  console.log(selectedBook);
   return (
     <>
       <Dialog
@@ -38,10 +41,12 @@ const SelectedBookDialog = ({ open, book, selectedBookHandler }) => {
             borderBottom: "1px solid lightgray",
           }}
         >
-           <Button
+          <Button
             onClick={() => console.log("BACK!")}
             style={{ minWidth: "auto" }}
-          > BACK </Button>
+          >
+            <ArrowBackIcon />
+          </Button>
           Add to your books
           <Button
             onClick={() => selectedBookHandler(false)}
@@ -51,7 +56,12 @@ const SelectedBookDialog = ({ open, book, selectedBookHandler }) => {
           </Button>
         </DialogTitle>
         <DialogContent>
-          <p> Seçilen film</p>
+          <PhotoFrame
+            coverUrl={selectedBook.coverUrl}
+            title={selectedBook.title}
+          ></PhotoFrame>
+          <TextField>Add Review</TextField>
+          <Button>SAVE</Button>
         </DialogContent>
       </Dialog>
     </>

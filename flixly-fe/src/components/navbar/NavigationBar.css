@@ -44,6 +44,7 @@
   color: black;
   transition: color 0.3s ease;
   margin-left: 30px;
+  margin-right: 30px;
 }
 
 .nav-item:hover {
