@@ -6,20 +6,29 @@ import {
   Button,
   TextField,
   Autocomplete,
+  InputAdornment,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PhotoFrame from "../frame/PhotoFrame";
+import BookLogActivity from "../BookLogActivity";
+import { AccountCircle } from "@mui/icons-material";
 
 const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
-  console.log(selectedBook);
   return (
     <>
       <Dialog
         open={open}
         onClose={() => selectedBookHandler(false)}
-        maxWidth="md"
+        maxWidth="sm"
         fullWidth
         slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <AccountCircle />
+              </InputAdornment>
+            ),
+          },
           paper: {
             component: "form",
             onSubmit: (event) => {
@@ -56,12 +65,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
           </Button>
         </DialogTitle>
         <DialogContent>
-          <PhotoFrame
-            coverUrl={selectedBook.coverUrl}
-            title={selectedBook.title}
-          ></PhotoFrame>
-          <TextField>Add Review</TextField>
-          <Button>SAVE</Button>
+          <BookLogActivity selectedBook={selectedBook} />
         </DialogContent>
       </Dialog>
     </>

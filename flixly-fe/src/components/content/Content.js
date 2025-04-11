@@ -18,7 +18,6 @@ const Content = () => {
   const fetchBooks = async () => {
     try {
       const data = await getBooks(); // Servis çağrısı
-      console.log(data);
       setBooks(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");

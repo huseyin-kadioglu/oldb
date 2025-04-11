@@ -4,6 +4,12 @@
   object-fit: cover;
 }
 
+.small-pic {
+  margin: 20px;
+  width: 200px;
+  height: 100%;
+}
+
 .photo-frame {
   overflow: hidden;
 }

@@ -8,7 +8,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 
-const DialogUtil = ({ open, handleDialog, selectedBookHandler, data }) => {
+const AddActivity = ({ open, handleDialog, selectedBookHandler, data }) => {
   const [searchValue, setSearchValue] = useState("");
 
   return (
@@ -63,7 +63,6 @@ const DialogUtil = ({ open, handleDialog, selectedBookHandler, data }) => {
               setSearchValue(newValue ? newValue.title : "");
               selectedBookHandler(newValue);
             }}
-            
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -83,4 +82,4 @@ const DialogUtil = ({ open, handleDialog, selectedBookHandler, data }) => {
     </>
   );
 };
-export default DialogUtil;
+export default AddActivity;

@@ -7,7 +7,7 @@ import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
 import Profile from "./components/profile/Profile";
 import Books from "./components/books/Books";
-import DialogUtil from "./components/common/Dialog";
+import AddActivity from "./components/common/AddActivity"
 import SelectedBookDialog from "./components/common/SelectedBookDialog";
 
 const App = () => {
@@ -53,7 +53,7 @@ const App = () => {
       </Routes>
 
       {activityDialog && (
-        <DialogUtil
+        <AddActivity
           open={activityDialog}
           handleDialog={handleDialog}
           selectedBookHandler={selectedBookHandler}

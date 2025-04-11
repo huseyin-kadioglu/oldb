@@ -1,0 +1,10 @@
+.log-activity {
+  display: flex;
+}
+
+.add {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+}
