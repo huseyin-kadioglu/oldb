@@ -7,7 +7,7 @@ import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
 import Profile from "./components/profile/Profile";
 import Books from "./components/books/Books";
-import AddActivity from "./components/common/AddActivity"
+import AddActivity from "./components/common/AddActivity";
 import SelectedBookDialog from "./components/common/SelectedBookDialog";
 
 const App = () => {
@@ -22,7 +22,6 @@ const App = () => {
   };
 
   const selectedBookHandler = (data) => {
-    console.log("setting selected book as", data);
     setActivityDialog(false);
     setSelectedBookDialog(data);
   };
@@ -36,6 +35,26 @@ const App = () => {
       const data = await getBooks(); // Servis çağrısı
       console.log(data);
       setBooks(data);
+    } catch (err) {
+      setError("Kitaplar yüklenirken bir hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createBookActivity = (value) => {
+    try {
+      //const data = await getBooks(); // Servis çağrısı
+      console.log(
+        "User aktivite girişi yaptı. Veritabanına kayıt  için bu parametrelerle istek atılacak."
+      );
+      console.log(value);
+
+      // TODO: User bilgisi gerekiyor. Backend tarafında authentication ile de alabilirim.
+      // Kullanıcı, bu kitabı bu tarihte okudu ve belirtilen kütüphanesine ekledi. Şu açıklamayı yazdı ve şu kadar puanladı.
+      // Kitabın id bilgisi ile beslemem gerekiyor.
+
+      //setBooks(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
     } finally {
@@ -67,6 +86,7 @@ const App = () => {
           selectedBookHandler={selectedBookHandler}
           selectedBook={selectedBookDialog}
           data={books}
+          createBookActivity={createBookActivity}
         />
       )}
     </div>

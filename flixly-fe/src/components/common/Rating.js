@@ -8,7 +8,7 @@ const RatingUtil = ({ rating, setRating }) => {
         flexDirection: "row",
         alignContent: "center",
         alignItems: "center",
-        marginTop: '10px'
+        marginTop: "10px",
       }}
     >
       <Typography sx={{ minWidth: 50 }} component="legend">

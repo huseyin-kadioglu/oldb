@@ -13,7 +13,15 @@ import PhotoFrame from "../frame/PhotoFrame";
 import BookLogActivity from "../BookLogActivity";
 import { AccountCircle } from "@mui/icons-material";
 
-const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
+const SelectedBookDialog = ({
+  open,
+  selectedBook,
+  selectedBookHandler,
+  createBookActivity,
+}) => {
+  const [payload, setPayload] = useState({});
+  console.log(payload);
+
   return (
     <>
       <Dialog
@@ -31,12 +39,14 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
           },
           paper: {
             component: "form",
-            onSubmit: (event) => {
+            onSubmit: (event, value) => {
               event.preventDefault();
               const formData = new FormData(event.currentTarget);
               const formJson = Object.fromEntries(formData.entries());
               const selectedBook = formJson.book;
-              console.log("Selected Book:", selectedBook); // Seçilen kitabı burada işleyebilirsiniz
+              console.log("Tetiklendi!", event);
+              console.log(payload);
+              createBookActivity(payload);
               selectedBookHandler(false);
             },
           },
@@ -65,7 +75,10 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
           </Button>
         </DialogTitle>
         <DialogContent>
-          <BookLogActivity selectedBook={selectedBook} />
+          <BookLogActivity
+            selectedBook={selectedBook}
+            setPayload={setPayload}
+          />
         </DialogContent>
       </Dialog>
     </>
