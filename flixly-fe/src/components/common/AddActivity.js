@@ -26,7 +26,6 @@ const AddActivity = ({ open, handleDialog, selectedBookHandler, data }) => {
               const formData = new FormData(event.currentTarget);
               const formJson = Object.fromEntries(formData.entries());
               const selectedBook = formJson.book;
-              console.log("Selected Book:", selectedBook); // Seçilen kitabı burada işleyebilirsiniz
               handleDialog(false);
             },
           },

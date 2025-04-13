@@ -1,6 +1,6 @@
 import ProfileSummary from "./ProfileSummary";
 import FrameBlock from "./../common/FrameBlock";
-import { getProfileSummary } from "../../service/BookService";
+import { getProfileSummary } from "../../service/APIService";
 import React, { useEffect, useState } from "react";
 
 const Profile = (props) => {
@@ -15,7 +15,6 @@ const Profile = (props) => {
   const fetchProfileSummary = async () => {
     try {
       const data = await getProfileSummary(); // Servis çağrısı
-      console.log(data);
       setProfileSummary(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
@@ -27,7 +26,10 @@ const Profile = (props) => {
   return (
     <div>
       <ProfileSummary props={props} profileSummary={profileSummary} />
-      <FrameBlock title="Favourite Films" initialBooks={profileSummary.favoriteBooks}></FrameBlock>
+      <FrameBlock
+        title="Favourite Books"
+        initialBooks={profileSummary.favoriteBooks}
+      ></FrameBlock>
       <FrameBlock title="Recent Activity"></FrameBlock>
     </div>
   );

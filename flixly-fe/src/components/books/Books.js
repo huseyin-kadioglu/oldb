@@ -1,7 +1,7 @@
 import "../content/Content.css";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { getBooks } from "../../service/BookService";
+import { getBooks } from "../../service/APIService";
 import FrameBlock from "../common/FrameBlock";
 
 const Books = () => {

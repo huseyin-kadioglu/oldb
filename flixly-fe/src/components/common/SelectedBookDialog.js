@@ -20,7 +20,6 @@ const SelectedBookDialog = ({
   createBookActivity,
 }) => {
   const [payload, setPayload] = useState({});
-  console.log(payload);
 
   return (
     <>
@@ -44,8 +43,6 @@ const SelectedBookDialog = ({
               const formData = new FormData(event.currentTarget);
               const formJson = Object.fromEntries(formData.entries());
               const selectedBook = formJson.book;
-              console.log("Tetiklendi!", event);
-              console.log(payload);
               createBookActivity(payload);
               selectedBookHandler(false);
             },

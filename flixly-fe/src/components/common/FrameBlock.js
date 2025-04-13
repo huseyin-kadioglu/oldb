@@ -1,7 +1,7 @@
 import PhotoFrame from "../frame/PhotoFrame";
 import "./FrameBlock.css";
 import React, { useEffect, useState } from "react";
-import { getBooks } from "../../service/BookService"; // Servis dosyasını import et
+import { getBooks } from "../../service/APIService"; // Servis dosyasını import et
 
 const FrameBlock = ({ title, initialBooks }) => {
   const [books, setBooks] = useState([]);
@@ -33,6 +33,7 @@ const FrameBlock = ({ title, initialBooks }) => {
           ? books.map((book, index) => (
               <PhotoFrame
                 key={index}
+                book={book}
                 coverUrl={book.coverUrl}
                 title={book.title}
               />

@@ -2,13 +2,15 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 
 import "./App.css";
-import { getBooks } from "./service/BookService";
+import { getBooks, createUserActivity } from "./service/APIService";
 import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
 import Profile from "./components/profile/Profile";
 import Books from "./components/books/Books";
 import AddActivity from "./components/common/AddActivity";
 import SelectedBookDialog from "./components/common/SelectedBookDialog";
+import Author from "./components/Author";
+import BookSummaryView from "./components/view/BookSummaryView";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -33,7 +35,6 @@ const App = () => {
   const fetchBooks = async () => {
     try {
       const data = await getBooks(); // Servis çağrısı
-      console.log(data);
       setBooks(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
@@ -44,19 +45,14 @@ const App = () => {
 
   const createBookActivity = (value) => {
     try {
-      //const data = await getBooks(); // Servis çağrısı
       console.log(
-        "User aktivite girişi yaptı. Veritabanına kayıt  için bu parametrelerle istek atılacak."
+        "CREATING USER ACTIVITY. INTEGRATION COMPLETED. BACKEND IN PROGRESS."
       );
       console.log(value);
-
-      // TODO: User bilgisi gerekiyor. Backend tarafında authentication ile de alabilirim.
-      // Kullanıcı, bu kitabı bu tarihte okudu ve belirtilen kütüphanesine ekledi. Şu açıklamayı yazdı ve şu kadar puanladı.
-      // Kitabın id bilgisi ile beslemem gerekiyor.
-
-      //setBooks(data);
+      // TODO: BOOK_ID, USER_ID bilgisinin gönderilmesi gerekiyor. BOOK_ID'den zaten yazara erişebilir.
+      //createUserActivity(value);
     } catch (err) {
-      setError("Kitaplar yüklenirken bir hata oluştu.");
+      setError("Aktivite yaratılırken bir hata oluştu.");
     } finally {
       setLoading(false);
     }
@@ -69,6 +65,8 @@ const App = () => {
         <Route path="/*" element={<Content />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/books" element={<Books />} />
+        <Route path="/book/:bookId" element={<BookSummaryView />} />
+        <Route path="/author/:authorId" element={<Author />} />
       </Routes>
 
       {activityDialog && (

@@ -2,7 +2,7 @@ import "./Content.css";
 import FrameBlock from "../common/FrameBlock";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { getBooks } from "../../service/BookService"; // Servis dosyasını import et
+import { getBooks } from "../../service/APIService"; // Servis dosyasını import et
 
 const Content = () => {
   const user = "huseyinkadioglu";

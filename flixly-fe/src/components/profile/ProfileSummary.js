@@ -3,9 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import "./Profile.css";
 
-const ProfileSummary = ({props, profileSummary}) => {
-  
-  console.log(profileSummary);
+const ProfileSummary = ({ props, profileSummary }) => {
   return (
     <div className="profile-summary">
       <div className="user-info">
