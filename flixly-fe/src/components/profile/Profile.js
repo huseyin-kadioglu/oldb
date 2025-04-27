@@ -29,8 +29,8 @@ const Profile = (props) => {
       <FrameBlock
         title="Favourite Books"
         initialBooks={profileSummary.favoriteBooks}
-      ></FrameBlock>
-      <FrameBlock title="Recent Activity"></FrameBlock>
+      />
+      <FrameBlock title="Recent Activity" />
     </div>
   );
 };

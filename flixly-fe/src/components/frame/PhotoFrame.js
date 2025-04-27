@@ -2,8 +2,13 @@ import React from "react";
 import "./PhotoFrame.css";
 import { Link } from "react-router-dom";
 
-const PhotoFrame = ({ book, coverUrl, title, className }) => {
-
+const PhotoFrame = ({
+  book,
+  coverUrl = "https://img.kitapyurdu.com/v1/getImage/fn:5723564/wh:true/wi:800",
+  title,
+  className,
+  showTitle = true,
+}) => {
   const imageClass = className ? className : "cover";
 
   return (
@@ -11,7 +16,7 @@ const PhotoFrame = ({ book, coverUrl, title, className }) => {
       <Link to={"/book/}"}>
         <img src={coverUrl} alt={title} className={imageClass} />
       </Link>
-      <p className="title">{title}</p>
+      {showTitle && <p className="title">{title}</p>}
     </div>
   );
 };

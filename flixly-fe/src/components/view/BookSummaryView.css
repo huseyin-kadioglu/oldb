@@ -1,15 +1,111 @@
 .bookSummaryMainView {
   display: flex;
-  flex-direction: row;
-  margin: 10px;
+  margin: 20px;
+  padding: 10px;
+}
+
+.bookSummaryMainView > :nth-child(1) {
+  flex: 1;
+}
+.bookSummaryMainView > :nth-child(2) {
+  flex: 2;
+  margin-left: 20px;
 }
 
 .coverAndStats {
-  display: flex;
-  flex-direction: column;
-  margin: 10px;
+  width: 200px;
+  height: 200px;
 }
 
-.titleDescLog {
-    
+.title {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  width: 100%; /* opsiyonel: tam satırı kaplasın */
+}
+
+.title p,
+.title span,
+.title a {
+  margin: 0;
+  padding: 0;
+}
+
+.book-title {
+  font-weight: bold;
+  color: white;
+}
+
+.book-year {
+  color: #aaa; /* Gri ton, hafif soluk */
+}
+
+.book-written-by {
+  color: #aaa;
+}
+
+.title a {
+  color: #aaa;
+  text-decoration: underline;
+  font-size: 10px;
+  margin: 0;
+}
+
+.activity {
+  display: flex;
+  flex-direction: row;
+}
+
+.activity .desc {
+  width: 60%;
+  color: #abc;
+  font-family: TiemposTextWeb,Georgia,serif;
+}
+
+.activity .icons {
+  display: flex;
+  width: 60%;
+  height: auto;
+  background-color: #abc;
+}
+
+.icon-wrapper {
+  flex: 1;
+  text-align: center;
+}
+
+.activity .activity-menu {
+  background-color: #3c4650; /* Koyu arka plan */
+  padding: 20px;
+  width: 200px; /* İstersen ayarlarsın */
+  height: fit-content;
+}
+
+.activity .activity-menu ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity .activity-menu li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: white; /* Yazı rengi */
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.activity .activity-menu li:hover {
+  background-color: #34495e; /* Hover efekti */
+  border-radius: 6px;
+}
+
+.activity .activity-menu span {
+  font-size: 16px;
 }

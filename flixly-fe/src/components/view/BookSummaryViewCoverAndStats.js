@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./BookSummaryView.css";
+import PhotoFrame from "./../frame/PhotoFrame.js";
 
 const BookSummaryViewCoverAndStats = (props) => {
   const [books, setBooks] = useState([]);
@@ -8,9 +9,7 @@ const BookSummaryViewCoverAndStats = (props) => {
 
   return (
     <div className="coverAndStats">
-        <div> COVER </div>
-        
-        <div> TOTAL READ FALAN.</div>
+      <PhotoFrame title={"book.title"} showTitle={false} />
     </div>
   );
 };

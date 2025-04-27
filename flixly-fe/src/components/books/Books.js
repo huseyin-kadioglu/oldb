@@ -18,7 +18,6 @@ const Books = () => {
   const fetchBooks = async () => {
     try {
       const data = await getBooks(); // Servis çağrısı
-      console.log(data);
       setBooks(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
@@ -29,7 +28,7 @@ const Books = () => {
 
   return (
     <div className="container">
-      <FrameBlock books={books} title="All Books"></FrameBlock>
+      <FrameBlock books={books} title="All Books" />
     </div>
   );
 };

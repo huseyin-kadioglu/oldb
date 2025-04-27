@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./BookSummaryView.css";
 import BookSummaryViewCoverAndStats from "./BookSummaryViewCoverAndStats.js";
 import BookSummaryTitleDescAndLog from "./BookSummaryTitleDescAndLog.js";
+import BookSummaryViewActivity from "./BookSummaryViewActivity.js";
 
 const BookSummaryView = (props) => {
   const [books, setBooks] = useState([]);
