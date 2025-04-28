@@ -3,6 +3,7 @@ import axios from "axios";
 const BASE_URL = "http://localhost:8080/"; // Backend URL
 
 const BOOKS_API = BASE_URL + "books/"; // Backend URL
+const AUTHOR_API = BASE_URL + "authors/"; // Backend URL
 const PROFILE_API = BASE_URL + "profile/"; // Backend URL
 const USER_ACTIVITY_API = BASE_URL + "userActivity/"; // Backend URL
 
@@ -12,6 +13,17 @@ export const getBooks = async () => {
     return response.data;
   } catch (error) {
     console.error("Kitaplar alınırken hata oluştu:", error);
+    throw error;
+  }
+};
+
+export const getAuthorById = async (id) => {
+  console.log("getAuthorById: " + id);
+  try {
+    const response = await axios.get(`${AUTHOR_API}${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Yazarlar alınırken hata oluştu:", error);
     throw error;
   }
 };

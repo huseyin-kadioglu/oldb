@@ -3,7 +3,7 @@ import "./FrameBlock.css";
 import React, { useEffect, useState } from "react";
 import { getBooks } from "../../service/APIService"; // Servis dosyasını import et
 
-const FrameBlock = ({ title, initialBooks }) => {
+const FrameBlock = ({ title, favBooks }) => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,20 +29,17 @@ const FrameBlock = ({ title, initialBooks }) => {
       <p>{title}</p>
       <hr></hr>
       <div className="gallery">
-        {initialBooks == null
+        {favBooks == null
           ? books.map((book, index) => (
               <PhotoFrame
                 key={index}
                 book={book}
-                coverUrl={book.coverUrl}
-                title={book.title}
               />
             ))
-          : initialBooks.map((book, index) => (
+          : favBooks.map((book, index) => (
               <PhotoFrame
+                book={book}
                 key={index}
-                coverUrl={book.coverUrl}
-                title={book.title}
               />
             ))}
       </div>

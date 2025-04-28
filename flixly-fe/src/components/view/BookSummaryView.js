@@ -1,18 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./BookSummaryView.css";
 import BookSummaryViewCoverAndStats from "./BookSummaryViewCoverAndStats.js";
 import BookSummaryTitleDescAndLog from "./BookSummaryTitleDescAndLog.js";
-import BookSummaryViewActivity from "./BookSummaryViewActivity.js";
+import { useLocation } from "react-router-dom";
+import { getAuthorById } from "../../service/APIService.js";
 
 const BookSummaryView = (props) => {
-  const [books, setBooks] = useState([]);
+  const [author, setAuthor] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const location = useLocation();
+  const book = location.state?.book; // Buradan geliyor.
+
+  useEffect(() => {
+    fetchAuthor();
+  }, []);
+
+  const fetchAuthor = async () => {
+    try {
+      const data = await getAuthorById(book.id); // Servis çağrısı
+      setAuthor(data);
+    } catch (err) {
+      setError("Yazarlar yüklenirken bir hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   return (
     <div className="bookSummaryMainView">
-      <BookSummaryViewCoverAndStats />
-      <BookSummaryTitleDescAndLog />
+      <BookSummaryViewCoverAndStats book={book} author={author} />
+      <BookSummaryTitleDescAndLog book={book} author={author} />
     </div>
   );
 };

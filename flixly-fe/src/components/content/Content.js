@@ -35,7 +35,7 @@ const Content = () => {
         </span>
         . Here’s what we’ve been reading...
       </h2>
-      <FrameBlock books={books} title="Popular Books"></FrameBlock>
+      <FrameBlock books={books} title="Popular Books" />
     </div>
   );
 };
