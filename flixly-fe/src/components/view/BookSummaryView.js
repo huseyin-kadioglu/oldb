@@ -19,7 +19,8 @@ const BookSummaryView = (props) => {
 
   const fetchAuthor = async () => {
     try {
-      const data = await getAuthorById(book.id); // Servis çağrısı
+      const data = await getAuthorById(book.authorId); // Servis çağrısı
+      console.log("authorId ile yazarı çekiyoruz.")
       setAuthor(data);
     } catch (err) {
       setError("Yazarlar yüklenirken bir hata oluştu.");

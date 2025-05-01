@@ -9,12 +9,11 @@ const PhotoFrame = ({
   justShowCover = false,
 }) => {
   const imageClass = className ? className : "cover";
-  const coverUrl =
-    book?.coverUrl === undefined
-      ? "https://img.kitapyurdu.com/v1/getImage/fn:5723564/wh:true/wi:800"
-      : book.coverUrl;
 
-  console.log("PhotoFrame book: ", book);
+  const coverUrl =
+    book?.coverUrl === undefined || book?.coverUrl === null
+      ? "https://www.ledr.com/colours/white.jpg"
+      : book.coverUrl;
 
   if (!book) {
     return <div>Kitap verisi yok</div>;

@@ -9,38 +9,29 @@ const FrameBlock = ({ title, favBooks }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const data = await getBooks(); // Servis çağrısı
-        console.log(data);
-        setBooks(data);
-      } catch (err) {
-        setError("Kitaplar yüklenirken bir hata oluştu.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBooks();
   }, []);
 
+  // fixme: burada da gerek olmayabilir parentında çağrılıyor.
+  const fetchBooks = async () => {
+    try {
+      const data = await getBooks(); // Servis çağrısı
+      setBooks(data);
+    } catch (err) {
+      setError("Kitaplar yüklenirken bir hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="frame-block">
       <p>{title}</p>
       <hr></hr>
       <div className="gallery">
         {favBooks == null
-          ? books.map((book, index) => (
-              <PhotoFrame
-                key={index}
-                book={book}
-              />
-            ))
+          ? books.map((book, index) => <PhotoFrame key={index} book={book} />)
           : favBooks.map((book, index) => (
-              <PhotoFrame
-                book={book}
-                key={index}
-              />
+              <PhotoFrame book={book} key={index} />
             ))}
       </div>
     </div>

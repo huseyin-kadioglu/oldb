@@ -9,10 +9,13 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log("book", book);
+  console.log("author", author);
+
   return (
     <div className="container">
       <div className="title">
-        <span className="book-title">{book.originalTitle}</span>
+        <span className="book-title">{book.title}</span>
         <span className="book-year"> {book.publicationYear} </span>
         <span className="book-written-by"> Written by </span>
         <Link

@@ -12,6 +12,7 @@ const Content = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // burada gerek kalmayabilir parentında çağırıyor.
     fetchBooks();
   }, []);
 

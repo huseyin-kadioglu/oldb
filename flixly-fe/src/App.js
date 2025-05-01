@@ -9,7 +9,7 @@ import Profile from "./components/profile/Profile";
 import Books from "./components/books/Books";
 import AddActivity from "./components/common/AddActivity";
 import SelectedBookDialog from "./components/common/SelectedBookDialog";
-import Author from "./components/Author";
+import Author from "./components/author/Author";
 import BookSummaryView from "./components/view/BookSummaryView";
 
 const App = () => {
