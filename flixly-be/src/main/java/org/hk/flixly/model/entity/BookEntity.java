@@ -1,7 +1,9 @@
-package org.hk.flixly.model;
+package org.hk.flixly.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "books")
@@ -28,4 +30,7 @@ public class BookEntity {
     private Integer pageCount;
 
     private String coverUrl;
+    private String description;
+    private int publicationYear;
+
 }

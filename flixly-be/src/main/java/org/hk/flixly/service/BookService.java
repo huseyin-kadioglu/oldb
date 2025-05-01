@@ -1,6 +1,6 @@
 package org.hk.flixly.service;
 
-import org.hk.flixly.model.BookEntity;
+import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,15 @@ public class BookService {
     }
 
     public List<BookEntity> getAllBooks() {
-        return bookRepository.findAll();
+        List<BookEntity> all = bookRepository.findAll();
+        all.stream().forEach(item -> {
+            item.setDescription("Bu eser, edebi derinliği ve karakter zenginliği ile okuyucuyu etkileyen unutulmaz bir yolculuğa davet ediyor. Klasikler arasında yerini almış bu kitap, insan ruhunun karmaşıklığını ustalıkla işliyor");
+            item.setPublicationYear(2012);
+        });
+        return all;
+    }
+
+    public List<BookEntity> getBooksByAuthorId(Long id) {
+        return bookRepository.findAllByAuthorId(id);
     }
 }

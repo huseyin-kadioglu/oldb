@@ -1,27 +1,42 @@
 package org.hk.flixly.service;
 
+import org.hk.flixly.model.AuthorDto;
+import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
-import org.hk.flixly.repository.BookRepository;
+import org.hk.flixly.repository.AuthorRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
-public class BookService {
+public class AuthorService {
 
-    private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
+    private final BookService bookService;
 
-    public BookService(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
+
+    public AuthorService(AuthorRepository authorRepository, BookService bookService) {
+        this.authorRepository = authorRepository;
+        this.bookService = bookService;
     }
 
-    public List<BookEntity> getAllBooks() {
-        List<BookEntity> all = bookRepository.findAll();
-        all.stream().forEach(item -> {
-            item.setDescription("Bu eser, edebi derinliği ve karakter zenginliği ile okuyucuyu etkileyen unutulmaz bir yolculuğa davet ediyor. Klasikler arasında yerini almış bu kitap, insan ruhunun karmaşıklığını ustalıkla işliyor");
-            item.setPublicationYear(2012);
-        });
-        return all;
+    public List<AuthorEntity> getAllBooks() {
+        return authorRepository.findAll();
+    }
+
+    public AuthorDto findById(Long id) {
+
+        AuthorEntity authorEntity = authorRepository.findById(id).orElseThrow();
+
+        List<BookEntity> writtenByAuthor = bookService.getBooksByAuthorId(id);
+
+        AuthorDto authorResponse = new AuthorDto();
+        authorResponse.setName(authorEntity.getName());
+        authorResponse.setBirthYear(authorEntity.getBirthYear());
+        authorResponse.setDeathYear(authorEntity.getDeathYear());
+        authorResponse.setDescription(authorEntity.getDescription());
+        authorResponse.setPortrait(authorEntity.getPortrait());
+        authorResponse.setBookWrittenBy(writtenByAuthor);
+        return authorResponse;
     }
 }

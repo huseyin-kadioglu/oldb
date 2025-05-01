@@ -1,6 +1,6 @@
 package org.hk.flixly.controller;
 
-import org.hk.flixly.model.BookEntity;
+import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.service.BookService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

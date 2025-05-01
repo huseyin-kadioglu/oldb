@@ -1,7 +1,10 @@
 package org.hk.flixly.repository;
 
-import org.hk.flixly.model.BookEntity;
+import org.hk.flixly.model.entity.BookEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface BookRepository extends JpaRepository<BookEntity, Long> {
+    List<BookEntity> findAllByAuthorId(Long authorId);
 }
