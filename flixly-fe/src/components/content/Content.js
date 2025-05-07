@@ -4,38 +4,28 @@ import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { getBooks } from "../../service/APIService"; // Servis dosyasını import et
 
-const Content = () => {
-  const user = "huseyinkadioglu";
-
-  const [books, setBooks] = useState([]);
+const Content = ({ books, token }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const username = sessionStorage.getItem("username");
 
   useEffect(() => {
     // burada gerek kalmayabilir parentında çağırıyor.
-    fetchBooks();
-  }, []);
-
-  const fetchBooks = async () => {
-    try {
-      const data = await getBooks(); // Servis çağrısı
-      setBooks(data);
-    } catch (err) {
-      setError("Kitaplar yüklenirken bir hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token]);
 
   return (
     <div className="container">
-      <h2>
-        Welcome back,{" "}
-        <span>
-          <Link to={"/profile"}>{user}</Link>
-        </span>
-        . Here’s what we’ve been reading...
-      </h2>
+      {token ? (
+        <h2>
+          Welcome back,{" "}
+          <span>
+            <Link to={"/profile"}>{username}</Link>
+          </span>
+          . Here’s what we’ve been reading...
+        </h2>
+      ) : (
+        <p>Sign up for more content!</p>
+      )}
       <FrameBlock books={books} title="Popular Books" />
     </div>
   );

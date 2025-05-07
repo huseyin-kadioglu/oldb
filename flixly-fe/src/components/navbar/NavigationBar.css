@@ -3,7 +3,6 @@
   top: 0;
   width: 100%;
   height: 60px; /* Sabit yükseklik */
-  background-color: #14181c;
   display: flex;
   justify-content: space-between;
   align-items: center; /* Dikey hizalama */
@@ -18,7 +17,6 @@
 }
 
 .navbar .navbar-content {
-  background-color: #14181c;
   width: 100%; /* Navbar'ın genişliği */
   display: flex;
   justify-content: right;
@@ -27,6 +25,10 @@
 .navbar p {
   color: #9d9fa0;
   margin-left: 20px;
+
+  font-family: GraphikWeb, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", Meiryo, sans-serif, ColorEmoji;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .navbar p:hover {
@@ -49,4 +51,25 @@
 
 .nav-item:hover {
   color: blue;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  min-width: 300px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
 }

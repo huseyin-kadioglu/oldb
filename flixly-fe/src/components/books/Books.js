@@ -5,28 +5,12 @@ import { getBooks } from "../../service/APIService";
 import FrameBlock from "../common/FrameBlock";
 import { useParams } from "react-router-dom";
 
-const Books = () => {
+const Books = ({ books }) => {
   const user = "huseyinkadioglu";
 
-  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { bookId } = useParams();
-
-  useEffect(() => {
-    fetchBooks();
-  }, []);
-
-  const fetchBooks = async () => {
-    try {
-      const data = await getBooks(); // Servis çağrısı
-      setBooks(data);
-    } catch (err) {
-      setError("Kitaplar yüklenirken bir hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="container">

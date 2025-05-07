@@ -28,7 +28,7 @@ const Profile = (props) => {
       <ProfileSummary props={props} profileSummary={profileSummary} />
       <FrameBlock
         title="Favourite Books"
-        favBooks={profileSummary.favoriteBooks}
+        favBooks={profileSummary?.favoriteBooks}
       />
       <FrameBlock title="Recent Activity" />
     </div>

@@ -19,6 +19,8 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const token = sessionStorage.getItem("token");
+
   const handleDialog = (state) => {
     setActivityDialog(state);
   };
@@ -60,11 +62,11 @@ const App = () => {
 
   return (
     <div className="App">
-      <NavigationBar handleDialog={handleDialog} />
+      <NavigationBar handleDialog={handleDialog} token={token} />
       <Routes>
-        <Route path="/*" element={<Content />} />
+        <Route path="/*" element={<Content books={books} token={token} />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/books" element={<Books />} />
+        <Route path="/books" element={<Books books={books} />} />
         <Route
           path="/book/:bookId"
           element={<BookSummaryView books={books} />}

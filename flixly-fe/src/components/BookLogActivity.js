@@ -15,6 +15,7 @@ import { useState } from "react";
 import RatingUtil from "./common/Rating";
 
 import DatePickerUtil from "./common/DatePickerUtil";
+import { createUserActivity } from "../service/APIService";
 
 const BookLogActivity = ({ selectedBook, setPayload }) => {
   const [usersLibrary, setUsersLibrary] = useState([
@@ -36,6 +37,9 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
       description: description,
     };
     setPayload(result);
+
+
+    createUserActivity(result);
   };
 
   return (
