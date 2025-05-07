@@ -1,4 +1,4 @@
-package org.hk.flixly;
+package org.hk.flixly.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,12 +30,12 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        // TODO: Şu an sayfalarda authorize yok. Erişim buradan kısıtlanacak.
-        http.csrf()
-                .disable()
+        http
+                .csrf().disable()
+                .cors().configurationSource(corsConfigurationSource()) // CORS aktif
+                .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/books/**", "/authors/**", "/auth/**")
+                .requestMatchers("/books/**", "/authors/**", "/api/auth/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -52,15 +52,13 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // frontend portunu ekle
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true); // Eğer cookie veya auth varsa
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 }
