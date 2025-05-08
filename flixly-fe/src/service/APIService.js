@@ -58,6 +58,7 @@ export const getAuthorById = async (id) => {
 
 export const createUserActivity = async (activityDto) => {
   const token = sessionStorage.getItem("token");
+  console.log("createUserActivity. params:", activityDto);
 
   try {
     const response = await fetch("http://localhost:8080/userActivity/", {
@@ -67,6 +68,7 @@ export const createUserActivity = async (activityDto) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(activityDto),
+      mode: "cors", // mutlaka ekle
     });
 
     // Yanıtın başarılı olup olmadığını kontrol et
@@ -74,13 +76,10 @@ export const createUserActivity = async (activityDto) => {
       throw new Error("Hata oluştu: " + response.statusText);
     }
 
+    console.log("response", response); // JSON verisini yazdır
+
     // Cevabın JSON olup olmadığını kontrol et
-    const responseText = await response.text(); // JSON olmayan veri durumunda
-    const responseData = responseText ? JSON.parse(responseText) : null; // JSON parse et
-
-    console.log("Response Data:", responseData); // JSON verisini yazdır
-
-    return responseData;
+    return response.json();
   } catch (error) {
     console.error("Hata:", error);
     throw error;

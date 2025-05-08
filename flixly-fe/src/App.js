@@ -47,10 +47,8 @@ const App = () => {
 
   const createBookActivity = (value) => {
     try {
-      console.log(
-        "CREATING USER ACTIVITY. INTEGRATION COMPLETED. BACKEND IN PROGRESS."
-      );
-      console.log(value);
+      console.log("App.js createBookActivity", value);
+      createUserActivity(value);
       // TODO: BOOK_ID, USER_ID bilgisinin gönderilmesi gerekiyor. BOOK_ID'den zaten yazara erişebilir.
       //createUserActivity(value);
     } catch (err) {

@@ -19,10 +19,12 @@ import { createUserActivity } from "../service/APIService";
 
 const BookLogActivity = ({ selectedBook, setPayload }) => {
   const [usersLibrary, setUsersLibrary] = useState([
-    "library1",
-    "lib2",
-    "classics",
+    "Read",
+    "Favori Listem",
+    "Readlist",
   ]);
+
+  console.log("BookLogActivity. selectedBook", selectedBook);
 
   const [library, setLibrary] = useState(null);
   const [rating, setRating] = useState(null);
@@ -31,13 +33,14 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
 
   const preparePayload = () => {
     const result = {
+      bookId: selectedBook?.id,
+      authorId: selectedBook?.authorId,
       library: library,
       rating: rating,
       readDate: readDate,
       description: description,
     };
     setPayload(result);
-
 
     createUserActivity(result);
   };
@@ -46,8 +49,7 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
     <div className="log-activity" sx={{ m: 2, minWidth: 120 }}>
       <div className="summary">
         <PhotoFrame
-          coverUrl={selectedBook.coverUrl}
-          title={selectedBook.title}
+          book={selectedBook}
           className={"small-pic"}
         />
       </div>
