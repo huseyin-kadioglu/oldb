@@ -27,13 +27,13 @@ public class UserActivityService {
         UserEntity user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + userDetails.getUsername()));
 
-        // activity tablosu güncellenmeli
         UserActivityEntity entity = new UserActivityEntity();
-        entity.setUserId(user.getId()); // FIXME
+        entity.setUserId(user.getId());
         entity.setBookId(activityDto.getBookId());
         entity.setRating(activityDto.getRating());
         entity.setComment(activityDto.getComment());
         entity.setReadDate(activityDto.getReadDate());
+        entity.setStatus(activityDto.getStatus());
         activityRepository.save(entity);
 
         UserBookMapEntity userBookMapEntity = new UserBookMapEntity();
@@ -41,7 +41,6 @@ public class UserActivityService {
         userBookMapEntity.setBookId(activityDto.getBookId());
         userBookMapEntity.setStatus(activityDto.getStatus());
         userBookMapRepository.save(userBookMapEntity);
-        // user_book_map tablosu güncellenmeli
         return entity;
     }
 }
