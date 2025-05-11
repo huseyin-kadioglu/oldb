@@ -22,4 +22,9 @@ public class UserActivityController {
     public UserActivityEntity createActivity(@RequestBody ActivityDto activityDto, @AuthenticationPrincipal UserDetails userDetails) {
         return userActivityService.createActivity(activityDto, userDetails);
     }
+
+    @PostMapping("/ghostMenu")
+    public UserActivityEntity createActivityFromGhostMenu(@RequestBody ActivityDto activityDto, @AuthenticationPrincipal UserDetails userDetails){
+        return userActivityService.createActivityFromGhostMenu(activityDto, userDetails);
+    }
 }

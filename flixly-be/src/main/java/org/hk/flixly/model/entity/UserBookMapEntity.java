@@ -27,5 +27,5 @@ public class UserBookMapEntity {
 
     private Long userId;
     private Long bookId;
-    private String status;
+    private String status; // COMPLETED, DROPPED, LIKED, FAVOURITE, READLIST
 }

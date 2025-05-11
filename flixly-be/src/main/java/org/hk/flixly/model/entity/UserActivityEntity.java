@@ -32,4 +32,5 @@ public class UserActivityEntity {
     private double rating;
     private String comment;
     private String status;
+    private LocalDate updateDate;
 }

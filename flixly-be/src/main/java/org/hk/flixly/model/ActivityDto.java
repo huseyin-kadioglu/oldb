@@ -17,4 +17,6 @@ public class ActivityDto {
     private double rating;
     private String comment;
     private String status;
+    private String actionType; // LIKE, FAVOURITE, READLIST
+    private String action; // ADD, REMOVE
 }
