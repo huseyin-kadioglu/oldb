@@ -17,7 +17,7 @@ const PhotoFrame = ({
 }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isInReadlist, setIsInReadlist] = useState(false);
 
   const imageClass = className ? className : "cover";
 
@@ -31,45 +31,42 @@ const PhotoFrame = ({
   }
 
   const handleFavorite = () => {
-    console.log("Kullanıcı", book, "kitabını favorilerine ekledi");
-    setIsFavorited(!isFavorited);
+    const newState = !isFavorited;
+    setIsFavorited(newState);
 
     const result = {
       bookId: book?.id,
       authorId: book?.authorId,
       actionType: "FAVOURITE",
-      action: isFavorited ? "DELETE" : "ADD",
+      action: newState ? "ADD" : "DELETE",
     };
 
     createUserActivityFromGhostMenu(result);
   };
 
   const handleLike = () => {
-    console.log("beğen butonu");
-    console.log("Kullanıcı", book, "kitabını beğendi");
-
-    setIsLiked(!isLiked);
-    // Beğenme işlemi yapılacak
+    const newState = !isLiked;
+    setIsLiked(newState);
 
     const result = {
       bookId: book?.id,
       authorId: book?.authorId,
       actionType: "LIKE",
-      action: isLiked ? "DELETE" : "ADD",
+      action: newState ? "ADD" : "DELETE",
     };
 
     createUserActivityFromGhostMenu(result);
   };
 
-  const handleWishlist = () => {
-    console.log("Kullanıcı", book, "kitabını okuma listesine ekledi");
-    setIsInWishlist(!isInWishlist);
+  const handleReadlist = () => {
+    const newState = !isInReadlist;
+    setIsInReadlist(newState);
 
     const result = {
       bookId: book?.id,
       authorId: book?.authorId,
       actionType: "READLIST",
-      action: isInWishlist ? "DELETE" : "ADD",
+      action: newState ? "ADD" : "DELETE",
     };
 
     createUserActivityFromGhostMenu(result);
@@ -81,7 +78,7 @@ const PhotoFrame = ({
       {showTitle && <p className="title">{book.title}</p>}
       <div className="ghost-menu">
         <button onClick={handleLike}>
-          {isLiked ? (
+          {book?.liked || isLiked ? (
             <FavoriteIcon style={{ fontSize: 14 }} />
           ) : (
             <FavoriteBorderIcon style={{ fontSize: 14 }} />
@@ -89,14 +86,14 @@ const PhotoFrame = ({
         </button>
 
         <button onClick={handleFavorite}>
-          {isFavorited ? (
+          {book.favourite || isFavorited ? (
             <StarIcon style={{ fontSize: 14 }} />
           ) : (
             <StarBorderIcon style={{ fontSize: 14 }} />
           )}
         </button>
-        <button onClick={handleWishlist}>
-          {isInWishlist ? (
+        <button onClick={handleReadlist}>
+          {book?.readlist || isInReadlist ? (
             <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
           ) : (
             <PlaylistAddIcon style={{ fontSize: 14 }} />
@@ -112,21 +109,21 @@ const PhotoFrame = ({
       {showTitle && <p className="title">{book.title}</p>}
       <div className="ghost-menu">
         <button onClick={handleLike}>
-          {isLiked ? (
+          {book.liked || isLiked ? (
             <FavoriteIcon style={{ fontSize: 14 }} />
           ) : (
             <FavoriteBorderIcon style={{ fontSize: 14 }} />
           )}
         </button>
         <button onClick={handleFavorite}>
-          {isFavorited ? (
+          {book.favourite || isFavorited ? (
             <StarIcon style={{ fontSize: 14 }} />
           ) : (
             <StarBorderIcon style={{ fontSize: 14 }} />
           )}
         </button>
-        <button onClick={handleWishlist}>
-          {isInWishlist ? (
+        <button onClick={handleReadlist}>
+          {book.inReadList || isInReadlist ? (
             <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
           ) : (
             <PlaylistAddIcon style={{ fontSize: 14 }} />

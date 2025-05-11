@@ -10,9 +10,25 @@ const LOGIN_API = BASE_URL + "api/auth/login";
 const USER_ACTIVITY_API = BASE_URL + "userActivity/"; // Backend URL
 
 export const getBooks = async () => {
+  const token = sessionStorage.getItem("token");
+
   try {
-    const response = await axios.get(BOOKS_API);
-    return response.data;
+    const response = await fetch(BOOKS_API, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    });
+
+    // Yanıtın başarılı olup olmadığını kontrol et
+    if (!response.ok) {
+      throw new Error("Hata oluştu: " + response.statusText);
+    }
+
+    // Cevabın JSON olup olmadığını kontrol et
+    return response.json();
   } catch (error) {
     console.error("Kitaplar alınırken hata oluştu:", error);
     throw error;
