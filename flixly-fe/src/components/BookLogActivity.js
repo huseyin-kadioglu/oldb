@@ -16,29 +16,29 @@ import RatingUtil from "./common/Rating";
 
 import DatePickerUtil from "./common/DatePickerUtil";
 import { createUserActivity } from "../service/APIService";
+import MinimalMuiDatePicker from "./common/MinimalDatePicker";
+import MinimalDatePicker from "./common/MinimalDatePicker";
 
 const BookLogActivity = ({ selectedBook, setPayload }) => {
-  const [usersLibrary, setUsersLibrary] = useState([
-    "Read",
-    "Favori Listem",
-    "Readlist",
+  const [statusList, setStatusList] = useState([
+    "READ",
+    "WANT_TO_READ",
+    "DROPPED",
   ]);
 
-  console.log("BookLogActivity. selectedBook", selectedBook);
-
-  const [library, setLibrary] = useState(null);
+  const [activityStatus, setActivityStatus] = useState(null);
   const [rating, setRating] = useState(null);
   const [readDate, setReadDate] = useState(null);
-  const [description, setDescription] = useState(null);
+  const [comment, setComment] = useState(null);
 
   const preparePayload = () => {
     const result = {
       bookId: selectedBook?.id,
       authorId: selectedBook?.authorId,
-      library: library,
+      status: activityStatus,
       rating: rating,
       readDate: readDate,
-      description: description,
+      comment: comment,
     };
     setPayload(result);
 
@@ -48,33 +48,31 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
   return (
     <div className="log-activity" sx={{ m: 2, minWidth: 120 }}>
       <div className="summary">
-        <PhotoFrame
-          book={selectedBook}
-          className={"small-pic"}
-        />
+        <PhotoFrame book={selectedBook} className={"small-pic"} />
       </div>
       <FormControl className="add">
-        <InputLabel id="demo-simple-select-helper-label">Library</InputLabel>
+        <InputLabel id="demo-simple-select-helper-label">Status</InputLabel>
         <Select
-          value={library}
+          sx={{ marginTop: "20px" }}
+          value={activityStatus}
           label="Library"
-          onChange={(e) => setLibrary(e.target.value)}
+          onChange={(e) => setActivityStatus(e.target.value)}
         >
-          {usersLibrary.map((lib) => (
+          {statusList.map((lib) => (
             <MenuItem key={lib} value={lib}>
               {lib}
             </MenuItem>
           ))}
         </Select>
 
-        <DatePickerUtil readDate={readDate} setReadDate={setReadDate} />
+        <MinimalDatePicker readDate={readDate} setReadDate={setReadDate} />
 
         <TextField
           id="outlined-multiline-flexible"
           label="Açıklama"
           multiline
-          maxRows={4}
-          onChange={(e) => setDescription(e.target.value)}
+          minRows={4}
+          onChange={(e) => setComment(e.target.value)}
         />
 
         <RatingUtil rating={rating} setRating={setRating}></RatingUtil>

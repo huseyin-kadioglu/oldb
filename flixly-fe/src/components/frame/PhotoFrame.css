@@ -5,13 +5,15 @@
 }
 
 .small-pic {
-  margin: 20px;
+  margin: 15px;
   width: 200px;
   height: 100%;
 }
 
 .photo-frame {
   overflow: hidden;
+  cursor: pointer;
+  position: relative;
 }
 
 .title {
@@ -19,4 +21,43 @@
   font-size: 16px;
   font-weight: bold;
   text-align: center;
+}
+
+.ghost-menu {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(75, 67, 107, 0.7);
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.photo-frame:hover .ghost-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+.photo-frame .ghost-menu button {
+  background-color: transparent;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 5px;
+}
+
+button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }

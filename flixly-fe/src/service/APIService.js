@@ -76,8 +76,6 @@ export const createUserActivity = async (activityDto) => {
       throw new Error("Hata oluştu: " + response.statusText);
     }
 
-    console.log("response", response); // JSON verisini yazdır
-
     // Cevabın JSON olup olmadığını kontrol et
     return response.json();
   } catch (error) {

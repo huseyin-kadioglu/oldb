@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import "./PhotoFrame.css";
 import { Link } from "react-router-dom";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 
 const PhotoFrame = ({
   book,
@@ -8,6 +14,10 @@ const PhotoFrame = ({
   showTitle = true,
   justShowCover = false,
 }) => {
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
   const imageClass = className ? className : "cover";
 
   const coverUrl =
@@ -19,10 +29,54 @@ const PhotoFrame = ({
     return <div>Kitap verisi yok</div>;
   }
 
+  const handleFavorite = () => {
+    console.log("Kullanıcı", book, "kitabını favorilerine ekledi");
+    setIsFavorited(!isFavorited);
+    // Favorilere ekleme işlemi yapılacak
+  };
+
+  const handleLike = () => {
+    console.log("beğen butonu");
+        console.log("Kullanıcı", book, "kitabını beğendi");
+
+    setIsLiked(!isLiked);
+    // Beğenme işlemi yapılacak
+  };
+
+  const handleWishlist = () => {
+    console.log("Kullanıcı", book, "kitabını okuma listesine ekledi");
+    setIsInWishlist(!isInWishlist);
+    // İstek listesine ekleme işlemi yapılacak
+  };
+
   return justShowCover == true ? (
     <div className="photo-frame">
       <img src={coverUrl} alt={book.title} className={imageClass} />
       {showTitle && <p className="title">{book.title}</p>}
+      <div className="ghost-menu">
+        <button onClick={handleLike}>
+          {isLiked ? (
+            <FavoriteIcon style={{ fontSize: 10 }} />
+          ) : (
+            <FavoriteBorderIcon style={{ fontSize: 10 }} />
+          )}
+        </button>
+
+        <button onClick={handleFavorite}>
+          {isFavorited ? (
+            <StarIcon style={{ fontSize: 10 }} />
+          ) : (
+            <StarBorderIcon style={{ fontSize: 10 }} />
+          )}
+        </button>
+        <button onClick={handleWishlist}>
+          {isInWishlist ? (
+            <PlaylistAddCheckIcon style={{ fontSize: 10 }} />
+          ) : (
+            <PlaylistAddIcon style={{ fontSize: 10 }} />
+          )}
+        </button>
+      </div>
     </div>
   ) : (
     <div className="photo-frame">
@@ -30,6 +84,30 @@ const PhotoFrame = ({
         <img src={coverUrl} alt={book.title} className={imageClass} />
       </Link>
       {showTitle && <p className="title">{book.title}</p>}
+      <div className="ghost-menu">
+        <button onClick={handleLike}>
+          {isLiked ? (
+            <FavoriteIcon style={{ fontSize: 10 }} />
+          ) : (
+            <FavoriteBorderIcon style={{ fontSize: 10 }} />
+          )}
+        </button>
+        <button onClick={handleFavorite}>
+          {isFavorited ? (
+            <StarIcon style={{ fontSize: 10 }} />
+          ) : (
+            <StarBorderIcon style={{ fontSize: 10 }} />
+          )}
+        </button>
+
+        <button onClick={handleWishlist}>
+          {isInWishlist ? (
+            <PlaylistAddCheckIcon style={{ fontSize: 10 }} />
+          ) : (
+            <PlaylistAddIcon style={{ fontSize: 10 }} />
+          )}
+        </button>
+      </div>
     </div>
   );
 };
