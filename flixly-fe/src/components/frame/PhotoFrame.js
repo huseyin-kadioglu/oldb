@@ -82,24 +82,24 @@ const PhotoFrame = ({
       <div className="ghost-menu">
         <button onClick={handleLike}>
           {isLiked ? (
-            <FavoriteIcon style={{ fontSize: 10 }} />
+            <FavoriteIcon style={{ fontSize: 14 }} />
           ) : (
-            <FavoriteBorderIcon style={{ fontSize: 10 }} />
+            <FavoriteBorderIcon style={{ fontSize: 14 }} />
           )}
         </button>
 
         <button onClick={handleFavorite}>
           {isFavorited ? (
-            <StarIcon style={{ fontSize: 10 }} />
+            <StarIcon style={{ fontSize: 14 }} />
           ) : (
-            <StarBorderIcon style={{ fontSize: 10 }} />
+            <StarBorderIcon style={{ fontSize: 14 }} />
           )}
         </button>
         <button onClick={handleWishlist}>
           {isInWishlist ? (
-            <PlaylistAddCheckIcon style={{ fontSize: 10 }} />
+            <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
           ) : (
-            <PlaylistAddIcon style={{ fontSize: 10 }} />
+            <PlaylistAddIcon style={{ fontSize: 14 }} />
           )}
         </button>
       </div>
@@ -113,24 +113,23 @@ const PhotoFrame = ({
       <div className="ghost-menu">
         <button onClick={handleLike}>
           {isLiked ? (
-            <FavoriteIcon style={{ fontSize: 10 }} />
+            <FavoriteIcon style={{ fontSize: 14 }} />
           ) : (
-            <FavoriteBorderIcon style={{ fontSize: 10 }} />
+            <FavoriteBorderIcon style={{ fontSize: 14 }} />
           )}
         </button>
         <button onClick={handleFavorite}>
           {isFavorited ? (
-            <StarIcon style={{ fontSize: 10 }} />
+            <StarIcon style={{ fontSize: 14 }} />
           ) : (
-            <StarBorderIcon style={{ fontSize: 10 }} />
+            <StarBorderIcon style={{ fontSize: 14 }} />
           )}
         </button>
-
         <button onClick={handleWishlist}>
           {isInWishlist ? (
-            <PlaylistAddCheckIcon style={{ fontSize: 10 }} />
+            <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
           ) : (
-            <PlaylistAddIcon style={{ fontSize: 10 }} />
+            <PlaylistAddIcon style={{ fontSize: 14 }} />
           )}
         </button>
       </div>
