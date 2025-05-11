@@ -71,6 +71,36 @@ export const createUserActivity = async (activityDto) => {
       mode: "cors", // mutlaka ekle
     });
 
+    if (!response.ok) {
+      throw new Error("Hata oluştu: " + response.statusText);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Hata:", error);
+    throw error;
+  }
+};
+
+export const createUserActivityFromGhostMenu = async (activityDto) => {
+  const token = sessionStorage.getItem("token");
+  console.log("token", token);
+  console.log("createUserActivityFromGhostMenu params:", activityDto);
+
+  try {
+    const response = await fetch(
+      "http://localhost:8080/userActivity/ghostMenu",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(activityDto),
+        mode: "cors",
+      }
+    );
+
     // Yanıtın başarılı olup olmadığını kontrol et
     if (!response.ok) {
       throw new Error("Hata oluştu: " + response.statusText);

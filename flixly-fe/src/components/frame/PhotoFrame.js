@@ -7,6 +7,7 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
+import { createUserActivityFromGhostMenu } from "../../service/APIService";
 
 const PhotoFrame = ({
   book,
@@ -32,21 +33,46 @@ const PhotoFrame = ({
   const handleFavorite = () => {
     console.log("Kullanıcı", book, "kitabını favorilerine ekledi");
     setIsFavorited(!isFavorited);
-    // Favorilere ekleme işlemi yapılacak
+
+    const result = {
+      bookId: book?.id,
+      authorId: book?.authorId,
+      actionType: "FAVOURITE",
+      action: isFavorited ? "DELETE" : "ADD",
+    };
+
+    createUserActivityFromGhostMenu(result);
   };
 
   const handleLike = () => {
     console.log("beğen butonu");
-        console.log("Kullanıcı", book, "kitabını beğendi");
+    console.log("Kullanıcı", book, "kitabını beğendi");
 
     setIsLiked(!isLiked);
     // Beğenme işlemi yapılacak
+
+    const result = {
+      bookId: book?.id,
+      authorId: book?.authorId,
+      actionType: "LIKE",
+      action: isLiked ? "DELETE" : "ADD",
+    };
+
+    createUserActivityFromGhostMenu(result);
   };
 
   const handleWishlist = () => {
     console.log("Kullanıcı", book, "kitabını okuma listesine ekledi");
     setIsInWishlist(!isInWishlist);
-    // İstek listesine ekleme işlemi yapılacak
+
+    const result = {
+      bookId: book?.id,
+      authorId: book?.authorId,
+      actionType: "READLIST",
+      action: isInWishlist ? "DELETE" : "ADD",
+    };
+
+    createUserActivityFromGhostMenu(result);
   };
 
   return justShowCover == true ? (
