@@ -15,4 +15,5 @@ public class AuthorDto {
     private Integer deathYear;
     private String description;
     private List<BookEntity> bookWrittenBy;
+    private List<BookEntity> haveBeenReadByTheUser;
 }

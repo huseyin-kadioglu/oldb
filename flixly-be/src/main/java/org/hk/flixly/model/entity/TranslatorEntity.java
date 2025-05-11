@@ -1,4 +1,4 @@
-package org.hk.flixly.model;
+package org.hk.flixly.model.entity;
 
 
 import jakarta.persistence.Column;
