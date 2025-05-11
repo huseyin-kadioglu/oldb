@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -47,14 +50,37 @@ public class ProfileService {
         ProfileInfoDTO response = new ProfileInfoDTO();
         response.setUsername(username);
 
-        List<UserBookMapEntity> usersBooks = bookMapRepository.findByUserId(userEntity.getId());
-        List<Long> bookIds = usersBooks.stream()
+        // favourite books
+        List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
+
+        // Kullanıcının etkileşime girdiği tüm kitapların id'leri.
+        List<Long> bookIds = userBookMaps.stream()
                 .map(UserBookMapEntity::getBookId)
                 .distinct()
                 .toList();
 
-        List<BookEntity> usersBookList = bookRepository.findAllById(bookIds);
-        response.setFavoriteBooks(usersBookList);
+        // Kullanıcının etkileşime girdiği tüm kitapların bilgileri.
+        List<BookEntity> bookEntities = bookRepository.findAllById(bookIds);
+
+        // kitap id'leri ile kitapların bilgilerini çekebileceğim map.
+        Map<Long, BookEntity> bookIdToEntityMap = bookEntities.stream()
+                .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
+
+        // status bilgisiyle tüm kitap listesini çekebileceğim map.
+        Map<String, List<BookEntity>> statusBookListMap = userBookMaps.stream()
+                .collect(Collectors.groupingBy(
+                        UserBookMapEntity::getStatus,
+                        Collectors.mapping(
+                                map -> bookIdToEntityMap.get(map.getBookId()),
+                                Collectors.toList()
+                        )
+                ));
+
+        List<BookEntity> favouriteBooks = statusBookListMap.get("FAVOURITE");
+        response.setFavoriteBooks(favouriteBooks);
+
+        List<BookEntity> readList = statusBookListMap.getOrDefault("READLIST", Collections.emptyList());
+        response.setReadList(readList);
 
         List<UserActivityEntity> userActivities = activityRepository.findAllByUserId(userEntity.getId());
         response.setRecentActivity(userActivities);
@@ -66,11 +92,12 @@ public class ProfileService {
         LocalDate firstReadDate = null;
 
         for (UserActivityEntity activity : userActivities) {
+            if (activity.getReadDate() == null) continue;
             if (activity.getReadDate().getYear() == LocalDate.now().getYear()) {
                 booksReadThisYear++;
 
-                Optional<BookEntity> book = bookRepository.findById(activity.getBookId());
-                book.ifPresent(b -> totalPagesReadThisYear.addAndGet(b.getPageCount()));
+                BookEntity book = bookIdToEntityMap.get(activity.getBookId());
+                totalPagesReadThisYear.addAndGet(book.getPageCount());
 
                 if (firstReadDate == null || activity.getReadDate().isBefore(firstReadDate)) {
                     firstReadDate = activity.getReadDate();

@@ -17,6 +17,7 @@ public class ProfileInfoDTO {
     private Integer bookRead;
     private Integer bookReadThisYear;
     private List<BookEntity> favoriteBooks;
+    private List<BookEntity> readList;
     private List<UserActivityEntity> recentActivity;
 
 }
