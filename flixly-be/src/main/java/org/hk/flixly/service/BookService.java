@@ -44,7 +44,9 @@ public class BookService {
                     dto.setTitle(book.getTitle());
                     dto.setAuthorId(book.getAuthorId());
                     dto.setCoverUrl(book.getCoverUrl());
-
+                    dto.setDescription(book.getDescription());
+                    dto.setPublicationYear(book.getPublicationYear());
+                    dto.setOriginalTitle(book.getOriginalTitle());
                     Set<String> statuses = userBookStatusMap.getOrDefault(book.getId(), Collections.emptySet());
 
                     dto.setLiked(statuses.contains("LIKE"));
@@ -73,6 +75,9 @@ public class BookService {
                     dto.setTitle(book.getTitle());
                     dto.setAuthorId(book.getAuthorId());
                     dto.setCoverUrl(book.getCoverUrl());
+                    dto.setDescription(book.getDescription());
+                    dto.setPublicationYear(book.getPublicationYear());
+                    dto.setOriginalTitle(book.getOriginalTitle());
                     return dto;
                 })
                 .collect(Collectors.toList());
