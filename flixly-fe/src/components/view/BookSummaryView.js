@@ -11,7 +11,7 @@ const BookSummaryView = (props) => {
   const [error, setError] = useState(null);
 
   const location = useLocation();
-  const book = location.state?.book; // Buradan geliyor.
+  const book = location.state?.book;
 
   useEffect(() => {
     fetchAuthor();
@@ -19,8 +19,7 @@ const BookSummaryView = (props) => {
 
   const fetchAuthor = async () => {
     try {
-      const data = await getAuthorById(book.authorId); // Servis çağrısı
-      console.log("authorId ile yazarı çekiyoruz.")
+      const data = await getAuthorById(book.authorId);
       setAuthor(data);
     } catch (err) {
       setError("Yazarlar yüklenirken bir hata oluştu.");
@@ -28,7 +27,7 @@ const BookSummaryView = (props) => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="bookSummaryMainView">
       <BookSummaryViewCoverAndStats book={book} author={author} />

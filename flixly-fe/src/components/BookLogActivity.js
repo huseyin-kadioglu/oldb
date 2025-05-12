@@ -22,8 +22,10 @@ import MinimalDatePicker from "./common/MinimalDatePicker";
 const BookLogActivity = ({ selectedBook, setPayload }) => {
   const [statusList, setStatusList] = useState([
     "READ",
-    "WANT_TO_READ",
+    "READLIST",
+    "FAVOURITE",
     "DROPPED",
+    "HATE",
   ]);
 
   const [activityStatus, setActivityStatus] = useState(null);

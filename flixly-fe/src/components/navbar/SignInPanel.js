@@ -8,11 +8,10 @@ const SignInPanel = ({ onClose }) => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    console.log("handle login");
     try {
       loginAccount({
         email: email,
-        password: password,
+        password: password
       });
 
       onClose();

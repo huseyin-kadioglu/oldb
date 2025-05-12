@@ -6,13 +6,11 @@ import "./NavigationBar.css";
 import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
 
-const NavigationBar = ({ handleDialog, token }) => {
+const NavigationBar = ({ handleDialog, token, handleLoginSuccess }) => {
   const navigate = useNavigate();
 
   const [showSignInPanel, setShowSignInPanel] = useState(false);
   const [showCreateAccountPanel, setShowCreateAccountPanel] = useState(false);
-
-  useEffect(() => {}, [token]);
 
   return (
     <nav className="navbar">

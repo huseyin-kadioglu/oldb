@@ -9,8 +9,7 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log("book", book);
-  console.log("author", author);
+  //console.log(book);
 
   return (
     <div className="container">
@@ -34,16 +33,16 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
         <aside className="activity-menu">
           <ul>
             <li>
-              <CheckBoxOutlineBlankIcon style={{ fontSize: 40 }} />
-              <span>Watched</span>
+              <CheckBoxOutlineBlankIcon style={{ fontSize: 30 }} />
+              <span>Read</span>
             </li>
             <li>
-              <FavoriteBorderIcon style={{ fontSize: 40 }} />
-              <span>Like</span>
+              <FavoriteBorderIcon style={{ fontSize: 30 }} />
+              <span>Favourite</span>
             </li>
             <li>
-              <LibraryAddIcon style={{ fontSize: 40 }} />
-              <span>Watchlist</span>
+              <LibraryAddIcon style={{ fontSize: 30 }} />
+              <span>Readlist</span>
             </li>
           </ul>
         </aside>
