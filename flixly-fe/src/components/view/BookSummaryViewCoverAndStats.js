@@ -9,6 +9,7 @@ const BookSummaryViewCoverAndStats = ({ book }) => {
   return (
     <div className="coverAndStats">
       <PhotoFrame book={book} showTitle={false} />
+      <p>Bu kitap toplam 13.234 kişi tarafından okundu</p>
     </div>
   );
 };
