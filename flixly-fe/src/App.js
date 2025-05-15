@@ -2,7 +2,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 
 import "./App.css";
-import { getBooks, createUserActivity } from "./service/APIService";
+import { getBooks } from "./service/APIService";
 import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
 import Profile from "./components/profile/Profile";
@@ -27,10 +27,12 @@ const App = () => {
 
   const selectedBookHandler = (data) => {
     setActivityDialog(false);
+    console.log("setSelectedBookDialog");
     setSelectedBookDialog(data);
   };
 
   useEffect(() => {
+    console.log("appjs render");
     fetchBooks();
   }, []);
 
@@ -40,19 +42,6 @@ const App = () => {
       setBooks(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createBookActivity = (value) => {
-    try {
-      console.log("App.js createBookActivity", value);
-      createUserActivity(value);
-      // TODO: BOOK_ID, USER_ID bilgisinin gönderilmesi gerekiyor. BOOK_ID'den zaten yazara erişebilir.
-      //createUserActivity(value);
-    } catch (err) {
-      setError("Aktivite yaratılırken bir hata oluştu.");
     } finally {
       setLoading(false);
     }
@@ -87,7 +76,6 @@ const App = () => {
           selectedBookHandler={selectedBookHandler}
           selectedBook={selectedBookDialog}
           data={books}
-          createBookActivity={createBookActivity}
         />
       )}
     </div>

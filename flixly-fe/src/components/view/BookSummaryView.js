@@ -14,6 +14,7 @@ const BookSummaryView = (props) => {
   const book = location.state?.book;
 
   useEffect(() => {
+    console.log("BookSummaryView render");
     fetchAuthor();
   }, []);
 

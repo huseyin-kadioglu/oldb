@@ -28,14 +28,6 @@ import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import BlockIcon from "@mui/icons-material/Block";
 
 const BookLogActivity = ({ selectedBook, setPayload }) => {
-  const [statusList, setStatusList] = useState([
-    "READ",
-    "READLIST",
-    "FAVOURITE",
-    "DROPPED",
-    "HATE",
-  ]);
-
   const statusOptions = [
     { value: "READ", label: "Okudum", icon: <MenuBookIcon /> },
     { value: "READLIST", label: "Listeme Ekle", icon: <PlaylistAddIcon /> },
@@ -57,10 +49,9 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
       rating: rating,
       readDate: readDate,
       comment: comment,
+      actionType: activityStatus,
     };
     setPayload(result);
-
-    createUserActivity(result);
   };
 
   return (

@@ -2,7 +2,6 @@ import "./Content.css";
 import FrameBlock from "../common/FrameBlock";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { getBooks } from "../../service/APIService"; // Servis dosyasını import et
 
 const Content = ({ books, token }) => {
   const [loading, setLoading] = useState(true);
@@ -11,9 +10,8 @@ const Content = ({ books, token }) => {
 
   useEffect(() => {
     // burada gerek kalmayabilir parentında çağırıyor.
+    console.log("Content render");
   }, [token]);
-
-  console.log(books);
 
   return (
     <div className="container">

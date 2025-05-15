@@ -74,7 +74,7 @@ export const getAuthorById = async (id) => {
 
 export const createUserActivity = async (activityDto) => {
   const token = sessionStorage.getItem("token");
-  console.log("createUserActivity. params:", activityDto);
+  console.log("createUserActivity api calls:", activityDto);
 
   try {
     const response = await fetch("http://localhost:8080/userActivity/", {
