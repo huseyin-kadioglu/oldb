@@ -9,3 +9,31 @@
   flex: 1;
   margin-bottom: 10px;
 }
+
+.status-box {
+  margin-top: 0px;
+}
+
+.status-option {
+  border: 2px solid #ccc;
+  border-radius: 80px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.3s ease;
+  user-select: none;
+  margin-top: 15px;
+}
+
+.status-option:hover {
+  border-color: #1976d2;
+}
+
+.status-option.selected {
+  border-color: #2e7d32;
+  background-color: #e8f5e9;
+}
+
+.status-option.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

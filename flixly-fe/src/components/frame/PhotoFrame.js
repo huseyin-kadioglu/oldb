@@ -14,6 +14,7 @@ const PhotoFrame = ({
   className,
   showTitle = true,
   justShowCover = false,
+  
 }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLiked, setIsLiked] = useState(false);

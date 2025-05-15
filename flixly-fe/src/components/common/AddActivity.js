@@ -29,6 +29,9 @@ const AddActivity = ({ open, handleDialog, selectedBookHandler, data }) => {
               handleDialog(false);
             },
           },
+          sx: {
+            backgroundColor: "#f9f9f9", // Açık gri örneği (dilersen hex, rgb, theme kullanabilirsin)
+          },
         }}
       >
         <DialogTitle
@@ -37,6 +40,7 @@ const AddActivity = ({ open, handleDialog, selectedBookHandler, data }) => {
             justifyContent: "space-between",
             alignItems: "center",
             borderBottom: "1px solid lightgray",
+            backgroundColor: "#f9f9f9", // Açık gri örneği (dilersen hex, rgb, theme kullanabilirsin)
           }}
         >
           Add to your books
@@ -67,7 +71,6 @@ const AddActivity = ({ open, handleDialog, selectedBookHandler, data }) => {
                 {...params}
                 autoFocus
                 required
-                defaultValue="Search for book..."
                 margin="dense"
                 name="book"
                 label="Search for books"

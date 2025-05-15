@@ -4,15 +4,14 @@ import { TextField, Box, Typography } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-
 export default function MinimalDatePicker({ readDate, setReadDate }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ display: "flex", alignItems: "center", margin: "10px 0 10px 0" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, my: 2 }}>
         <DatePicker
-          value={readDate}
+          value={readDate ? dayjs(readDate) : null}
           onChange={(newValue) => setReadDate(newValue)}
-          format="DD MMM YYYY"
+          format="DD/MM/YYYY"
           slotProps={{
             textField: {
               variant: "filled",
@@ -20,18 +19,23 @@ export default function MinimalDatePicker({ readDate, setReadDate }) {
                 disableUnderline: true,
                 sx: {
                   fontSize: 14,
-                  //bgcolor: "#3b4b5c",
-                  //color: "white",
                   borderRadius: 1,
-                  paddingX: 1,
-                  paddingY: 0.5,
-                  "& input": { padding: 0 },
+                  px: 1.5,
+                  py: 1,
+                  backgroundColor: "#f5f5f5",
+                  "& input": {
+                    padding: "8px 0", // biraz daha dikey boşluk
+                  },
+                  "& .MuiSvgIcon-root": {
+                    color: "#6b6b6b",
+                    marginRight: "4px", // ikonun kutuya taşmasını engeller
+                  },
                 },
               },
               sx: {
-                width: "auto",
+                width: 180,
                 "& .MuiInputBase-root": {
-                  paddingRight: "0 !important",
+                  pr: "8px", // ikonun içeride düzgün görünmesini sağlar
                 },
               },
             },

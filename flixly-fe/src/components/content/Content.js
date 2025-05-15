@@ -13,6 +13,8 @@ const Content = ({ books, token }) => {
     // burada gerek kalmayabilir parentında çağırıyor.
   }, [token]);
 
+  console.log(books);
+
   return (
     <div className="container">
       {token ? (

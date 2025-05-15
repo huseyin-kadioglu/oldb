@@ -50,23 +50,37 @@ const SelectedBookDialog = ({
         }}
       >
         <DialogTitle
-          style={{
+          sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderBottom: "1px solid lightgray",
+            borderBottom: "1px solid #ddd",
+            backgroundColor: "#f0f0f0", // Açık gri arka plan
+            color: "#333", // Koyu gri yazı
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            //px: 3,
+            //py: 2,
           }}
         >
           <Button
-            onClick={() => console.log("BACK!")}
+            onClick={() => selectedBookHandler(false)}
             style={{ minWidth: "auto" }}
           >
             <ArrowBackIcon />
           </Button>
-          Add to your books
+          Kitap için aktivite ekle
           <Button
             onClick={() => selectedBookHandler(false)}
-            style={{ minWidth: "auto" }}
+            sx={{
+              minWidth: "auto",
+              color: "#555",
+              fontWeight: "bold",
+              fontSize: "1.2rem",
+              "&:hover": {
+                color: "#000",
+              },
+            }}
           >
             ✖
           </Button>

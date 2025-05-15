@@ -1,27 +1,43 @@
-import { Rating, Typography } from "@mui/material";
+import { Typography, Rating, Box } from "@mui/material";
 
 const RatingUtil = ({ rating, setRating }) => {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
-        flexDirection: "row",
-        alignContent: "center",
         alignItems: "center",
-        marginTop: "10px",
+        gap: 2,
+        my: 2,
+        p: 1.5,
+        border: "1px solid #ddd",
+        borderRadius: 2,
+        backgroundColor: "#f9f9f9",
+        transition: "background-color 0.3s",
+        "&:hover": {
+          backgroundColor: "#f0f0f0",
+        },
       }}
     >
-      <Typography sx={{ minWidth: 50 }} component="legend">
-        Kitap Puanı:
+      <Typography sx={{ minWidth: 90, fontWeight: 500 }}>
+        Kitap Puanı
       </Typography>
       <Rating
-        name="simple-controlled"
+        name="half-rating"
         value={rating}
-        onChange={(event, newValue) => {
-          setRating(newValue);
+        precision={0.5}
+        size="large"
+        onChange={(event, newValue) => setRating(newValue)}
+        sx={{
+          "& .MuiRating-iconFilled": {
+            color: "#ffb400",
+          },
+          "& .MuiRating-iconHover": {
+            color: "#ffa726",
+          },
         }}
       />
-    </div>
+    </Box>
   );
 };
+
 export default RatingUtil;
