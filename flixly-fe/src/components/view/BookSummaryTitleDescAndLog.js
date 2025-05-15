@@ -1,15 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./BookSummaryView.css";
 import { Link } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
+import { createUserActivityFromGhostMenu } from "../../service/APIService";
 
 const BookSummaryTitleDescAndLog = ({ book, author }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(book?.favourite);
+  const [isLiked, setIsLiked] = useState(book?.like);
+  const [isInReadlist, setIsInReadlist] = useState(book?.readList);
 
-  //console.log(book);
+  // 🧠 Prop değişince state'leri güncelle
+  useEffect(() => {
+    setIsFavorited(book?.favourite);
+    setIsLiked(book?.like);
+    setIsInReadlist(book?.readList);
+  }, [book]);
+
+  const handleFavorite = () => {
+    const newState = !isFavorited;
+    console.log("state", newState);
+    setIsFavorited(newState);
+
+    const result = {
+      bookId: book?.id,
+      authorId: book?.authorId,
+      actionType: "FAVOURITE",
+      action: newState ? "ADD" : "REMOVE",
+    };
+
+    console.log("result", result);
+    createUserActivityFromGhostMenu(result);
+  };
+
+  const handleLike = () => {
+    const newState = !isLiked;
+    setIsLiked(newState);
+
+    const result = {
+      bookId: book?.id,
+      authorId: book?.authorId,
+      actionType: "LIKE",
+      action: newState ? "ADD" : "REMOVE",
+    };
+
+    console.log("result", result);
+    createUserActivityFromGhostMenu(result);
+  };
+
+  const handleReadlist = () => {
+    const newState = !isInReadlist;
+    setIsInReadlist(newState);
+
+    const result = {
+      bookId: book?.id,
+      authorId: book?.authorId,
+      actionType: "READLIST",
+      action: newState ? "ADD" : "REMOVE",
+    };
+
+    console.log("result", result);
+    createUserActivityFromGhostMenu(result);
+  };
 
   return (
     <div className="container">
@@ -56,16 +112,28 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
         <div className="action-menu">
           <aside>
             <ul>
-              <li>
-                <CheckBoxOutlineBlankIcon style={{ fontSize: 30 }} />
+              <li onClick={handleLike}>
+                {book?.liked || isLiked ? (
+                  <FavoriteIcon style={{ fontSize: 25 }} />
+                ) : (
+                  <FavoriteBorderIcon style={{ fontSize: 25 }} />
+                )}
                 <span>Read</span>
               </li>
-              <li>
-                <FavoriteBorderIcon style={{ fontSize: 30 }} />
+              <li onClick={handleFavorite}>
+                {book?.favourite || isFavorited ? (
+                  <StarIcon style={{ fontSize: 25 }} />
+                ) : (
+                  <StarBorderIcon style={{ fontSize: 25 }} />
+                )}
                 <span>Favourite</span>
               </li>
-              <li>
-                <LibraryAddIcon style={{ fontSize: 30 }} />
+              <li onClick={handleReadlist}>
+                {book?.readlist || isInReadlist ? (
+                  <PlaylistAddCheckIcon style={{ fontSize: 25 }} />
+                ) : (
+                  <PlaylistAddIcon style={{ fontSize: 25 }} />
+                )}
                 <span>Readlist</span>
               </li>
             </ul>

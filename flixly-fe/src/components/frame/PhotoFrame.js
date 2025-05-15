@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./PhotoFrame.css";
 import { Link } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -14,11 +14,16 @@ const PhotoFrame = ({
   className,
   showTitle = true,
   justShowCover = false,
-  
 }) => {
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isInReadlist, setIsInReadlist] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(book?.favourite);
+  const [isLiked, setIsLiked] = useState(book?.like);
+  const [isInReadlist, setIsInReadlist] = useState(book?.readList);
+
+  useEffect(() => {
+    setIsFavorited(book?.favourite);
+    setIsLiked(book?.like);
+    setIsInReadlist(book?.readList);
+  }, [book]);
 
   const imageClass = className ? className : "cover";
 
@@ -33,44 +38,48 @@ const PhotoFrame = ({
 
   const handleFavorite = () => {
     const newState = !isFavorited;
-    setIsFavorited(newState);
 
     const result = {
       bookId: book?.id,
       authorId: book?.authorId,
       actionType: "FAVOURITE",
-      action: newState ? "ADD" : "DELETE",
+      action: newState ? "ADD" : "REMOVE",
     };
 
+    console.log("result", result);
     createUserActivityFromGhostMenu(result);
+    setIsFavorited(newState);
   };
 
   const handleLike = () => {
     const newState = !isLiked;
-    setIsLiked(newState);
 
     const result = {
       bookId: book?.id,
       authorId: book?.authorId,
       actionType: "LIKE",
-      action: newState ? "ADD" : "DELETE",
+      action: newState ? "ADD" : "REMOVE",
     };
+    console.log("result", result);
 
     createUserActivityFromGhostMenu(result);
+    setIsLiked(newState);
   };
 
   const handleReadlist = () => {
     const newState = !isInReadlist;
-    setIsInReadlist(newState);
+    console.log("newState", newState);
 
     const result = {
       bookId: book?.id,
       authorId: book?.authorId,
       actionType: "READLIST",
-      action: newState ? "ADD" : "DELETE",
+      action: newState ? "ADD" : "REMOVE",
     };
+    console.log("result", result);
 
     createUserActivityFromGhostMenu(result);
+    setIsInReadlist(newState);
   };
 
   return justShowCover == true ? (
