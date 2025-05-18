@@ -1,6 +1,7 @@
 package org.hk.flixly.controller;
 
 import org.hk.flixly.model.BookDto;
+import org.hk.flixly.model.BookResponse;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.repository.UserRepository;
 import org.hk.flixly.service.BookService;
@@ -27,7 +28,7 @@ public class BookController {
     }
 
     @GetMapping("/")
-    public List<BookDto> findAll(@AuthenticationPrincipal UserDetails userDetails) {
+    public BookResponse findAll(@AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
             return bookService.getAllBooks();

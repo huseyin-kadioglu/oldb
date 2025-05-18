@@ -88,30 +88,37 @@ public class ProfileService {
         int totalBooksRead = userActivities.size();
 
         Integer booksReadThisYear = 0;
-        AtomicInteger totalPagesReadThisYear = new AtomicInteger();
+        AtomicInteger totalPagesReadThisYear = new AtomicInteger(0);
+
         LocalDate firstReadDate = null;
 
-        for (UserActivityEntity activity : userActivities) {
-            if (activity.getReadDate() == null) continue;
-            if (activity.getReadDate().getYear() == LocalDate.now().getYear()) {
-                booksReadThisYear++;
+        try {
+            for (UserActivityEntity activity : userActivities) {
+                if (activity.getReadDate() == null) continue;
+                if (activity.getReadDate().getYear() == LocalDate.now().getYear()) {
+                    booksReadThisYear++;
 
-                BookEntity book = bookIdToEntityMap.get(activity.getBookId());
-                totalPagesReadThisYear.addAndGet(book.getPageCount());
+                    BookEntity book = bookIdToEntityMap.get(activity.getBookId());
+                    totalPagesReadThisYear.addAndGet(book.getPageCount());
 
-                if (firstReadDate == null || activity.getReadDate().isBefore(firstReadDate)) {
-                    firstReadDate = activity.getReadDate();
+                    if (firstReadDate == null || activity.getReadDate().isBefore(firstReadDate)) {
+                        firstReadDate = activity.getReadDate();
+                    }
                 }
             }
+            response.setBookRead(totalBooksRead);
+            response.setBookReadThisYear(booksReadThisYear);
+
+            long daysThisYear = daysSinceStartOfYear();
+
+            double averagePagesPerDay = (daysThisYear > 0) ? (double) totalPagesReadThisYear.get() / daysThisYear : 0;
+            response.setPagePerDay(averagePagesPerDay);
+
+        } catch (Exception e) {
+            response.setBookRead(0);
+            response.setBookReadThisYear(0);
         }
 
-        response.setBookRead(totalBooksRead);
-        response.setBookReadThisYear(booksReadThisYear);
-
-        long daysThisYear = daysSinceStartOfYear();
-
-        double averagePagesPerDay = (daysThisYear > 0) ? (double) totalPagesReadThisYear.get() / daysThisYear : 0;
-        response.setPagePerDay(averagePagesPerDay);
 
         return response;
     }

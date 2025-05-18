@@ -21,6 +21,11 @@ public class BookDto {
     private boolean isFavourite;
     private boolean isInReadList;
 
+    private long howManyPplLiked;
+    private long howManyPplFavourited;
+    private long howManyPplAddedToReadList;
+    private long howManyPplDropped;
+
     public Long getId() {
 
         return id;
@@ -124,5 +129,37 @@ public class BookDto {
 
     public void setInReadList(boolean inReadList) {
         isInReadList = inReadList;
+    }
+
+    public long getHowManyPplLiked() {
+        return howManyPplLiked;
+    }
+
+    public void setHowManyPplLiked(long howManyPplLiked) {
+        this.howManyPplLiked = howManyPplLiked;
+    }
+
+    public long getHowManyPplFavourited() {
+        return howManyPplFavourited;
+    }
+
+    public void setHowManyPplFavourited(long howManyPplFavourited) {
+        this.howManyPplFavourited = howManyPplFavourited;
+    }
+
+    public long getHowManyPplAddedToReadList() {
+        return howManyPplAddedToReadList;
+    }
+
+    public void setHowManyPplAddedToReadList(long howManyPplAddedToReadList) {
+        this.howManyPplAddedToReadList = howManyPplAddedToReadList;
+    }
+
+    public long getHowManyPplDropped() {
+        return howManyPplDropped;
+    }
+
+    public void setHowManyPplDropped(long howManyPplDropped) {
+        this.howManyPplDropped = howManyPplDropped;
     }
 }
