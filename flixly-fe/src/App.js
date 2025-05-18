@@ -18,8 +18,11 @@ const App = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [token, setToken] = useState(null);
 
-  const token = sessionStorage.getItem("token");
+  const handleToken = (token) => {
+    setToken(token);
+  };
 
   const handleDialog = (state) => {
     setActivityDialog(state);
@@ -33,7 +36,7 @@ const App = () => {
   useEffect(() => {
     console.log("appjs render");
     fetchBooks();
-  }, []);
+  }, [token]);
 
   const fetchBooks = async () => {
     try {
@@ -48,7 +51,7 @@ const App = () => {
 
   return (
     <div className="App">
-      <NavigationBar handleDialog={handleDialog} token={token} />
+      <NavigationBar handleDialog={handleDialog} token={token} handleToken={handleToken} />
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
         <Route path="/profile" element={<Profile />} />

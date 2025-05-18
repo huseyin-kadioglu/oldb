@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { loginAccount } from "../../service/APIService";
 
-const SignInPanel = ({ onClose }) => {
+const SignInPanel = ({ onClose, handleToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -14,6 +14,7 @@ const SignInPanel = ({ onClose }) => {
         password: password
       });
 
+      handleToken(sessionStorage.getItem("token"));
       onClose();
     } catch (error) {
       alert(error.message); // Hata mesajını gösteriyoruz

@@ -21,8 +21,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
   const [privacyPolicy, setPrivacyPolicy] = useState(false);
   console.log("CreateAccountModal");
 
-  const handleLogin = () => {
-    console.log("handle login");
+  const handleCreateAccount = () => {
     try {
       createAccount({
         email: email,
@@ -30,7 +29,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
         fullName: username,
         username: username,
       });
-      console.log("handle login");
+
       onClose();
     } catch (error) {
       alert(error.message); // Hata mesajını gösteriyoruz
@@ -85,7 +84,11 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
         <Button onClick={onClose} color="error" variant="outlined">
           Kapat
         </Button>
-        <Button onClick={handleLogin} color="success" variant="contained">
+        <Button
+          onClick={handleCreateAccount}
+          color="success"
+          variant="contained"
+        >
           Hesap Oluştur
         </Button>
       </DialogActions>

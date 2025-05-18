@@ -8,11 +8,6 @@ const Content = ({ books, token }) => {
   const [error, setError] = useState(null);
   const username = sessionStorage.getItem("username");
 
-  useEffect(() => {
-    // burada gerek kalmayabilir parentında çağırıyor.
-    console.log("Content render");
-  }, [token]);
-
   return (
     <div className="container">
       {token ? (
