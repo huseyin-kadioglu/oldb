@@ -41,7 +41,7 @@ export const loginAccount = async (param) => {
     const response = await axios.post(LOGIN_API, param);
     console.log("login res", response);
     sessionStorage.setItem("token", response.data.token);
-    sessionStorage.setItem("username", response.data.username);
+    sessionStorage.setItem("username", response.data.profileName);
 
     return response.data;
   } catch (error) {
