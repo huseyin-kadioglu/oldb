@@ -14,16 +14,14 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
   const [isLiked, setIsLiked] = useState(book?.like);
   const [isInReadlist, setIsInReadlist] = useState(book?.readList);
 
-  // 🧠 Prop değişince state'leri güncelle
   useEffect(() => {
     setIsFavorited(book?.favourite);
     setIsLiked(book?.like);
     setIsInReadlist(book?.readList);
-  }, [book]);
+  }, [book?.favourite, book?.like, book?.readList]);
 
   const handleFavorite = () => {
     const newState = !isFavorited;
-    console.log("state", newState);
     setIsFavorited(newState);
 
     const result = {
@@ -33,7 +31,6 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
       action: newState ? "ADD" : "REMOVE",
     };
 
-    console.log("result", result);
     createUserActivityFromGhostMenu(result);
   };
 
@@ -48,7 +45,6 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
       action: newState ? "ADD" : "REMOVE",
     };
 
-    console.log("result", result);
     createUserActivityFromGhostMenu(result);
   };
 
@@ -63,7 +59,6 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
       action: newState ? "ADD" : "REMOVE",
     };
 
-    console.log("result", result);
     createUserActivityFromGhostMenu(result);
   };
 
