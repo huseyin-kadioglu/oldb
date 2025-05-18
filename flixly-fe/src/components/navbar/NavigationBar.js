@@ -12,6 +12,9 @@ const NavigationBar = ({ handleDialog, handleToken, token }) => {
   const [showSignInPanel, setShowSignInPanel] = useState(false);
   const [showCreateAccountPanel, setShowCreateAccountPanel] = useState(false);
 
+  useEffect(() => {
+  }, [token]);
+  
   return (
     <nav className="navbar">
       <div className="logo">

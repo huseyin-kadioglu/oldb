@@ -7,14 +7,14 @@ const SignInPanel = ({ onClose, handleToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     try {
-      loginAccount({
+      let response = await loginAccount({
         email: email,
-        password: password
+        password: password,
       });
 
-      handleToken(sessionStorage.getItem("token"));
+      handleToken(response.token);
       onClose();
     } catch (error) {
       alert(error.message); // Hata mesajını gösteriyoruz

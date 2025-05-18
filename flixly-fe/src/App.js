@@ -22,6 +22,7 @@ const App = () => {
 
   const handleToken = (token) => {
     setToken(token);
+    sessionStorage.setItem("token", token);
   };
 
   const handleDialog = (state) => {
@@ -35,6 +36,11 @@ const App = () => {
 
   useEffect(() => {
     console.log("appjs render");
+    const storedToken = sessionStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+
     fetchBooks();
   }, [token]);
 
@@ -51,7 +57,11 @@ const App = () => {
 
   return (
     <div className="App">
-      <NavigationBar handleDialog={handleDialog} token={token} handleToken={handleToken} />
+      <NavigationBar
+        handleDialog={handleDialog}
+        token={token}
+        handleToken={handleToken}
+      />
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
         <Route path="/profile" element={<Profile />} />
