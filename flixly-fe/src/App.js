@@ -27,7 +27,6 @@ const App = () => {
 
   const selectedBookHandler = (data) => {
     setActivityDialog(false);
-    console.log("setSelectedBookDialog");
     setSelectedBookDialog(data);
   };
 
@@ -39,7 +38,7 @@ const App = () => {
   const fetchBooks = async () => {
     try {
       const data = await getBooks(); // Servis çağrısı
-      setBooks(data);
+      setBooks(data?.books);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
     } finally {

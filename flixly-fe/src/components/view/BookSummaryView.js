@@ -11,6 +11,7 @@ const BookSummaryView = (props) => {
   const [error, setError] = useState(null);
 
   const location = useLocation();
+
   const book = location.state?.book;
 
   useEffect(() => {
