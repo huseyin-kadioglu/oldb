@@ -51,16 +51,13 @@ public class UserActivityService {
         UserEntity user = getUserEntity(userDetails);
         Long userId = user.getId();
         Long bookId = activityDto.getBookId();
-        String actionType = activityDto.getActionType(); // Örn: "FAVOURITE", "LIKE", "READLIST"
-        String action = activityDto.getAction(); // Örn: "ADD", "REMOVE"
+        String actionType = activityDto.getActionType();
 
-
-        if ("ADD".equalsIgnoreCase(action)) {
-            return addActivity(userId, bookId, actionType);
-        } else if ("REMOVE".equalsIgnoreCase(action)) {
-            return removeActivity(userId, bookId, actionType);
+        Optional<UserBookMapEntity> mapEntity = userBookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, actionType);
+        if (mapEntity.isPresent()) {
+            return removeActivity(mapEntity.get());
         } else {
-            throw new IllegalArgumentException("Unknown action: " + action);
+            return addActivity(userId, bookId, actionType);
         }
     }
 
@@ -81,14 +78,12 @@ public class UserActivityService {
         return activity;
     }
 
-    private UserActivityEntity removeActivity(Long userId, Long bookId, String status) {
-        Optional<UserActivityEntity> existingActivity = activityRepository.findByUserIdAndBookIdAndStatus(userId, bookId, status);
+    private UserActivityEntity removeActivity(UserBookMapEntity entity) {
+        Optional<UserActivityEntity> existingActivity = activityRepository.findByUserIdAndBookIdAndStatus(entity.getUserId(), entity.getBookId(), entity.getStatus());
 
         existingActivity.ifPresent(activityRepository::delete);
 
-        Optional<UserBookMapEntity> existingMap = userBookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, status);
-
-        existingMap.ifPresent(userBookMapRepository::delete);
+        userBookMapRepository.delete(entity);
 
         return existingActivity.orElse(null);
     }
