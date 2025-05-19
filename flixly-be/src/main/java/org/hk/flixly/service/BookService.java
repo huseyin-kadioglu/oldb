@@ -2,8 +2,10 @@ package org.hk.flixly.service;
 
 import org.hk.flixly.model.BookDto;
 import org.hk.flixly.model.BookResponse;
+import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.UserBookMapEntity;
+import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.UserBookMapRepository;
 import org.springframework.stereotype.Service;
@@ -20,10 +22,12 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final UserBookMapRepository bookMapRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookService(BookRepository bookRepository, UserBookMapRepository bookMapRepository) {
+    public BookService(BookRepository bookRepository, UserBookMapRepository bookMapRepository, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
         this.bookMapRepository = bookMapRepository;
+        this.authorRepository = authorRepository;
     }
 
     private static List<BookDto> mapBookEntityToResponse(List<BookEntity> allBooks, Map<Long, Set<String>> userBookStatusMap, Map<Long, Map<String, Integer>> bookStatusCountsMap) {
@@ -148,6 +152,10 @@ public class BookService {
                 })
                 .collect(Collectors.toList());
         result.setBooks(bookDTOs);
+
+        Long authorId = result.getNobelPrizeWinner().getAuthorId();
+        AuthorEntity author = authorRepository.findById(authorId).orElseThrow();
+        result.setAuthor(author);
         return result;
     }
 }
