@@ -14,6 +14,7 @@ const PhotoFrame = ({
   className,
   showTitle = true,
   justShowCover = false,
+  showGhostMenu = true,
 }) => {
   const [isFavorited, setIsFavorited] = useState(book?.favourite);
   const [isLiked, setIsLiked] = useState(book?.like);
@@ -86,30 +87,32 @@ const PhotoFrame = ({
     <div className="photo-frame">
       <img src={coverUrl} alt={book.title} className={imageClass} />
       {showTitle && <p className="title">{book.title}</p>}
-      <div className="ghost-menu">
-        <button onClick={handleLike}>
-          {book?.liked || isLiked ? (
-            <FavoriteIcon style={{ fontSize: 14 }} />
-          ) : (
-            <FavoriteBorderIcon style={{ fontSize: 14 }} />
-          )}
-        </button>
+      {showGhostMenu && (
+        <div className="ghost-menu">
+          <button onClick={handleLike}>
+            {book?.liked || isLiked ? (
+              <FavoriteIcon style={{ fontSize: 14 }} />
+            ) : (
+              <FavoriteBorderIcon style={{ fontSize: 14 }} />
+            )}
+          </button>
 
-        <button onClick={handleFavorite}>
-          {book.favourite || isFavorited ? (
-            <StarIcon style={{ fontSize: 14 }} />
-          ) : (
-            <StarBorderIcon style={{ fontSize: 14 }} />
-          )}
-        </button>
-        <button onClick={handleReadlist}>
-          {book?.readlist || isInReadlist ? (
-            <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
-          ) : (
-            <PlaylistAddIcon style={{ fontSize: 14 }} />
-          )}
-        </button>
-      </div>
+          <button onClick={handleFavorite}>
+            {book.favourite || isFavorited ? (
+              <StarIcon style={{ fontSize: 14 }} />
+            ) : (
+              <StarBorderIcon style={{ fontSize: 14 }} />
+            )}
+          </button>
+          <button onClick={handleReadlist}>
+            {book?.readlist || isInReadlist ? (
+              <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
+            ) : (
+              <PlaylistAddIcon style={{ fontSize: 14 }} />
+            )}
+          </button>
+        </div>
+      )}
     </div>
   ) : (
     <div className="photo-frame">
@@ -117,29 +120,31 @@ const PhotoFrame = ({
         <img src={coverUrl} alt={book.title} className={imageClass} />
       </Link>
       {showTitle && <p className="title">{book.title}</p>}
-      <div className="ghost-menu">
-        <button onClick={handleLike}>
-          {book.liked || isLiked ? (
-            <FavoriteIcon style={{ fontSize: 14 }} />
-          ) : (
-            <FavoriteBorderIcon style={{ fontSize: 14 }} />
-          )}
-        </button>
-        <button onClick={handleFavorite}>
-          {book.favourite || isFavorited ? (
-            <StarIcon style={{ fontSize: 14 }} />
-          ) : (
-            <StarBorderIcon style={{ fontSize: 14 }} />
-          )}
-        </button>
-        <button onClick={handleReadlist}>
-          {book.inReadList || isInReadlist ? (
-            <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
-          ) : (
-            <PlaylistAddIcon style={{ fontSize: 14 }} />
-          )}
-        </button>
-      </div>
+      {showGhostMenu && (
+        <div className="ghost-menu">
+          <button onClick={handleLike}>
+            {book.liked || isLiked ? (
+              <FavoriteIcon style={{ fontSize: 14 }} />
+            ) : (
+              <FavoriteBorderIcon style={{ fontSize: 14 }} />
+            )}
+          </button>
+          <button onClick={handleFavorite}>
+            {book.favourite || isFavorited ? (
+              <StarIcon style={{ fontSize: 14 }} />
+            ) : (
+              <StarBorderIcon style={{ fontSize: 14 }} />
+            )}
+          </button>
+          <button onClick={handleReadlist}>
+            {book.inReadList || isInReadlist ? (
+              <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
+            ) : (
+              <PlaylistAddIcon style={{ fontSize: 14 }} />
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

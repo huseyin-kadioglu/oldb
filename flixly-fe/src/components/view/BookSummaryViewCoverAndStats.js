@@ -11,7 +11,7 @@ const BookSummaryViewCoverAndStats = ({ book }) => {
 
   return (
     <div className="coverAndStats">
-      <PhotoFrame book={book} showTitle={false} />
+      <PhotoFrame book={book} showTitle={false} showGhostMenu={false} />
       <Box sx={{ display: "flex", alignItems: "center", mt: 1, gap: 1 }}>
         <FavoriteIcon sx={{ color: "crimson", fontSize: 18 }} />
         <Typography variant="body2">
