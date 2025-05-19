@@ -40,4 +40,6 @@ public class BookEntity {
     private String description;
     private int publicationYear;
 
+    private boolean isWonNobelPrize;
+
 }

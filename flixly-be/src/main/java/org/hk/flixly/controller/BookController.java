@@ -1,16 +1,12 @@
 package org.hk.flixly.controller;
 
-import org.hk.flixly.model.BookDto;
 import org.hk.flixly.model.BookResponse;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.repository.UserRepository;
 import org.hk.flixly.service.BookService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -39,5 +35,11 @@ public class BookController {
 
 
         return bookService.getAllBooks(user.getId());
+    }
+
+    @GetMapping("/publishYear/{publishYear}")
+    public BookResponse findByPublishYear(@PathVariable Integer publishYear) {
+
+        return bookService.findAllByPublishYear(publishYear);
     }
 }

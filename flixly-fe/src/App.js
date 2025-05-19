@@ -11,6 +11,7 @@ import AddActivity from "./components/common/AddActivity";
 import SelectedBookDialog from "./components/common/SelectedBookDialog";
 import Author from "./components/author/Author";
 import BookSummaryView from "./components/view/BookSummaryView";
+import BooksPublishYear from "./components/books/BooksPublishYear";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -66,6 +67,7 @@ const App = () => {
         <Route path="/*" element={<Content books={books} token={token} />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/books" element={<Books books={books} />} />
+        <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
         <Route
           path="/book/:bookId"
           element={<BookSummaryView books={books} />}

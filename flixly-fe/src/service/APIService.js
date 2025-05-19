@@ -3,6 +3,7 @@ import axios from "axios";
 const BASE_URL = "http://localhost:8080/"; // Backend URL
 
 const BOOKS_API = BASE_URL + "books/"; // Backend URL
+const BOOKS_BY_YEAR_API = BASE_URL + "books/publishYear/"; // Backend URL
 const AUTHOR_API = BASE_URL + "authors/"; // Backend URL
 const PROFILE_API = BASE_URL + "profile/"; // Backend URL
 const SIGNUP_API = BASE_URL + "api/auth/signup";
@@ -22,12 +23,10 @@ export const getBooks = async () => {
       mode: "cors",
     });
 
-    // Yanıtın başarılı olup olmadığını kontrol et
     if (!response.ok) {
       throw new Error("Hata oluştu: " + response.statusText);
     }
 
-    // Cevabın JSON olup olmadığını kontrol et
     return response.json();
   } catch (error) {
     console.error("Kitaplar alınırken hata oluştu:", error);
@@ -35,14 +34,22 @@ export const getBooks = async () => {
   }
 };
 
+export const getBooksByPublishYear = async (publishYear) => {
+  try {
+    const response = await axios.get(`${BOOKS_BY_YEAR_API}${publishYear}`);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("getBooksByPublishYear ERROR:", error);
+    throw error;
+  }
+};
+
 export const loginAccount = async (param) => {
   try {
-    console.log("loginAccount", param);
     const response = await axios.post(LOGIN_API, param);
-    console.log("login res", response);
     sessionStorage.setItem("token", response.data.token);
     sessionStorage.setItem("username", response.data.profileName);
-
     return response.data;
   } catch (error) {
     console.error("Create error:", error);
@@ -62,7 +69,6 @@ export const createAccount = async (param) => {
 };
 
 export const getAuthorById = async (id) => {
-  console.log("getAuthorById: " + id);
   try {
     const response = await axios.get(`${AUTHOR_API}${id}`);
     return response.data;
@@ -74,7 +80,6 @@ export const getAuthorById = async (id) => {
 
 export const createUserActivity = async (activityDto) => {
   const token = sessionStorage.getItem("token");
-  console.log("createUserActivity api calls:", activityDto);
 
   try {
     const response = await fetch("http://localhost:8080/userActivity/", {
@@ -117,12 +122,10 @@ export const createUserActivityFromGhostMenu = async (activityDto) => {
       }
     );
 
-    // Yanıtın başarılı olup olmadığını kontrol et
     if (!response.ok) {
       throw new Error("Hata oluştu: " + response.statusText);
     }
 
-    // Cevabın JSON olup olmadığını kontrol et
     return response.json();
   } catch (error) {
     console.error("Hata:", error);
@@ -133,18 +136,15 @@ export const createUserActivityFromGhostMenu = async (activityDto) => {
 export const getProfileSummary = async () => {
   try {
     const token = sessionStorage.getItem("token");
-
-    console.log("getProfileSummary, token: ", token);
     const response = await fetch(PROFILE_API, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      mode: "cors", // mutlaka ekle
-      credentials: "include", // Eğer cookie ile auth varsa
+      mode: "cors",
+      credentials: "include",
     });
-    console.log("response", response);
 
     return response.json();
   } catch (error) {

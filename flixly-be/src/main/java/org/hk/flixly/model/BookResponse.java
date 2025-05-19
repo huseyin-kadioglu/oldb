@@ -10,4 +10,5 @@ import java.util.List;
 public class BookResponse {
 
     private List<BookDto> books;
+    private BookDto nobelPrizeWinner;
 }

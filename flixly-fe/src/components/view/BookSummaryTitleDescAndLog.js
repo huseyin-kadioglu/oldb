@@ -66,7 +66,14 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
     <div className="container">
       <div className="title">
         <span className="book-title">{book.title}</span>
-        <span className="book-year"> ({book.publicationYear}) </span>
+        <span className="book-year">
+          <Link
+            className="book-author"
+            to={`/books/year/${book.publicationYear}`}
+          >
+            {book.publicationYear}
+          </Link>
+        </span>
         <span className="book-written-by"> Written by </span>
         <span className="author">
           <Link

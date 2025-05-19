@@ -126,4 +126,28 @@ public class BookService {
         }
         return bookStatusCountsMap;
     }
+
+    public BookResponse findAllByPublishYear(Integer publishYear) {
+        List<BookEntity> entities = bookRepository.findAllByPublicationYear(publishYear);
+        BookResponse result = new BookResponse();
+
+        List<BookDto> bookDTOs = entities.stream()
+                .map(book -> {
+                    BookDto dto = new BookDto();
+                    dto.setId(book.getId());
+                    dto.setTitle(book.getTitle());
+                    dto.setAuthorId(book.getAuthorId());
+                    dto.setCoverUrl(book.getCoverUrl());
+                    dto.setDescription(book.getDescription());
+                    dto.setPublicationYear(book.getPublicationYear());
+                    dto.setOriginalTitle(book.getOriginalTitle());
+                    if (book.isWonNobelPrize()) {
+                        result.setNobelPrizeWinner(dto);
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        result.setBooks(bookDTOs);
+        return result;
+    }
 }
