@@ -16,6 +16,16 @@
   margin-left: 40px;
 }
 
+.logo {
+  display: flex;
+  align-items: center;
+  margin-left: 40px;
+}
+
+.logo-img {
+  height: 100px;
+}
+
 .navbar .navbar-content {
   width: 100%; /* Navbar'ın genişliği */
   display: flex;
@@ -25,7 +35,6 @@
 .navbar p {
   color: #9d9fa0;
   margin-left: 20px;
-
   font-family: GraphikWeb, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", Meiryo, sans-serif, ColorEmoji;
   font-weight: 700;
   text-transform: uppercase;
@@ -41,6 +50,7 @@
 }
 
 .nav-item {
+  position: relative; /* pseudo-element için gerekli */
   cursor: pointer;
   font-size: 18px;
   color: black;
@@ -49,8 +59,23 @@
   margin-right: 30px;
 }
 
+.nav-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px; /* yazının biraz altına */
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary,  #fbc401); /* fallback ile */
+  transition: width 0.3s ease;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
 .nav-item:hover {
-  color: blue;
+  color: var(--color-primary, #fbc401);
 }
 
 .modal-backdrop {

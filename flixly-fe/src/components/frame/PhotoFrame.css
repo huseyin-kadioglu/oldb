@@ -54,7 +54,7 @@
 
 .photo-frame .ghost-menu button {
   background-color: transparent;
-  color: #f39c12; /* İkon rengi */
+  color: var(--color-secondary); /* İkon rengi */
 
   cursor: pointer;
   transition: background-color 0.3s;

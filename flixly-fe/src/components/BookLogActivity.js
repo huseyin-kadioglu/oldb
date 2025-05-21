@@ -59,8 +59,9 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
       <div className="summary">
         <PhotoFrame
           book={selectedBook}
-          className={"small-pic"}
           showGhostMenu={false}
+          justShowCover={true}
+          showTitle={false}
         />
       </div>
       <div>

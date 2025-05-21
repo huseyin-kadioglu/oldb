@@ -18,7 +18,7 @@ const NavigationBar = ({ handleDialog, handleToken, token }) => {
   return (
     <nav className="navbar">
       <div className="logo">
-        <p>LEONARDO</p>
+          <img src="/logo.png" alt="Readin Logo" className="logo-img" />
       </div>
       <div className="navbar-content">
         {token ? (

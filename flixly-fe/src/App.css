@@ -2,7 +2,16 @@ body,
 html {
   display: flex;
   justify-content: center;
-  background-color: #1e242b;
+  background-color:#1E242B
+;
+}
+
+:root {
+  --color-primary: #1e90ff;
+  --color-secondary: #fbc401;
+  --color-accent: #fcd34d;
+  --color-background: #f9f9f9;
+  --color-text: #1a1a1a;
 }
 
 .App {
