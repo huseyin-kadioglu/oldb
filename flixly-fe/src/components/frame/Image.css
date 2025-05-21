@@ -1,11 +1,19 @@
 .profile-image {
-    flex-shrink: 0; /* Resmin küçülmesini önler */
+  flex-shrink: 0; /* Resmin küçülmesini önler */
 }
 
 .profile-img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ccc;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+}
+
+.navbar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #554e4e;
 }

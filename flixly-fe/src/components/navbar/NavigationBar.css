@@ -27,15 +27,58 @@
 }
 
 .navbar .navbar-content {
-  width: 100%; /* Navbar'ın genişliği */
   display: flex;
-  justify-content: right;
+  justify-content: flex-end;
+  align-items: center;
+  flex: 1;
+}
+
+.logged-user {
+  display: flex;
+  align-items: center;
+  background-color: #1e242b;
+  border-radius: 999px;
+  border: 1px solid #2a2f36;
+  padding: 6px 12px;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.navbar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #333;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column !important;
+  justify-content: center;
+}
+
+.username {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.user-badge {
+  color: #fbc401;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .navbar p {
   color: #9d9fa0;
   margin-left: 20px;
-  font-family: GraphikWeb, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", Meiryo, sans-serif, ColorEmoji;
+  font-family: GraphikWeb, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Hiragino Sans", Meiryo, sans-serif, ColorEmoji;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -66,7 +109,7 @@
   bottom: -5px; /* yazının biraz altına */
   width: 0;
   height: 2px;
-  background-color: var(--color-primary,  #fbc401); /* fallback ile */
+  background-color: var(--color-primary, #fbc401); /* fallback ile */
   transition: width 0.3s ease;
 }
 
@@ -84,7 +127,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -96,5 +139,5 @@
   padding: 2rem;
   border-radius: 10px;
   min-width: 300px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }

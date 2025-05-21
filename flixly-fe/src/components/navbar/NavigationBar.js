@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "./NavigationBar.css";
 import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
+import Image from "../frame/Image";
 
 const NavigationBar = ({ handleDialog, handleToken, token }) => {
   const navigate = useNavigate();
@@ -12,13 +13,12 @@ const NavigationBar = ({ handleDialog, handleToken, token }) => {
   const [showSignInPanel, setShowSignInPanel] = useState(false);
   const [showCreateAccountPanel, setShowCreateAccountPanel] = useState(false);
 
-  useEffect(() => {
-  }, [token]);
-  
+  useEffect(() => {}, [token]);
+
   return (
     <nav className="navbar">
       <div className="logo">
-          <img src="/logo.png" alt="Readin Logo" className="logo-img" />
+        <img src="/logo.png" alt="Readin Logo" className="logo-img" />
       </div>
       <div className="navbar-content">
         {token ? (
@@ -54,6 +54,16 @@ const NavigationBar = ({ handleDialog, handleToken, token }) => {
         <p onClick={() => handleDialog(true)} className="nav-item">
           <AddIcon></AddIcon>
         </p>
+        {token && (
+          <div className="logged-user">
+            <Image className="navbar-img" />
+            <div className="user-info">
+              <span className="username">Hüseyin</span>
+              <span className="user-badge">Premium</span>
+            </div>
+          </div>
+        )}
+
         {showSignInPanel && (
           <SignInPanel
             isOpen={showSignInPanel}

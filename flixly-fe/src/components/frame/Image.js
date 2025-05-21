@@ -1,10 +1,6 @@
 import "./Image.css";
 
-const Image = () => {
-  return (
-    <div className="profile-image">
-      <img src="/pp.jpg" alt="xxx" className="profile-img" />
-    </div>
-  );
+const Image = ({ className = "profile-img" }) => {
+  return <img src="/pp.jpg" alt="Profile" className={className} />;
 };
 export default Image;
