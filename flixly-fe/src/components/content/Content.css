@@ -22,3 +22,85 @@
   gap: 10px;
   justify-items: center;
 }
+.background-stars {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  color: #a1883e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: "Graphik-Light-Web", sans-serif;
+}
+
+/* Yıldız şekli ve animasyonu */
+.star {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #a1883e;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  animation: starFall 5s linear infinite;
+  opacity: 0.9;
+}
+
+@keyframes starFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(150px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Dalgalanan şerit stili */
+.wave-banner {
+  background: linear-gradient(135deg, #a1883e 25%, #6b541f 50%, #a1883e 75%);
+  color: #1e242b;
+  padding: 15px 60px;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 1.8rem;
+  animation: waveMove 4s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(161, 136, 62, 0.7);
+  user-select: none;
+  position: relative;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dalgalanma animasyonu (yatay kayma + hafif yukarı aşağı hareket) */
+@keyframes waveMove {
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(15px) translateY(-5px);
+  }
+}
+
+/* Alt yazı */
+.subtext {
+  color: #7d7d7d;
+  font-weight: 400;
+  font-size: 1.2rem;
+  margin: 0;
+}
