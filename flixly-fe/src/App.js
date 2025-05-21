@@ -7,7 +7,7 @@ import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
 import Profile from "./components/profile/Profile";
 import Books from "./components/books/Books";
-import AddActivity from "./components/common/AddActivity";
+import BookFilter from "./components/common/BookFilter";
 import SelectedBookDialog from "./components/common/SelectedBookDialog";
 import Author from "./components/author/Author";
 import BookSummaryView from "./components/view/BookSummaryView";
@@ -76,7 +76,7 @@ const App = () => {
       </Routes>
 
       {activityDialog && (
-        <AddActivity
+        <BookFilter
           open={activityDialog}
           handleDialog={handleDialog}
           selectedBookHandler={selectedBookHandler}
