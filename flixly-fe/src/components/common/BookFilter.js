@@ -95,10 +95,22 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
             )}
             ListboxProps={{
               style: {
-                backgroundColor: "##1E242B", // açılan liste arkaplanı
+                backgroundColor: "#1E242B",
                 color: "#7d7d7d",
                 maxHeight: 200,
                 overflowY: "auto",
+              },
+              sx: {
+                "&::-webkit-scrollbar": {
+                  width: "8px",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#555",
+                  borderRadius: "4px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "#2a2f36",
+                },
               },
             }}
             renderOption={(props, option, { selected }) => (
