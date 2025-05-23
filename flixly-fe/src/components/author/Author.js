@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import AuthorFrame from "../frame/AuthorFrame";
 import "./Author.css";
 import { useLocation } from "react-router-dom";
@@ -8,7 +8,8 @@ import AuthorProgressBar from "./AuthorProgressBar";
 const Author = ({}) => {
   const location = useLocation();
   const author = location.state?.author;
-  
+  const [showFullDesc, setShowFullDesc] = useState(false);
+
   const totalBooks = author.bookWrittenBy.length;
   // Authorizationdan sonra eklenecek.
   const readBooks = 5;
@@ -33,12 +34,30 @@ const Author = ({}) => {
         </div>
       </div>
       <div className="author-right">
-        <AuthorFrame coverUrl={author.portrait} />
-        <span>
-          <p>{author.description}</p>
-        </span>
+        <AuthorFrame coverUrl={author.portrait} className="author-photo" />
+        <div className="author-dates">
+          <div className="author-date-item">{author.birthDate || "1904"}</div>
+          <div>–</div>
+          <div className="author-date-item">
+            {author.deathDate || "Halen yaşıyor"}
+          </div>
+        </div>
 
-        <AuthorProgressBar totalBooks={10} readBooks={5} />
+        <div className="author-info-container">
+          <div
+            className={`author-description ${showFullDesc ? "full" : ""}`}
+            onClick={() => setShowFullDesc(!showFullDesc)}
+            title={showFullDesc ? "Gösterimi kapat" : "Devamını gör"}
+            style={{ cursor: "pointer" }}
+          >
+            <p>{author.description}</p>
+            {!showFullDesc && (
+              <span className="show-more">... Devamını gör</span>
+            )}
+          </div>
+
+          <AuthorProgressBar totalBooks={10} readBooks={5} />
+        </div>
       </div>
     </div>
   );
