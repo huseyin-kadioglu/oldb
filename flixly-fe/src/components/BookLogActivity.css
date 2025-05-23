@@ -1,40 +1,55 @@
 .log-activity {
   display: flex;
-}
-
-.add {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1;
-  margin-bottom: 10px;
-  margin-left: 10px;
-}
-
-.status-box {
-  margin-top: 0px;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  color: #ffffff;
 }
 
 .status-option {
-  border: 2px solid #ccc;
-  border-radius: 80px;
-  cursor: pointer;
   text-align: center;
-  transition: 0.3s ease;
-  user-select: none;
-  margin-top: 15px;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 12px;
+  background-color: #2a2a2a;
+  color: #ddd;
+  transition: background-color 0.3s ease;
+  border: 1px solid transparent;
 }
 
 .status-option:hover {
-  border-color: #1976d2;
+  background-color: #3a3a3a;
 }
 
 .status-option.selected {
-  border-color: #2e7d32;
-  background-color: #e8f5e9;
+  background-color: #fbc401;
+  color: #000;
+  border: 1px solid #fbc401;
 }
 
 .status-option.disabled {
+  opacity: 0.4;
   pointer-events: none;
-  opacity: 0.5;
+}
+
+.add .MuiInputBase-root {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+.add .MuiInputBase-input {
+  color: #fff;
+}
+
+.add label {
+  color: #aaa;
+}
+
+.footer Button {
+  background-color: #fbc401;
+  color: #000;
+}
+
+.footer Button:hover {
+  background-color: #e0a800;
 }

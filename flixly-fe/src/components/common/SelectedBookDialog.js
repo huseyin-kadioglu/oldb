@@ -1,22 +1,12 @@
-import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Button,
-  TextField,
-  Autocomplete,
-  InputAdornment,
-} from "@mui/material";
+import React, { useState } from "react";
+import { Dialog, DialogTitle, DialogContent, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import PhotoFrame from "../frame/PhotoFrame";
 import BookLogActivity from "../BookLogActivity";
-import { AccountCircle } from "@mui/icons-material";
 import { createUserActivity } from "../../service/APIService";
 
 const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
   const [payload, setPayload] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const createBookActivity = async (value) => {
@@ -32,64 +22,82 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
   };
 
   return (
-    <>
-      <Dialog
-        open={open}
-        onClose={() => selectedBookHandler(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <form
-          onSubmit={(event) => {
+    <Dialog
+      open={open}
+      onClose={() => selectedBookHandler(false)}
+      maxWidth="sm"
+      fullWidth
+      slotProps={{
+        paper: {
+          component: "form",
+          onSubmit: (event) => {
             event.preventDefault();
             createBookActivity(payload);
             selectedBookHandler(false);
+          },
+          sx: {
+            backgroundColor: "#1E242B",
+            color: "#7d7d7d",
+            padding: 2,
+          },
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "1px solid #444",
+          backgroundColor: "#1E242B",
+          color: "#a1883e",
+          fontWeight: "bold",
+        }}
+      >
+        <Button
+          onClick={() => selectedBookHandler(false)}
+          sx={{
+            minWidth: "auto",
+            color: "#a1883e",
+            fontSize: "1.2rem",
+            "&:hover": {
+              backgroundColor: "rgba(161,136,62,0.15)",
+            },
           }}
         >
-          <DialogTitle
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderBottom: "1px solid #ddd",
-              backgroundColor: "#f0f0f0",
-              color: "#333",
-              fontWeight: "bold",
-              fontSize: "1.2rem",
-            }}
-          >
-            <Button
-              onClick={() => selectedBookHandler(false)}
-              style={{ minWidth: "auto" }}
-            >
-              <ArrowBackIcon />
-            </Button>
-            Kitap için aktivite ekle
-            <Button
-              onClick={() => selectedBookHandler(false)}
-              sx={{
-                minWidth: "auto",
-                color: "#555",
-                fontWeight: "bold",
-                fontSize: "1.2rem",
-                "&:hover": {
-                  color: "#000",
-                },
-              }}
-            >
-              ✖
-            </Button>
-          </DialogTitle>
+          <ArrowBackIcon />
+        </Button>
+        Kitap için aktivite ekle
+        <Button
+          onClick={() => selectedBookHandler(false)}
+          sx={{
+            minWidth: "auto",
+            color: "#a1883e",
+            fontSize: "1.2rem",
+            "&:hover": {
+              backgroundColor: "rgba(161,136,62,0.15)",
+            },
+          }}
+        >
+          ✖
+        </Button>
+      </DialogTitle>
 
-          <DialogContent>
-            <BookLogActivity
-              selectedBook={selectedBook}
-              setPayload={setPayload}
-            />
-          </DialogContent>
-        </form>
-      </Dialog>
-    </>
+      <DialogContent
+        sx={{
+          backgroundColor: "#1E242B",
+          color: "#7d7d7d",
+          pt: 2,
+          pb: 3,
+        }}
+      >
+        <BookLogActivity selectedBook={selectedBook} setPayload={setPayload} />
+        {error && (
+          <p style={{ color: "#ff6b6b", marginTop: "1rem" }}>{error}</p>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
+
 export default SelectedBookDialog;

@@ -1,9 +1,10 @@
 import * as React from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { TextField, Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+
 export default function MinimalDatePicker({ readDate, setReadDate }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -17,25 +18,48 @@ export default function MinimalDatePicker({ readDate, setReadDate }) {
               variant: "filled",
               InputProps: {
                 disableUnderline: true,
-                sx: {
-                  fontSize: 14,
-                  borderRadius: 1,
-                  px: 1.5,
-                  py: 1,
-                  backgroundColor: "#f5f5f5",
-                  "& input": {
-                    padding: "8px 0", // biraz daha dikey boşluk
-                  },
-                  "& .MuiSvgIcon-root": {
-                    color: "#6b6b6b",
-                    marginRight: "4px", // ikonun kutuya taşmasını engeller
-                  },
-                },
               },
               sx: {
                 width: 180,
-                "& .MuiInputBase-root": {
-                  pr: "8px", // ikonun içeride düzgün görünmesini sağlar
+                fontFamily: `"Georgia", serif`,
+                fontWeight: 400,
+                fontSize: 14,
+                borderRadius: 2,
+                backgroundColor: "#3b4552",
+                color: "#ddd",
+                input: {
+                  color: "#ddd",
+                  padding: "10px 12px",
+                },
+                "& .MuiSvgIcon-root": {
+                  color: "#fbc401",
+                },
+                "& .MuiFilledInput-root": {
+                  borderRadius: 2,
+                  backgroundColor: "#3b4552",
+                },
+              },
+            },
+            popper: {
+              sx: {
+                "& .MuiPaper-root": {
+                  backgroundColor: "#2f2f2f",
+                  color: "#fff",
+                  borderRadius: 2,
+                },
+                "& .MuiPickersDay-root": {
+                  color: "#ddd",
+                  "&.Mui-selected": {
+                    backgroundColor: "#fbc401",
+                    color: "#000",
+                    fontWeight: 600,
+                    "&:hover": {
+                      backgroundColor: "#e6b800",
+                    },
+                  },
+                  "&:hover": {
+                    backgroundColor: "#444",
+                  },
                 },
               },
             },
