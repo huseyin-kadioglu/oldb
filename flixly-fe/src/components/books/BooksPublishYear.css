@@ -1,0 +1,103 @@
+.nobel-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 1.5rem;
+  height: 100px;
+  border-radius: 8px;
+  background-color: #34495e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.nobel-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 15%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: shimmer 3s infinite;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -30%;
+  }
+  100% {
+    left: 130%;
+  }
+}
+
+.nobel-section:hover {
+  background-color: #3c5670;
+  transform: scale(1.015);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+.nobel-section:hover .nobel-badge {
+  box-shadow: 0 0 8px 2px #fbc02d;
+  transition: box-shadow 0.3s ease;
+}
+
+.nobel-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: linear-gradient(
+    120deg,
+    #fff176 0%,
+    /* açık sarı */ #fbc02d 100% /* daha koyu, altın sarısı */
+  );
+  color: #1a1a1a;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-bottom-right-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
+}
+
+.nobel-left {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.nobel-left img {
+  max-height: 80px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.nobel-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.nobel-text {
+  font-family: "Playfair Display", serif;
+  font-weight: 500;
+  font-style: normal; /* dilersen italic */
+  font-size: 1.1rem;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  color: #f5f1e9;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+.nobel-text svg {
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  color: gold;
+}
