@@ -2,6 +2,8 @@
 
 **Oldb**, kullanıcıların kitap ekleyip takip edebildiği, profiller oluşturabildiği ve kitaplar hakkında detaylı bilgi alabileceği modern bir React tabanlı web uygulamasıdır.
 
+![image](https://github.com/user-attachments/assets/d2a28a74-3c3f-4184-a3e7-949892c2e323)
+
 ---
 
 ## İçindekiler
@@ -36,18 +38,3 @@
 - Font Awesome
 - Backend API (REST veya GraphQL)
 - Session Storage tabanlı token yönetimi
-
----
-
-## Kurulum
-
-```bash
-# Repoyu klonla
-git clone https://github.com/kullaniciAdi/oldb.git
-cd oldb
-
-# Bağımlılıkları yükle
-npm install
-
-# Uygulamayı çalıştır
-npm start
