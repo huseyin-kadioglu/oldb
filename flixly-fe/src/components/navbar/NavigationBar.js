@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 import "./NavigationBar.css";
 import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
-import Image from "../frame/Image";
+import LoggedUser from "./LoggedUser";
 
-const NavigationBar = ({ handleDialog, handleToken, token }) => {
+const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
   const navigate = useNavigate();
 
   const [showSignInPanel, setShowSignInPanel] = useState(false);
@@ -41,6 +41,12 @@ const NavigationBar = ({ handleDialog, handleToken, token }) => {
           </>
         )}
 
+        {token && (
+          <p onClick={() => navigate("/activities")} className="nav-item">
+            #
+          </p>
+        )}
+
         <p onClick={() => navigate("/")} className="nav-item">
           Ana Sayfa
         </p>
@@ -54,15 +60,7 @@ const NavigationBar = ({ handleDialog, handleToken, token }) => {
         <p onClick={() => handleDialog(true)} className="nav-item">
           <AddIcon></AddIcon>
         </p>
-        {token && (
-          <div className="logged-user">
-            <Image className="navbar-img" />
-            <div className="user-info">
-              <span className="username">Hüseyin</span>
-              <span className="user-badge">Premium</span>
-            </div>
-          </div>
-        )}
+        {token && <LoggedUser token={token} onLogout={onLogout} />}
 
         {showSignInPanel && (
           <SignInPanel

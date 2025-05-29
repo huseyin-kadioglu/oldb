@@ -1,0 +1,54 @@
+.logged-user {
+  display: flex;
+  align-items: center;
+  background-color: #1e242b;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid #444;
+  padding: 6px 12px;
+  gap: 10px;
+  min-width: 150px;  /* örnek genişlik */
+  height: 44px;      /* örnek yükseklik */
+  position: relative; /* dropdown için */
+}
+
+.logout-box {
+  position: absolute;
+  top: 100%; /* altına yerleşir */
+  right: 0;
+  background-color: #1e242b;
+  border: 1px solid #444;
+  border-radius: 999px;
+  width: 100%;     /* logged-user ile aynı genişlikte */
+  height: 44px;    /* logged-user ile aynı yükseklikte */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 6px;
+  cursor: pointer;
+  color: #fbc401;
+  box-shadow: 0 0 10px rgba(251, 196, 1, 0.5);
+  z-index: 1500;
+  user-select: none;
+  font-weight: 600;
+}
+
+.logged-user:hover {
+  background-color: #2c3440;
+}
+
+.user-info {
+  margin-left: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  color: #fbc401;
+  font-weight: bold;
+}
+
+.user-badge {
+  font-size: 12px;
+  color: #aaa;
+}

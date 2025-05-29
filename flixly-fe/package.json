@@ -15,6 +15,7 @@
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
     "font-awesome": "^4.7.0",
+    "lottie-react": "^2.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.4.0",

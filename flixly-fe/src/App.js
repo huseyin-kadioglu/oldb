@@ -12,6 +12,7 @@ import SelectedBookDialog from "./components/common/SelectedBookDialog";
 import Author from "./components/author/Author";
 import BookSummaryView from "./components/view/BookSummaryView";
 import BooksPublishYear from "./components/books/BooksPublishYear";
+import Activies from "./components/content/Activities";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -36,14 +37,22 @@ const App = () => {
   };
 
   useEffect(() => {
-    console.log("appjs render");
+    // Component ilk yüklendiğinde token'ı sessionStorage'dan al
     const storedToken = sessionStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
     }
+  }, []);
 
+  useEffect(() => {
+    // Token değiştiğinde kitapları yükle
     fetchBooks();
   }, [token]);
+
+  const onLogout = () => {
+  sessionStorage.removeItem("token");
+  setToken(null);
+};
 
   const fetchBooks = async () => {
     try {
@@ -62,11 +71,13 @@ const App = () => {
         handleDialog={handleDialog}
         token={token}
         handleToken={handleToken}
+        onLogout={onLogout}
       />
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/books" element={<Books books={books} />} />
+        <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
         <Route
           path="/book/:bookId"
