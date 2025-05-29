@@ -50,9 +50,9 @@ const App = () => {
   }, [token]);
 
   const onLogout = () => {
-  sessionStorage.removeItem("token");
-  setToken(null);
-};
+    sessionStorage.removeItem("token");
+    setToken(null);
+  };
 
   const fetchBooks = async () => {
     try {
