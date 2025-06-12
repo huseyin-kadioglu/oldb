@@ -50,6 +50,8 @@ export const loginAccount = async (param) => {
     const response = await axios.post(LOGIN_API, param);
     sessionStorage.setItem("token", response.data.token);
     sessionStorage.setItem("username", response.data.profileName);
+    sessionStorage.setItem("userRole", response.data.role);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Create error:", error);

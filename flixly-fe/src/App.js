@@ -13,6 +13,11 @@ import Author from "./components/author/Author";
 import BookSummaryView from "./components/view/BookSummaryView";
 import BooksPublishYear from "./components/books/BooksPublishYear";
 import Activies from "./components/content/Activities";
+import AddAuthor from "./components/author/AddAuthor";
+import AddBook from "./components/pages/AddBook";
+import AuthorApproval from "./components/pages/AuthorApproval";
+import BookApproval from "./components/pages/BookApproval";
+import ProfileApproval from "./components/pages/ProfileApproval";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -84,6 +89,12 @@ const App = () => {
           element={<BookSummaryView books={books} />}
         />
         <Route path="/author/:authorId" element={<Author />} />
+        <Route path="/addAuthor" element={<AddAuthor />} />
+        <Route path="/addBook" element={<AddBook />} />
+        <Route path="/authorApproval" element={<AuthorApproval />} />
+        <Route path="/bookApproval" element={<BookApproval />} />
+        <Route path="/profileApproval" element={<ProfileApproval />} />
+
       </Routes>
 
       {activityDialog && (

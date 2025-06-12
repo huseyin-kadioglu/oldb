@@ -3,10 +3,15 @@ import { Menu, MenuItem } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "./NavigationBar.css";
 import Image from "../frame/Image";
+import { useNavigate } from "react-router-dom";
+import LoggedUserMenuItem from "./LoggedUserItem";
 
 const LoggedUser = ({ token, onLogout }) => {
+  const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState(null);
 
+  let role = sessionStorage.getItem("userRole");
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -50,6 +55,29 @@ const LoggedUser = ({ token, onLogout }) => {
           },
         }}
       >
+        <LoggedUserMenuItem
+          navigateUrl={"/addBook"}
+          value={"Kitap Ekle/Düzenle"}
+        />
+
+        <LoggedUserMenuItem
+          navigateUrl={"/addAuthor"}
+          value={"Yazar Ekle/Düzenle"}
+        />
+        {role == "admin" && [
+          <LoggedUserMenuItem
+            navigateUrl={"/profileApproval"}
+            value={" Kullanıcıları Yönet"}
+          />,
+          <LoggedUserMenuItem
+            navigateUrl={"/authorApproval"}
+            value={"Yazar Onay Ekranı"}
+          />,
+          <LoggedUserMenuItem
+            navigateUrl={"/bookApproval"}
+            value={"Kitap Onay Ekranı"}
+          />,
+        ]}
         <MenuItem onClick={handleLogout} sx={{ gap: 1, color: "#fbc401" }}>
           <LogoutIcon fontSize="small" />
           Çıkış Yap

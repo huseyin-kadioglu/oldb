@@ -11,5 +11,5 @@ public class LoginResponse {
     private String username;
     private long expiresIn;
     private String profileName;
-
+    private String role;
 }
