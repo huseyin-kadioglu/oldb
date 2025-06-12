@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 
 const Profile = (props) => {
   const [profileSummary, setProfileSummary] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,7 +16,7 @@ const Profile = (props) => {
 
   const fetchProfileSummary = async () => {
     try {
-      const data = await getProfileSummary(); // Servis çağrısı
+      const data = await getProfileSummary();
       setProfileSummary(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
@@ -31,7 +32,10 @@ const Profile = (props) => {
         title="Favourite Books"
         books={profileSummary?.favoriteBooks}
       />
-      <FrameBlock title="Recent Activity" />
+      <FrameBlock
+        title="Recent Activity"
+        books={profileSummary?.recentActivity}
+      />
     </div>
   );
 };

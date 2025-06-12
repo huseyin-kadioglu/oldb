@@ -32,7 +32,7 @@ const LoggedUser = ({ token, onLogout }) => {
           <Image className="navbar-img" />
           <div className="user-info">
             <span className="username">Hüseyin</span>
-            <span className="user-badge">Premium</span>
+            <span className="user-badge">{role}</span>
           </div>
         </div>
       )}

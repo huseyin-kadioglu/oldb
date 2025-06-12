@@ -22,13 +22,6 @@ import StarIcon from "@mui/icons-material/Star";
 import StatusSelector from "./common/StatusSelector";
 
 const BookLogActivity = ({ selectedBook, setPayload }) => {
-  const statusOptions = [
-    { value: "READ", icon: <MenuBookIcon /> },
-    { value: "READLIST", icon: <PlaylistAddIcon /> },
-    { value: "FAVOURITE", icon: <StarIcon /> },
-    { value: "DROPPED", icon: <BlockIcon /> },
-    { value: "HATE", icon: <FavoriteIcon /> },
-  ];
 
   const [activityStatus, setActivityStatus] = useState(null);
   const [rating, setRating] = useState(null);
