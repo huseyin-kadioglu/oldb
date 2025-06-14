@@ -71,6 +71,36 @@ export const createAccount = async (param) => {
   }
 };
 
+export const getAuthorApprovals = async () => {
+  const token = sessionStorage.getItem("token");
+  const response = await fetch("http://localhost:8080/author-approvals", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.json();
+};
+
+export const approveAuthorApproval = async (id) => {
+  const token = sessionStorage.getItem("token");
+  await fetch(`http://localhost:8080/author-approvals/${id}/approve`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const rejectAuthorApproval = async (id) => {
+  const token = sessionStorage.getItem("token");
+  await fetch(`http://localhost:8080/author-approvals/${id}/reject`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const createBookContribution = async (data) => {
   const token = sessionStorage.getItem("token");
 
@@ -94,6 +124,49 @@ export const createBookContribution = async (data) => {
     return text ? JSON.parse(text) : null; // boşsa null döner
   } catch (error) {
     console.error("Kitap katkısı eklenirken hata oluştu:", error);
+    throw error;
+  }
+};
+
+export const createAuthorContribution = async (payload) => {
+  const token = sessionStorage.getItem("token");
+
+  const response = await fetch("http://localhost:8080/author-approvals", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Yazar eklenemedi.");
+  }
+
+  const text = await response.text(); // önce text al
+  return text ? JSON.parse(text) : null; // içerik varsa parse et
+};
+
+export const rejectBookApproval = async (id) => {
+  const token = sessionStorage.getItem("token");
+
+  try {
+    const response = await fetch("http://localhost:8080/book-approvals", {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(id),
+      mode: "cors",
+    });
+
+    if (!response.ok) {
+      throw new Error("Silme işlemi başarısız: " + response.statusText);
+    }
+  } catch (error) {
+    console.error("Kitap reddedilirken hata oluştu:", error);
     throw error;
   }
 };

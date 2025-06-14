@@ -3,65 +3,49 @@ import {
   Button,
   TextField,
   Typography,
-  Autocomplete,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { createBookContribution, getAuthors } from "../../service/APIService";
+import { useState } from "react";
+import { createAuthorContribution } from "../../service/APIService";
 
-const BookContributeForm = () => {
-  const [title, setTitle] = useState("");
-  const [originalTitle, setOriginalTitle] = useState("");
-  const [authorId, setAuthorId] = useState("");
-  const [publicationYear, setPublicationYear] = useState("");
+const AuthorContributeForm = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [birthYear, setBirthYear] = useState("");
+  const [deathYear, setDeathYear] = useState("");
+  const [portrait, setPortrait] = useState("");
   const [description, setDescription] = useState("");
-  const [pageCount, setPageCount] = useState("");
-  const [publisher, setPublisher] = useState("");
-  const [coverUrl, setCoverUrl] = useState("");
-  const [authors, setAuthors] = useState([]);
-
-  useEffect(() => {
-    fetchAuthors();
-  }, []);
-
-  const fetchAuthors = async () => {
-    try {
-      const data = await getAuthors();
-      setAuthors(data);
-    } catch {
-      console.error("Yazarlar yüklenirken hata oluştu.");
-    }
-  };
 
   const clearForm = () => {
-    setTitle("");
-    setOriginalTitle("");
-    setAuthorId("");
-    setPublicationYear("");
+    setFirstName("");
+    setLastName("");
+    setBirthYear("");
+    setDeathYear("");
+    setPortrait("");
     setDescription("");
-    setPageCount("");
-    setPublisher("");
-    setCoverUrl("");
   };
 
-  const handleSubmit = () => {
-    if (!title || !authorId) {
-      alert("Lütfen zorunlu alanları doldurun.");
+  const handleSubmit = async () => {
+    if (!firstName || !lastName) {
+      alert("Lütfen ad ve soyad giriniz.");
       return;
     }
 
     const payload = {
-      title,
-      originalTitle,
-      authorId,
-      publicationYear,
+      name: `${firstName} ${lastName}`,
+      birthYear,
+      deathYear,
+      portrait,
       description,
-      pageCount,
-      publisher,
-      coverUrl,
     };
 
-    createBookContribution(payload);
-    clearForm();
+    try {
+      await createAuthorContribution(payload);
+      clearForm();
+      alert("Yazar başarıyla gönderildi.");
+    } catch (err) {
+      console.error("Yazar gönderilemedi:", err);
+      alert("Yazar gönderilirken bir hata oluştu.");
+    }
   };
 
   return (
@@ -83,38 +67,13 @@ const BookContributeForm = () => {
         gutterBottom
         sx={{ color: "#fbc401", mb: 3, fontWeight: 700 }}
       >
-        Yeni Kitap Ekle
+        Yeni Yazar Ekle
       </Typography>
 
-      <Autocomplete
-        options={authors}
-        getOptionLabel={(option) => option.name || ""}
-        onChange={(event, newValue) => setAuthorId(newValue ? newValue.id : "")}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Yazar *"
-            margin="normal"
-            size="small"
-            variant="filled"
-            InputProps={{
-              ...params.InputProps,
-              sx: {
-                backgroundColor: "#1e242b",
-                color: "#eee",
-                borderRadius: 1,
-              },
-            }}
-            InputLabelProps={{ sx: { color: "#aaa", fontWeight: 500 } }}
-          />
-        )}
-        sx={{ mt: 1 }}
-      />
-
       <TextField
-        label="Kitap İsmi *"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        label="Ad *"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
         fullWidth
         size="small"
         margin="normal"
@@ -127,17 +86,14 @@ const BookContributeForm = () => {
           },
         }}
         InputLabelProps={{
-          sx: {
-            color: "#aaa",
-            fontWeight: 500,
-          },
+          sx: { color: "#aaa", fontWeight: 500 },
         }}
       />
 
       <TextField
-        label="Orijinal Başlık"
-        value={originalTitle}
-        onChange={(e) => setOriginalTitle(e.target.value)}
+        label="Soyad *"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
         fullWidth
         size="small"
         margin="normal"
@@ -149,19 +105,14 @@ const BookContributeForm = () => {
             borderRadius: 1,
           },
         }}
-        InputLabelProps={{
-          sx: {
-            color: "#aaa",
-            fontWeight: 500,
-          },
-        }}
+        InputLabelProps={{ sx: { color: "#aaa", fontWeight: 500 } }}
       />
 
       <TextField
-        label="Yayın Yılı"
+        label="Doğum Yılı"
         type="number"
-        value={publicationYear}
-        onChange={(e) => setPublicationYear(e.target.value)}
+        value={birthYear}
+        onChange={(e) => setBirthYear(e.target.value)}
         fullWidth
         size="small"
         margin="normal"
@@ -177,10 +128,10 @@ const BookContributeForm = () => {
       />
 
       <TextField
-        label="Sayfa Sayısı"
+        label="Ölüm Yılı"
         type="number"
-        value={pageCount}
-        onChange={(e) => setPageCount(e.target.value)}
+        value={deathYear}
+        onChange={(e) => setDeathYear(e.target.value)}
         fullWidth
         size="small"
         margin="normal"
@@ -196,9 +147,9 @@ const BookContributeForm = () => {
       />
 
       <TextField
-        label="Yayıncı"
-        value={publisher}
-        onChange={(e) => setPublisher(e.target.value)}
+        label="Portre Görseli URL"
+        value={portrait}
+        onChange={(e) => setPortrait(e.target.value)}
         fullWidth
         size="small"
         margin="normal"
@@ -213,29 +164,11 @@ const BookContributeForm = () => {
         InputLabelProps={{ sx: { color: "#aaa", fontWeight: 500 } }}
       />
 
-      <TextField
-        label="Kapak Görseli URL"
-        value={coverUrl}
-        onChange={(e) => setCoverUrl(e.target.value)}
-        fullWidth
-        size="small"
-        margin="normal"
-        variant="filled"
-        InputProps={{
-          sx: {
-            backgroundColor: "#1e242b",
-            color: "#eee",
-            borderRadius: 1,
-          },
-        }}
-        InputLabelProps={{ sx: { color: "#aaa", fontWeight: 500 } }}
-      />
-
-      {coverUrl && (
+      {portrait && (
         <Box mt={2} display="flex" justifyContent="center">
           <img
-            src={coverUrl}
-            alt="Kapak Önizleme"
+            src={portrait}
+            alt="Portre"
             style={{ maxWidth: "100px", maxHeight: "140px", borderRadius: "4px" }}
           />
         </Box>
@@ -294,11 +227,11 @@ const BookContributeForm = () => {
             },
           }}
         >
-          Destek Ol
+          Ekle
         </Button>
       </Box>
     </Box>
   );
 };
 
-export default BookContributeForm;
+export default AuthorContributeForm;

@@ -36,7 +36,7 @@ public class SecurityConfiguration {
                 .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/books/**", "/authors/**", "/api/auth/**").permitAll()
-                .requestMatchers("/book-approvals/**").authenticated()
+                .requestMatchers("/book-approvals/**", "/author-approvals/**", "/profile/**").authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

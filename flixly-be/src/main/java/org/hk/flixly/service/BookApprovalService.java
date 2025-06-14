@@ -44,6 +44,7 @@ public class BookApprovalService {
         entity.setOriginalTitle(dto.getOriginalTitle());
         entity.setYear(dto.getPublicationYear());
         entity.setCreatedAt(LocalDateTime.now());
+        entity.setCoverUrl(dto.getCoverUrl());
         entity.setStatus("PENDING");
         entity.setTitle(dto.getTitle());
         entity.setPageCount(dto.getPageCount());
@@ -58,5 +59,9 @@ public class BookApprovalService {
         }
 
         return Collections.emptyList();
+    }
+
+    public void rejectApproval(Long id) {
+        bookApprovalRepository.deleteById(id);
     }
 }

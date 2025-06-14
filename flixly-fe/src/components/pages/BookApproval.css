@@ -9,7 +9,7 @@
   background-color: #1e242b;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 0 6px rgba(0,0,0,0.3);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
   padding: 10px;
   color: #e5e5e5;
   max-height: 160px;
@@ -30,31 +30,47 @@
   flex: 1;
 }
 
-.book-title {
-  font-size: 1.2rem;
+.book-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 600;
   color: #fff;
-  margin: 0;
-  line-height: 1.3;
 }
 
-.book-sub {
-  font-size: 0.75rem;
-  color: #aaa;
-  margin: 4px 0;
+.book-title {
+  font-size: 1.1rem;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-year,
+.book-author {
+  font-size: 0.85rem;
+  color: #bbb;
 }
 
 .book-description {
   font-size: 0.85rem;
   color: #ccc;
-  max-height: 48px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.book-contributor {
+  font-size: 0.75rem;
+  color: #999;
+  margin: 6px 0 0 0;
+}
+
 .book-actions {
   display: flex;
   gap: 8px;
+  margin-top: 6px;
 }
 
 .approve-btn,

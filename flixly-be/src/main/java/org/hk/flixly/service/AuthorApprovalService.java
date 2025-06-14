@@ -1,0 +1,59 @@
+package org.hk.flixly.service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.hk.flixly.model.AuthorApprovalDto;
+import org.hk.flixly.model.UserEntity;
+import org.hk.flixly.model.entity.AuthorApprovalEntity;
+import org.hk.flixly.repository.AuthorApprovalRepository;
+import org.hk.flixly.repository.AuthorRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+@Slf4j
+@Service
+public class AuthorApprovalService {
+
+    private final AuthorApprovalRepository authorApprovalRepository;
+    private final AuthorRepository authorRepository;
+
+    public AuthorApprovalService(AuthorApprovalRepository authorApprovalRepository, AuthorRepository authorRepository) {
+        this.authorApprovalRepository = authorApprovalRepository;
+        this.authorRepository = authorRepository;
+    }
+
+    public AuthorApprovalEntity contributeAuthor(AuthorApprovalDto dto, UserDetails userDetails) {
+
+        if (userDetails == null) {
+            log.info("user bilgisi boş");
+            return null;
+        }
+
+        AuthorApprovalEntity entity = new AuthorApprovalEntity();
+        entity.setName(dto.getName());
+        entity.setBirthYear(dto.getBirthYear());
+        entity.setDeathYear(dto.getDeathYear());
+        entity.setPortrait(dto.getPortrait());
+        entity.setDescription(dto.getDescription());
+        entity.setContributedUser(userDetails.getUsername());
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setStatus("PENDING");
+        return authorApprovalRepository.save(entity);
+    }
+
+    public List<AuthorApprovalEntity> getApprovals(UserDetails userDetails) {
+        String role = ((UserEntity) userDetails).getRole();
+        if (role.equals("admin")) {
+            return authorApprovalRepository.findAll();
+        }
+
+        return Collections.emptyList();
+    }
+
+    public void rejectApproval(Long id) {
+        authorApprovalRepository.deleteById(id);
+    }
+}

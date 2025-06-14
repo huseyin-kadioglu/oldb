@@ -1,41 +1,31 @@
 package org.hk.flixly.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "book_approvals")
+@Table(name = "author_approvals")
 @Getter
 @Setter
-public class BookApprovalEntity {
+public class AuthorApprovalEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-
-    private String originalTitle;
-
+    @Column(nullable = false, unique = true)
+    private String name;
+    private String portrait;
+    private Integer birthYear;
+    private Integer deathYear;
     private Long authorId;  // Yazarın ID'si
 
-    private Integer year;
 
     @Column(length = 2000)
     private String description;
-
-    private Integer pageCount;
-
-    private String publisher;
-    private String coverUrl;
 
     private String contributedUser;  // Katkıda bulunan kullanıcının ID'si
 

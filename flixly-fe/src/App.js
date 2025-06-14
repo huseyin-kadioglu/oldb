@@ -13,7 +13,7 @@ import Author from "./components/author/Author";
 import BookSummaryView from "./components/view/BookSummaryView";
 import BooksPublishYear from "./components/books/BooksPublishYear";
 import Activies from "./components/content/Activities";
-import AddAuthor from "./components/author/AddAuthor";
+import AuthorContributeForm from "./components/author/AuthorContributeForm";
 import AuthorApproval from "./components/pages/AuthorApproval";
 import BookApproval from "./components/pages/BookApproval";
 import ProfileApproval from "./components/pages/ProfileApproval";
@@ -89,7 +89,7 @@ const App = () => {
           element={<BookSummaryView books={books} />}
         />
         <Route path="/author/:authorId" element={<Author />} />
-        <Route path="/addAuthor" element={<AddAuthor />} />
+        <Route path="/addAuthor" element={<AuthorContributeForm />} />
         <Route path="/bookContribute" element={<BookContributeForm />} />
         <Route path="/authorApproval" element={<AuthorApproval />} />
         <Route path="/bookApproval" element={<BookApproval />} />

@@ -5,12 +5,7 @@ import org.hk.flixly.model.entity.BookApprovalEntity;
 import org.hk.flixly.service.BookApprovalService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,5 +28,10 @@ public class BookApprovalController {
     @GetMapping()
     public List<BookApprovalEntity> approval(@AuthenticationPrincipal UserDetails userDetails) {
         return bookApprovalService.getApprovals(userDetails);
+    }
+
+    @DeleteMapping
+    public void rejectApproval(@RequestBody Long id) {
+        bookApprovalService.rejectApproval(id);
     }
 }
