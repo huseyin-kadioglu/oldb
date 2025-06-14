@@ -9,6 +9,9 @@
 Beğendiklerinizi, favorilerinizi, yarım bıraktırlarınızı ve okumak istediklerinizi yönetibileceğiniz ekranlar;
 ![image](https://github.com/user-attachments/assets/47e282d3-1d87-4353-8be2-3b340a166ccc)
 
+Ayrıca kullanıcılar kitap ekleyerek community'e destek olabilir, bunun karşılığında destek puanı kazanabilir. Sonrasında bu puanlarla Ünvanlar kazanabilir, yeteri kadar üne kavuştuğunda ise Pro versiyonu ücretsiz kullanabilirler. 
+![image](https://github.com/user-attachments/assets/ebec3a7a-6473-4258-8f52-29eb1b1b50b0)
+
 
 ## İçindekiler
 
