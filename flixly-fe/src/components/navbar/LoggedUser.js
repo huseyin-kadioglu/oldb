@@ -56,7 +56,7 @@ const LoggedUser = ({ token, onLogout }) => {
         }}
       >
         <LoggedUserMenuItem
-          navigateUrl={"/addBook"}
+          navigateUrl={"/bookContribute"}
           value={"Kitap Ekle/Düzenle"}
         />
 

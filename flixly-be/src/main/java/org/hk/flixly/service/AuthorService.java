@@ -20,10 +20,6 @@ public class AuthorService {
         this.bookService = bookService;
     }
 
-    public List<AuthorEntity> getAllBooks() {
-        return authorRepository.findAll();
-    }
-
     public AuthorDto findById(Long id) {
 
         AuthorEntity authorEntity = authorRepository.findById(id).orElseThrow();
@@ -38,5 +34,9 @@ public class AuthorService {
         authorResponse.setPortrait(authorEntity.getPortrait());
         authorResponse.setBookWrittenBy(writtenByAuthor);
         return authorResponse;
+    }
+
+    public List<AuthorEntity> findAll() {
+        return authorRepository.findAll();
     }
 }

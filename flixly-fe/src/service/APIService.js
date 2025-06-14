@@ -6,6 +6,7 @@ const BOOKS_API = BASE_URL + "books/"; // Backend URL
 const BOOKS_BY_YEAR_API = BASE_URL + "books/publishYear/"; // Backend URL
 const AUTHOR_API = BASE_URL + "authors/"; // Backend URL
 const PROFILE_API = BASE_URL + "profile/"; // Backend URL
+const BOOK_APPROVAL_API = BASE_URL + "book-approvals";
 const SIGNUP_API = BASE_URL + "api/auth/signup";
 const LOGIN_API = BASE_URL + "api/auth/login";
 const USER_ACTIVITY_API = BASE_URL + "userActivity/"; // Backend URL
@@ -70,9 +71,68 @@ export const createAccount = async (param) => {
   }
 };
 
+export const createBookContribution = async (data) => {
+  const token = sessionStorage.getItem("token");
+
+  try {
+    const response = await fetch("http://localhost:8080/book-approvals", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      mode: "cors",
+    });
+
+    if (!response.ok) {
+      throw new Error("Hata oluştu: " + response.statusText);
+    }
+
+    return await response.json(); // veya `response.text()` beklenen cevaba göre
+  } catch (error) {
+    console.error("Kitap katkısı eklenirken hata oluştu:", error);
+    throw error;
+  }
+};
+
+export const getBookApprovals = async () => {
+  const token = sessionStorage.getItem("token");
+
+  try {
+    const response = await fetch(BOOK_APPROVAL_API, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    });
+
+    if (!response.ok) {
+      throw new Error("Hata oluştu: " + response.statusText);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Kitap onayları alınırken hata oluştu:", error);
+    throw error;
+  }
+};
+
 export const getAuthorById = async (id) => {
   try {
     const response = await axios.get(`${AUTHOR_API}${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Yazarlar alınırken hata oluştu:", error);
+    throw error;
+  }
+};
+
+export const getAuthors = async () => {
+  try {
+    const response = await axios.get(AUTHOR_API);
     return response.data;
   } catch (error) {
     console.error("Yazarlar alınırken hata oluştu:", error);
