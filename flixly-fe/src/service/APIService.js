@@ -89,7 +89,9 @@ export const createBookContribution = async (data) => {
       throw new Error("Hata oluştu: " + response.statusText);
     }
 
-    return await response.json(); // veya `response.text()` beklenen cevaba göre
+    // Response body'si boş olabilir, bu yüzden önce text olarak alıp kontrol ediyoruz
+    const text = await response.text();
+    return text ? JSON.parse(text) : null; // boşsa null döner
   } catch (error) {
     console.error("Kitap katkısı eklenirken hata oluştu:", error);
     throw error;
