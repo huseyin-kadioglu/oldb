@@ -6,6 +6,10 @@
 
 ---
 
+Beğendiklerinizi, favorilerinizi, yarım bıraktırlarınızı ve okumak istediklerinizi yönetibileceğiniz ekranlar;
+![image](https://github.com/user-attachments/assets/47e282d3-1d87-4353-8be2-3b340a166ccc)
+
+
 ## İçindekiler
 
 - [Özellikler](#özellikler)
