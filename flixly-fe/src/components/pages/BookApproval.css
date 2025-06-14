@@ -1,0 +1,87 @@
+.book-approval-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book-approval-card {
+  display: flex;
+  background-color: #1e242b;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
+  padding: 10px;
+  color: #e5e5e5;
+  max-height: 160px;
+}
+
+.book-poster {
+  width: 100px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.book-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 12px;
+  flex: 1;
+}
+
+.book-title {
+  font-size: 1.2rem;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.book-sub {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin: 4px 0;
+}
+
+.book-description {
+  font-size: 0.85rem;
+  color: #ccc;
+  max-height: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.approve-btn,
+.reject-btn {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.approve-btn {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.approve-btn:hover {
+  background-color: #43a047;
+}
+
+.reject-btn:hover {
+  background-color: #d32f2f;
+}
