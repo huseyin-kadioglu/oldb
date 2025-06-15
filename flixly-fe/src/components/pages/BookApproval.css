@@ -13,6 +13,7 @@
   padding: 10px;
   color: #e5e5e5;
   max-height: 160px;
+  position: relative;
 }
 
 .book-poster {
@@ -100,4 +101,27 @@
 
 .reject-btn:hover {
   background-color: #d32f2f;
+}
+
+/* Sadece ek alanlar aşağıda */
+
+.editable-dark {
+  background-color: #2c313a;
+  border: 1px solid #444;
+  color: #eee;
+  font-size: 0.85rem;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.editable-dark.short {
+  width: 70px;
+  text-align: center;
+}
+
+.editable-dark.full {
+  width: 100%;
+  resize: vertical;
+  margin-top: 4px;
+  font-family: inherit;
 }

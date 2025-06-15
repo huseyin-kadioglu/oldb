@@ -5,13 +5,14 @@ import {
   rejectAuthorApproval,
 } from "../../service/APIService";
 
-import "./BookApproval.css"; // Aynı stil kullanılabilir
+import EditIcon from "@mui/icons-material/Edit";
+import "./BookApproval.css";
 
 const AuthorApproval = () => {
   const [approvals, setApprovals] = useState([]);
+  const [editableId, setEditableId] = useState(null);
 
   useEffect(() => {
-    console.log("Rendering AuthorApproval");
     handleAuthorApprovals();
   }, []);
 
@@ -24,10 +25,21 @@ const AuthorApproval = () => {
     }
   };
 
-  const handleApprove = async (authorId) => {
+  const toggleEditable = (id) => {
+    setEditableId((prev) => (prev === id ? null : id));
+  };
+
+  const handleInputChange = (id, field, value) => {
+    setApprovals((prev) =>
+      prev.map((author) =>
+        author.id === id ? { ...author, [field]: value } : author
+      )
+    );
+  };
+
+  const handleApprove = async (author) => {
     try {
-      console.log("Approving author with ID:", authorId);
-      await approveAuthorApproval(authorId);
+      await approveAuthorApproval(author);
       handleAuthorApprovals();
     } catch (err) {
       console.error("Onay işlemi başarısız:", err);
@@ -37,7 +49,6 @@ const AuthorApproval = () => {
 
   const handleReject = async (authorId) => {
     try {
-      console.log("Rejecting author with ID:", authorId);
       await rejectAuthorApproval(authorId);
       handleAuthorApprovals();
     } catch (err) {
@@ -48,37 +59,126 @@ const AuthorApproval = () => {
 
   return (
     <div className="book-approval-container">
-      {approvals.map((author) => (
-        <div className="book-approval-card" key={author.id}>
-          <img src={author.portrait} className="book-poster" alt="Yazar" />
-          <div className="book-info">
-            <div className="book-meta">
-              <h2 className="book-title">
-                {author.name} {author.surname}
-              </h2>
-              <span className="book-year">
-                {author.birthYear} - {author.deathYear || "..."}
-              </span>
+      {approvals.map((author) => {
+        const isEditable = editableId === author.id;
+
+        return (
+          <div className="book-approval-card" key={author.id}>
+            <div
+              style={{
+                position: "absolute",
+                top: 6,
+                right: 10,
+                cursor: "pointer",
+                color: "#999",
+              }}
+              onClick={() => toggleEditable(author.id)}
+              title={isEditable ? "Düzenlemeyi Kapat" : "Düzenle"}
+            >
+              <EditIcon fontSize="small" />
             </div>
-            <p className="book-description">{author.description}</p>
-            <p className="book-contributor">Katkı: {author.contributedUser}</p>
-            <div className="book-actions">
-              <button
-                className="approve-btn"
-                onClick={() => handleApprove(author.id)}
-              >
-                ✓
-              </button>
-              <button
-                className="reject-btn"
-                onClick={() => handleReject(author.id)}
-              >
-                X
-              </button>
+
+            <img
+              src={author.portrait}
+              className="book-poster"
+              alt="Yazar"
+            />
+
+            <div className="book-info">
+              <div className="book-meta">
+                {isEditable ? (
+                  <>
+                    <input
+                      value={author.name}
+                      onChange={(e) =>
+                        handleInputChange(author.id, "name", e.target.value)
+                      }
+                      className="editable-dark"
+                      placeholder="Ad"
+                    />
+                    <input
+                      value={author.surname}
+                      onChange={(e) =>
+                        handleInputChange(author.id, "surname", e.target.value)
+                      }
+                      className="editable-dark"
+                      placeholder="Soyad"
+                    />
+                    <input
+                      type="number"
+                      value={author.birthYear}
+                      onChange={(e) =>
+                        handleInputChange(author.id, "birthYear", e.target.value)
+                      }
+                      className="editable-dark short"
+                      placeholder="Doğum"
+                    />
+                    <input
+                      type="number"
+                      value={author.deathYear || ""}
+                      onChange={(e) =>
+                        handleInputChange(author.id, "deathYear", e.target.value)
+                      }
+                      className="editable-dark short"
+                      placeholder="Ölüm"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <h2 className="book-title">
+                      {author.name} {author.surname}
+                    </h2>
+                    <span className="book-year">
+                      {author.birthYear} - {author.deathYear || "..."}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <p className="book-description">
+                {isEditable ? (
+                  <textarea
+                    value={author.description}
+                    onChange={(e) =>handleInputChange(author.id, "description", e.target.value)}
+                    className="editable-dark"
+                    rows={3}
+                  />
+                ) : (
+                  author.description
+                )}
+              </p>
+
+              <input
+                type="text"
+                value={author.portrait}
+                onChange={(e) =>
+                  handleInputChange(author.id, "portrait", e.target.value)
+                }
+                readOnly={!isEditable}
+                className={`editable-dark ${!isEditable ? "readonly" : ""}`}
+                placeholder="Portre URL"
+              />
+
+              <p className="book-contributor">Katkı: {author.contributedUser}</p>
+
+              <div className="book-actions">
+                <button
+                  className="approve-btn"
+                  onClick={() => handleApprove(author)}
+                >
+                  ✓
+                </button>
+                <button
+                  className="reject-btn"
+                  onClick={() => handleReject(author.id)}
+                >
+                  X
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
