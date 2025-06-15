@@ -78,11 +78,7 @@ const AuthorApproval = () => {
               <EditIcon fontSize="small" />
             </div>
 
-            <img
-              src={author.portrait}
-              className="book-poster"
-              alt="Yazar"
-            />
+            <img src={author.portrait} className="book-poster" alt="Yazar" />
 
             <div className="book-info">
               <div className="book-meta">
@@ -96,19 +92,16 @@ const AuthorApproval = () => {
                       className="editable-dark"
                       placeholder="Ad"
                     />
-                    <input
-                      value={author.surname}
-                      onChange={(e) =>
-                        handleInputChange(author.id, "surname", e.target.value)
-                      }
-                      className="editable-dark"
-                      placeholder="Soyad"
-                    />
+
                     <input
                       type="number"
                       value={author.birthYear}
                       onChange={(e) =>
-                        handleInputChange(author.id, "birthYear", e.target.value)
+                        handleInputChange(
+                          author.id,
+                          "birthYear",
+                          e.target.value
+                        )
                       }
                       className="editable-dark short"
                       placeholder="Doğum"
@@ -117,7 +110,11 @@ const AuthorApproval = () => {
                       type="number"
                       value={author.deathYear || ""}
                       onChange={(e) =>
-                        handleInputChange(author.id, "deathYear", e.target.value)
+                        handleInputChange(
+                          author.id,
+                          "deathYear",
+                          e.target.value
+                        )
                       }
                       className="editable-dark short"
                       placeholder="Ölüm"
@@ -125,9 +122,7 @@ const AuthorApproval = () => {
                   </>
                 ) : (
                   <>
-                    <h2 className="book-title">
-                      {author.name} {author.surname}
-                    </h2>
+                    <h2 className="book-title">{author.name}</h2>
                     <span className="book-year">
                       {author.birthYear} - {author.deathYear || "..."}
                     </span>
@@ -139,7 +134,13 @@ const AuthorApproval = () => {
                 {isEditable ? (
                   <textarea
                     value={author.description}
-                    onChange={(e) =>handleInputChange(author.id, "description", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        author.id,
+                        "description",
+                        e.target.value
+                      )
+                    }
                     className="editable-dark"
                     rows={3}
                   />
@@ -159,7 +160,9 @@ const AuthorApproval = () => {
                 placeholder="Portre URL"
               />
 
-              <p className="book-contributor">Katkı: {author.contributedUser}</p>
+              <p className="book-contributor">
+                Katkı: {author.contributedUser}
+              </p>
 
               <div className="book-actions">
                 <button
