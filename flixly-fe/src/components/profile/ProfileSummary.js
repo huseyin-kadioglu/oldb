@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import "./Profile.css";
 
 const ProfileSummary = ({ props, profileSummary }) => {
+  console.log("profileSummary", profileSummary);
+
   return (
     <div className="profile-summary">
       <div className="user-info">
@@ -28,6 +30,11 @@ const ProfileSummary = ({ props, profileSummary }) => {
         <div className="stat">
           <span className="value">{profileSummary?.bookReadThisYear}</span>
           <span className="definition">THIS YEAR</span>
+        </div>
+        <div className="stat-divider"></div> {/* Uzun çubuk */}
+        <div className="stat">
+          <span className="value">{profileSummary?.readList?.length}</span>
+          <span className="definition">READLIST</span>
         </div>
       </div>
     </div>

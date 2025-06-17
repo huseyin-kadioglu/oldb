@@ -12,6 +12,8 @@ import org.hk.flixly.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -112,7 +114,8 @@ public class ProfileService {
             long daysThisYear = daysSinceStartOfYear();
 
             double averagePagesPerDay = (daysThisYear > 0) ? (double) totalPagesReadThisYear.get() / daysThisYear : 0;
-            response.setPagePerDay(averagePagesPerDay);
+            BigDecimal rounded = new BigDecimal(averagePagesPerDay).setScale(2, RoundingMode.HALF_UP);
+            response.setPagePerDay(rounded.doubleValue());
 
         } catch (Exception e) {
             response.setBookRead(0);
