@@ -7,70 +7,12 @@ const BOOKS_BY_YEAR_API = BASE_URL + "books/publishYear/"; // Backend URL
 const AUTHOR_API = BASE_URL + "authors/"; // Backend URL
 const PROFILE_API = BASE_URL + "profile/"; // Backend URL
 const BOOK_APPROVAL_API = BASE_URL + "book-approvals";
+const AUTHOR_APPROVAL_API = BASE_URL + "author-approvals";
 const SIGNUP_API = BASE_URL + "api/auth/signup";
 const LOGIN_API = BASE_URL + "api/auth/login";
 const USER_ACTIVITY_API = BASE_URL + "userActivity/"; // Backend URL
 
-export const getBooks = async () => {
-  const token = sessionStorage.getItem("token");
-
-  try {
-    const response = await fetch(BOOKS_API, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      mode: "cors",
-    });
-
-    if (!response.ok) {
-      throw new Error("Hata oluştu: " + response.statusText);
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error("Kitaplar alınırken hata oluştu:", error);
-    throw error;
-  }
-};
-
-export const getBooksByPublishYear = async (publishYear) => {
-  try {
-    const response = await axios.get(`${BOOKS_BY_YEAR_API}${publishYear}`);
-    console.log(response);
-    return response.data;
-  } catch (error) {
-    console.error("getBooksByPublishYear ERROR:", error);
-    throw error;
-  }
-};
-
-export const loginAccount = async (param) => {
-  try {
-    const response = await axios.post(LOGIN_API, param);
-    sessionStorage.setItem("token", response.data.token);
-    sessionStorage.setItem("username", response.data.profileName);
-    sessionStorage.setItem("userRole", response.data.role);
-    console.log(response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Create error:", error);
-    throw error;
-  }
-};
-
-export const createAccount = async (param) => {
-  try {
-    console.log("creatcreateAccounteUserActivity", param);
-    const response = await axios.post(SIGNUP_API, param);
-    return response.data;
-  } catch (error) {
-    console.error("Create error:", error);
-    throw error;
-  }
-};
-
+// APPROVAL SERVICES
 export const getAuthorApprovals = async () => {
   const token = sessionStorage.getItem("token");
   const response = await fetch("http://localhost:8080/author-approvals", {
@@ -81,14 +23,28 @@ export const getAuthorApprovals = async () => {
   return response.json();
 };
 
-export const approveAuthorApproval = async (id) => {
-  const token = sessionStorage.getItem("token");
-  await fetch(`http://localhost:8080/author-approvals/${id}/approve`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const approveAuthorApproval = async (author) => {
+  // artık editable olduğu için parametreler de değişebilir.
+  console.log("author params", author);
+  // const token = sessionStorage.getItem("token");
+  // await fetch(`http://localhost:8080/author-approvals/${author}/approve`, {
+  //   method: "POST",
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // });
+};
+
+export const approveBookApproval = async (book) => {
+  console.log("book params", book);
+
+  // const token = sessionStorage.getItem("token");
+  // await fetch(`http://localhost:8080/book-approvals/${id}/approve`, {
+  //   method: "POST",
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // });
 };
 
 export const rejectAuthorApproval = async (id) => {
@@ -195,6 +151,36 @@ export const getBookApprovals = async () => {
   }
 };
 
+// BOOK SERVICE
+export const getBooks = async () => {
+  const token = sessionStorage.getItem("token");
+
+  const response = await fetch(BOOKS_API, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Kitaplar alınamadı (${response.status})`);
+  }
+
+  return response.json();
+};
+
+export const getBooksByPublishYear = async (publishYear) => {
+  try {
+    const response = await axios.get(`${BOOKS_BY_YEAR_API}${publishYear}`);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("getBooksByPublishYear ERROR:", error);
+    throw error;
+  }
+};
+
+// AUTHOR SERVICE
 export const getAuthorById = async (id) => {
   try {
     const response = await axios.get(`${AUTHOR_API}${id}`);
@@ -215,6 +201,7 @@ export const getAuthors = async () => {
   }
 };
 
+// PROFILE SERVICE
 export const createUserActivity = async (activityDto) => {
   const token = sessionStorage.getItem("token");
 
@@ -286,6 +273,32 @@ export const getProfileSummary = async () => {
     return response.json();
   } catch (error) {
     console.error("Profil özeti alınırken hata oluştu", error);
+    throw error;
+  }
+};
+
+// AUTH
+export const loginAccount = async (param) => {
+  try {
+    const response = await axios.post(LOGIN_API, param);
+    sessionStorage.setItem("token", response.data.token);
+    sessionStorage.setItem("username", response.data.profileName);
+    sessionStorage.setItem("userRole", response.data.role);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create error:", error);
+    throw error;
+  }
+};
+
+export const createAccount = async (param) => {
+  try {
+    console.log("creatcreateAccounteUserActivity", param);
+    const response = await axios.post(SIGNUP_API, param);
+    return response.data;
+  } catch (error) {
+    console.error("Create error:", error);
     throw error;
   }
 };

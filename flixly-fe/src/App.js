@@ -42,17 +42,16 @@ const App = () => {
   };
 
   useEffect(() => {
-    // Component ilk yüklendiğinde token'ı sessionStorage'dan al
+    fetchBooks();
+  }, []);
+
+  // İlk açılışta token'ı çek
+  useEffect(() => {
     const storedToken = sessionStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
     }
   }, []);
-
-  useEffect(() => {
-    // Token değiştiğinde kitapları yükle
-    fetchBooks();
-  }, [token]);
 
   const onLogout = () => {
     sessionStorage.removeItem("token");
@@ -61,7 +60,8 @@ const App = () => {
 
   const fetchBooks = async () => {
     try {
-      const data = await getBooks(); // Servis çağrısı
+      const data = await getBooks();
+      console.log("App.js | Books are fetched", data);
       setBooks(data?.books);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
@@ -94,7 +94,6 @@ const App = () => {
         <Route path="/authorApproval" element={<AuthorApproval />} />
         <Route path="/bookApproval" element={<BookApproval />} />
         <Route path="/profileApproval" element={<ProfileApproval />} />
-
       </Routes>
 
       {activityDialog && (
