@@ -15,7 +15,8 @@
 }
 
 .logo-img {
-  height: 120px;
+  width: 270px;
+  height: 25px;
   object-fit: contain;
 }
 
@@ -105,7 +106,6 @@
   background-color: var(--color-primary, #fbc401);
   transition: width 0.3s ease;
 }
-
 
 .nav-item:hover::after {
   width: 100%;

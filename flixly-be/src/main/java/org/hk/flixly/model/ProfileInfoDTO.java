@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hk.flixly.model.entity.BookEntity;
-import org.hk.flixly.model.entity.UserActivityEntity;
 
 import java.util.List;
 
@@ -18,6 +17,7 @@ public class ProfileInfoDTO {
     private Integer bookReadThisYear;
     private List<BookEntity> favoriteBooks;
     private List<BookEntity> readList;
-    private List<UserActivityEntity> recentActivity;
+    private List<UserActivityWithBookDTO> recentActivity;
+    private List<ReviewWithBookInfoDto> reviews;
 
 }

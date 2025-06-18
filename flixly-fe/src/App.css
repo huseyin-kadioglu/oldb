@@ -23,17 +23,14 @@ html {
 .App h2 {
   text-align: center;
   font-size: 2rem;
-  line-height: 1.23076923;
   color: #abc;
   font-family: Graphik-Light-Web, sans-serif;
   font-weight: 400;
-  margin: 0 0 2.46153846rem;
 }
 
 .App a {
   text-align: center;
   font-size: 2rem;
-  line-height: 1.23076923;
   color: #abc;
   font-family: Graphik-Light-Web, sans-serif;
   font-weight: 400;

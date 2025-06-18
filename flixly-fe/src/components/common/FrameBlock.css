@@ -1,18 +1,18 @@
-.frame-block{
-    margin-top: 100px;
+.frame-block {
+  margin-top: 20px;
 }
 
-.frame-block p{
-    text-align: left;
-    font-family: Graphik-Regular-Web, sans-serif;
-    font-weight: 400;
-    font-size: 1rem;
-    color: #9ab;
-    text-transform: uppercase;
-    letter-spacing: .075em;
-    margin-top: 0;
+.frame-block p {
+  text-align: left;
+  font-family: Graphik-Regular-Web, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  color: #9ab;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  margin-top: 0;
 }
 
 .frame-block hr {
-    color: gray;
+  background-color: #445;
 }

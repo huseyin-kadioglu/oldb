@@ -1,70 +1,67 @@
 .profile-summary {
-    display: flex; 
-    justify-content: space-between;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .user-info {
-    display: flex;
-    flex-direction: row;
-    margin-left: 30px;
+  display: flex;
+  flex-direction: row;
+  margin-left: 30px;
 }
 
-.user-info-text {
-    
-}
-
-.user-info-text  .username{
-    color: white;
-    font-weight: bold
+.user-info-text .username {
+  color: white;
+  font-weight: bold;
 }
 
 .user-info-text .location {
-    color: gray;
+  color: gray;
 }
 
 .stats {
-    display: flex;
-    align-items: center;
-    margin: 0;
+  display: flex;
+  align-items: center;
+  margin: 0;
 }
 
 .stat {
-    flex-direction: column;
-    align-items: center;
-    font-family: Graphik-Regular-Web, sans-serif;
-    color: #9ab;
+  flex-direction: column;
+  align-items: center;
+  font-family: Graphik-Regular-Web, sans-serif;
+  color: #9ab;
 }
 
 .value {
-    display: block;
-    font-size: 1.61538462rem;
-    font-family: TiemposTextWeb-Semibold, Georgia, serif;
-    font-weight: 400;
-    color: #d8e0e8;
+  display: block;
+  font-size: 1.61538462rem;
+  font-family: TiemposTextWeb-Semibold, Georgia, serif;
+  font-weight: 400;
+  color: #d8e0e8;
 }
 
 .definition {
-    display: block;
-    font-family: Graphik-Regular-Web, sans-serif;
-    font-weight: 400;
-    font-size: 1rem;
-    color: #9ab;
-    text-transform: uppercase;
-    letter-spacing: .075em;
-    font-size: .76923077rem;
-    margin-top: .75em;
-    color: #678;
+  display: block;
+  font-family: Graphik-Regular-Web, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  color: #9ab;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  font-size: 0.76923077rem;
+  margin-top: 0.75em;
+  color: #678;
 }
 
 .stat-label {
-    font-size: 5px;
-    color: gray;
-    font-family: Graphik-Regular-Web, sans-serif;
+  font-size: 5px;
+  color: gray;
+  font-family: Graphik-Regular-Web, sans-serif;
 }
 
 .stat-divider {
-    width: 40px; /* Uzunluğunu buradan ayarlayabilirsiniz */
-    height: 1px;
-    background-color: #ccc; /* Çubuğun rengini ayarlıyoruz */
-    transform: rotate(90deg); /* Çubuğu 90 derece döndürür */
+  width: 40px; /* Uzunluğunu buradan ayarlayabilirsiniz */
+  height: 1px;
+  background-color: #ccc; /* Çubuğun rengini ayarlıyoruz */
+  transform: rotate(90deg); /* Çubuğu 90 derece döndürür */
 }

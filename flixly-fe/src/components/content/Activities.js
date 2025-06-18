@@ -1,20 +1,35 @@
 import "../content/Content.css";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { getBooks } from "../../service/APIService";
+import { getBooks, getProfileSummary } from "../../service/APIService";
 import FrameBlock from "../common/FrameBlock";
 import { useParams } from "react-router-dom";
+import Review from "../profile/Review";
 
 const Activies = ({ books }) => {
-  const user = "huseyinkadioglu";
+  const [profileSummary, setProfileSummary] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { bookId } = useParams();
+
+  useEffect(() => {
+    fetchProfileSummary();
+  }, []);
+
+  const fetchProfileSummary = async () => {
+    try {
+      const data = await getProfileSummary();
+      setProfileSummary(data);
+    } catch (err) {
+      setError("Kitaplar yüklenirken bir hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container">
-      <span>Activies</span>
+      <Review reviews={profileSummary?.reviews} />
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import PhotoFrame from "../frame/PhotoFrame";
 import "./FrameBlock.css";
-import React, { useEffect, useState } from "react";
-import { getBooks } from "../../service/APIService"; // Servis dosyasını import et
+import { useState } from "react";
 
 const FrameBlock = ({ title, books }) => {
   const [loading, setLoading] = useState(true);

@@ -1,6 +1,8 @@
 package org.hk.flixly.service;
 
 import org.hk.flixly.model.ProfileInfoDTO;
+import org.hk.flixly.model.ReviewWithBookInfoDto;
+import org.hk.flixly.model.UserActivityWithBookDTO;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.UserActivityEntity;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +88,28 @@ public class ProfileService {
         response.setReadList(readList);
 
         List<UserActivityEntity> userActivities = activityRepository.findAllByUserId(userEntity.getId());
-        response.setRecentActivity(userActivities);
+        List<UserActivityWithBookDTO> recentActivityList = new ArrayList<>();
+
+        for (UserActivityEntity activity : userActivities) {
+            BookEntity book = bookIdToEntityMap.get(activity.getBookId());
+            if (book == null) continue;
+
+            UserActivityWithBookDTO recentActivity = new UserActivityWithBookDTO();
+            recentActivity.setBookId(activity.getBookId());
+            recentActivity.setBookTitle(book.getTitle());
+            recentActivity.setCoverUrl(book.getCoverUrl());
+            recentActivity.setReadDate(activity.getReadDate());
+            recentActivity.setUserId(activity.getUserId());
+            recentActivity.setRating(activity.getRating());
+            recentActivity.setComment(activity.getComment());
+            recentActivity.setStatus(activity.getStatus());
+            recentActivity.setUpdateDate(activity.getUpdateDate());
+
+            recentActivityList.add(recentActivity);
+        }
+
+
+        response.setRecentActivity(recentActivityList);
 
         int totalBooksRead = userActivities.size();
 
@@ -116,6 +140,30 @@ public class ProfileService {
             double averagePagesPerDay = (daysThisYear > 0) ? (double) totalPagesReadThisYear.get() / daysThisYear : 0;
             BigDecimal rounded = new BigDecimal(averagePagesPerDay).setScale(2, RoundingMode.HALF_UP);
             response.setPagePerDay(rounded.doubleValue());
+
+            List<ReviewWithBookInfoDto> reviews = new ArrayList<>();
+
+            for (UserActivityEntity activity : userActivities) {
+                if (activity.getReadDate() == null || activity.getComment() == null || activity.getComment().isBlank()) {
+                    continue;
+                }
+
+                BookEntity book = bookIdToEntityMap.get(activity.getBookId());
+                if (book == null) continue;
+
+                ReviewWithBookInfoDto review = new ReviewWithBookInfoDto();
+                review.setBookId(book.getId());
+                review.setTitle(book.getTitle());
+                review.setCoverUrl(book.getCoverUrl());
+                review.setYear(book.getPublicationYear());
+                //review.setAuthorName(book.getAuthor() != null ? book.getAuthor().getName() : "");
+                review.setReadDate(activity.getReadDate());
+                review.setComment(activity.getComment());
+
+                reviews.add(review);
+            }
+
+            response.setReviews(reviews);
 
         } catch (Exception e) {
             response.setBookRead(0);
