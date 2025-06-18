@@ -82,7 +82,7 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
             InputLabelProps={{ style: { color: "#aaa" } }}
             InputProps={{
               style: {
-                color: "#fff",
+                color: "var(--color-text)",
                 backgroundColor: "transparent",
                 fontFamily: "'Comic Neue', cursive, sans-serif",
                 fontWeight: 400,

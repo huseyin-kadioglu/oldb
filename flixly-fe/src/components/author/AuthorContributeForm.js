@@ -223,7 +223,7 @@ const AuthorContributeForm = () => {
             fontWeight: 700,
             flex: 1,
             "&:hover": {
-              bgcolor: "#d4af37",
+              bgcolor: "var(--color-button-hover)",
             },
           }}
         >

@@ -51,7 +51,7 @@
 }
 
 .username {
-  color: #fff;
+  color: var(--color-text);
   font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
@@ -68,7 +68,7 @@
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  color: #eee;
+  color: var(--color-text);
   transition: color 0.25s ease;
   position: relative;
 

@@ -10,15 +10,14 @@ hr {
 }
 
 :root {
-  --color-primary: #1e90ff;
-  --color-accent: #fcd34d;
-  --color-text: #1a1a1a;
-
   --line-color: #445;
   --color-background: #1e242b;
+  --color-background-secondary: #2a2f38;
   --color-primary-button: #fbc401;
   --color-button-hover: #e0a800;
   --color-input-background: #2f2f2f;
+  --color-text: #ffffff;
+  --color-secondary-text: #aaa;
 }
 
 .App {
@@ -29,7 +28,7 @@ hr {
 .App h2 {
   text-align: center;
   font-size: 2rem;
-  color: #abc;
+  color: var(--color-text);
   font-family: Graphik-Light-Web, sans-serif;
   font-weight: 400;
 }
@@ -37,7 +36,7 @@ hr {
 .App a {
   text-align: center;
   font-size: 2rem;
-  color: #abc;
+  color: var(--color-text);
   font-family: Graphik-Light-Web, sans-serif;
   font-weight: 400;
   margin: 0 0 2.46153846rem;

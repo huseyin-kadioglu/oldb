@@ -47,7 +47,7 @@ const LoggedUser = ({ token, onLogout }) => {
           sx: {
             mt: 1.5,
             bgcolor: "var(--color-background)",
-            color: "#fff",
+            color: "var(--color-text)",
             borderRadius: 2,
             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
             minWidth: 160,

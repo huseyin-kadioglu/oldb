@@ -71,7 +71,7 @@ const BookContributeForm = () => {
         mx: "auto",
         my: 5,
         p: 3,
-        backgroundColor: "#2a2f38",
+        backgroundColor: "var(--color-background-secondary)", // iç diyalog arkaplan
         borderRadius: 2,
         fontFamily: "'Graphik-Light-Web', sans-serif",
         boxShadow: "0 0 12px rgba(0, 0, 0, 0.6)",
@@ -100,12 +100,12 @@ const BookContributeForm = () => {
             InputProps={{
               ...params.InputProps,
               sx: {
-                backgroundColor: "var(--color-background)",
-                color: "#eee",
+                backgroundColor: "var(--color-background)", // inputun kendi arkaplanı
+                color: "var(--color-secondary-text)", // input içinde yazan yazının rengi
                 borderRadius: 1,
               },
             }}
-            InputLabelProps={{ sx: { color: "#aaa", fontWeight: 500 } }}
+            InputLabelProps={{ sx: { color: "var(--color-secondary-text)", fontWeight: 500 } }}
           />
         )}
         sx={{ mt: 1 }}
@@ -122,7 +122,7 @@ const BookContributeForm = () => {
         InputProps={{
           sx: {
             backgroundColor: "var(--color-background)",
-            color: "#eee",
+            color: "var(--color-secondary-text)",
             borderRadius: 1,
           },
         }}
@@ -145,7 +145,7 @@ const BookContributeForm = () => {
         InputProps={{
           sx: {
             backgroundColor: "var(--color-background)",
-            color: "#eee",
+            color: "var(--color-secondary-text)",
             borderRadius: 1,
           },
         }}
@@ -169,7 +169,7 @@ const BookContributeForm = () => {
         InputProps={{
           sx: {
             backgroundColor: "var(--color-background)",
-            color: "#eee",
+            color: "var(--color-secondary-text)",
             borderRadius: 1,
           },
         }}
@@ -188,7 +188,7 @@ const BookContributeForm = () => {
         InputProps={{
           sx: {
             backgroundColor: "var(--color-background)",
-            color: "#eee",
+            color: "var(--color-secondary-text)",
             borderRadius: 1,
           },
         }}
@@ -206,7 +206,7 @@ const BookContributeForm = () => {
         InputProps={{
           sx: {
             backgroundColor: "var(--color-background)",
-            color: "#eee",
+            color: "var(--color-secondary-text)",
             borderRadius: 1,
           },
         }}
@@ -224,7 +224,7 @@ const BookContributeForm = () => {
         InputProps={{
           sx: {
             backgroundColor: "var(--color-background)",
-            color: "#eee",
+            color: "var(--color-secondary-text)",
             borderRadius: 1,
           },
         }}
@@ -253,7 +253,7 @@ const BookContributeForm = () => {
         InputProps={{
           sx: {
             backgroundColor: "var(--color-background)",
-            color: "#eee",
+            color: "var(--color-secondary-text)",
             borderRadius: 1,
           },
         }}
@@ -290,7 +290,7 @@ const BookContributeForm = () => {
             fontWeight: 700,
             flex: 1,
             "&:hover": {
-              bgcolor: "#d4af37",
+              bgcolor: "var(--color-button-hover)",
             },
           }}
         >

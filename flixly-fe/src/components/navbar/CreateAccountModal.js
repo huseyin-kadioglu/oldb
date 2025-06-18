@@ -37,7 +37,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
-      <Box sx={{ backgroundColor: "var(--color-background)", color: "#fff", p: 2 }}>
+      <Box sx={{ backgroundColor: "var(--color-background)", color: "var(--color-text)", p: 2 }}>
         <DialogTitle>
           <Typography
             variant="h6"
@@ -60,7 +60,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: {
-                color: "#fff",
+                color: "var(--color-text)",
                 backgroundColor: "#2b3138",
                 borderRadius: 4,
               },
@@ -76,7 +76,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: {
-                color: "#fff",
+                color: "var(--color-text)",
                 backgroundColor: "#2b3138",
                 borderRadius: 4,
               },
@@ -93,7 +93,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: {
-                color: "#fff",
+                color: "var(--color-text)",
                 backgroundColor: "#2b3138",
                 borderRadius: 4,
               },
@@ -110,7 +110,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: {
-                color: "#fff",
+                color: "var(--color-text)",
                 backgroundColor: "#2b3138",
                 borderRadius: 4,
               },

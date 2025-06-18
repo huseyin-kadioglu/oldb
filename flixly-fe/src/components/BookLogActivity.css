@@ -3,7 +3,7 @@
   gap: 16px;
   padding: 16px;
   border-radius: 8px;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .status-option {
@@ -12,7 +12,7 @@
   border-radius: 12px;
   padding: 12px;
   background-color: #2a2a2a;
-  color: #ddd;
+  color: var(--color-secondary-text);
   transition: background-color 0.3s ease;
   border: 1px solid transparent;
 }
@@ -34,11 +34,11 @@
 
 .add .MuiInputBase-root {
   background-color: #2a2a2a;
-  color: #fff;
+  color: var(--color-text);
 }
 
 .add .MuiInputBase-input {
-  color: #fff;
+  color: var(--color-text);
 }
 
 .add label {
