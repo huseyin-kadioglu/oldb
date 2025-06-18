@@ -30,7 +30,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
               handleDialog(false);
             },
             sx: {
-              backgroundColor: "#1E242B",
+              backgroundColor: "var(--color-background)",
               color: "#7d7d7d", // Yumuşak orta koyulukta gri
               padding: 2,
             },
@@ -43,7 +43,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
             justifyContent: "space-between",
             alignItems: "center",
             borderBottom: "1px solid #444",
-            backgroundColor: "#1E242B",
+            backgroundColor: "var(--color-background)",
             color: "#a1883e", // Soft hardal-rengi
             fontWeight: "bold",
           }}
@@ -63,7 +63,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
         </DialogTitle>
         <DialogContent
           sx={{
-            backgroundColor: "#1E242B",
+            backgroundColor: "var(--color-background)",
             color: "#7d7d7d",
             pt: 2,
             pb: 3,
@@ -87,7 +87,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
               <Paper
                 {...props}
                 style={{
-                  backgroundColor: "##1E242B", // koyu arka plan
+                  backgroundColor: "#var(--color-background)", // koyu arka plan
                   color: "#7d7d7d",
                 }}
                 elevation={4}
@@ -95,7 +95,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
             )}
             ListboxProps={{
               style: {
-                backgroundColor: "#1E242B",
+                backgroundColor: "var(--color-background)",
                 color: "#7d7d7d",
                 maxHeight: 200,
                 overflowY: "auto",
@@ -117,7 +117,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
               <li
                 {...props}
                 style={{
-                  backgroundColor: selected ? "#3b4552" : "#1E242B",
+                  backgroundColor: selected ? "#3b4552" : "var(--color-background)",
                   color: "#7d7d7d",
                   padding: "8px 12px",
                   cursor: "pointer",
@@ -128,7 +128,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
                 onMouseOut={(e) =>
                   (e.currentTarget.style.backgroundColor = selected
                     ? "#3b4552"
-                    : "#1E242B")
+                    : "var(--color-background)")
                 }
               >
                 {option.title}
@@ -146,7 +146,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
                 sx={{
                   input: {
                     color: "#7d7d7d",
-                    backgroundColor: "#1E242B",
+                    backgroundColor: "var(--color-background)",
                     borderRadius: 1,
                     padding: "6px 8px",
                   },

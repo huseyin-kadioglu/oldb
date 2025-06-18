@@ -36,7 +36,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
             selectedBookHandler(false);
           },
           sx: {
-            backgroundColor: "#1E242B",
+            backgroundColor: "var(--color-background)",
             color: "#7d7d7d",
             padding: 2,
           },
@@ -49,7 +49,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
           justifyContent: "space-between",
           alignItems: "center",
           borderBottom: "1px solid #444",
-          backgroundColor: "#1E242B",
+          backgroundColor: "var(--color-background)",
           color: "#a1883e",
           fontWeight: "bold",
         }}
@@ -85,7 +85,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
 
       <DialogContent
         sx={{
-          backgroundColor: "#1E242B",
+          backgroundColor: "var(--color-background)",
           color: "#7d7d7d",
           pt: 2,
           pb: 3,

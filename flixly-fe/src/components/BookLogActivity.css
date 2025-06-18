@@ -18,13 +18,13 @@
 }
 
 .status-option:hover {
-  background-color: #3a3a3a;
+  background-color: var(----color-input-background);
 }
 
 .status-option.selected {
-  background-color: #fbc401;
+  background-color: var(--color-primary-button);
   color: #000;
-  border: 1px solid #fbc401;
+  border: 1px solid var(--color-primary-button);
 }
 
 .status-option.disabled {
@@ -46,10 +46,10 @@
 }
 
 .footer Button {
-  background-color: #fbc401;
+  background-color: var(--color-primary-button);
   color: #000;
 }
 
 .footer Button:hover {
-  background-color: #e0a800;
+  background-color: var(--color-button-hover);
 }

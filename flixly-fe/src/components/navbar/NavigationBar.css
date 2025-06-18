@@ -29,7 +29,6 @@
 .logged-user {
   display: flex;
   align-items: center;
-  background-color: #1e242b;
   border-radius: 999px;
   cursor: pointer;
   border: 1px solid #444;
@@ -59,7 +58,7 @@
 }
 
 .user-badge {
-  color: #fbc401;
+  color: var(--color-primary-button);
   font-size: 12px;
   font-weight: 600;
 }
@@ -103,7 +102,7 @@
   bottom: -5px;
   width: 0;
   height: 2px;
-  background-color: var(--color-primary, #fbc401);
+  background-color: var(--color-primary-button);
   transition: width 0.3s ease;
 }
 
@@ -112,7 +111,7 @@
 }
 
 .nav-item:hover {
-  color: var(--color-primary, #fbc401);
+  color: var(--color-primary-button);
 }
 
 .modal-backdrop {

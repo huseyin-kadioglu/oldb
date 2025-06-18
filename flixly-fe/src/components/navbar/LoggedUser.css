@@ -1,7 +1,6 @@
 .logged-user {
   display: flex;
   align-items: center;
-  background-color: #1e242b;
   border-radius: 999px;
   cursor: pointer;
   border: 1px solid #444;
@@ -16,7 +15,6 @@
   position: absolute;
   top: 100%; /* altına yerleşir */
   right: 0;
-  background-color: #1e242b;
   border: 1px solid #444;
   border-radius: 999px;
   width: 100%;     /* logged-user ile aynı genişlikte */
@@ -26,7 +24,7 @@
   align-items: center;
   margin-top: 6px;
   cursor: pointer;
-  color: #fbc401;
+  color: var(--color-primary-button);
   box-shadow: 0 0 10px rgba(251, 196, 1, 0.5);
   z-index: 1500;
   user-select: none;
@@ -44,7 +42,7 @@
 }
 
 .username {
-  color: #fbc401;
+  color: var(--color-primary-button);
   font-weight: bold;
 }
 

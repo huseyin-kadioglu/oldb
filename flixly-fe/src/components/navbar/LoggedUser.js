@@ -46,7 +46,7 @@ const LoggedUser = ({ token, onLogout }) => {
         PaperProps={{
           sx: {
             mt: 1.5,
-            bgcolor: "#1e242b",
+            bgcolor: "var(--color-background)",
             color: "#fff",
             borderRadius: 2,
             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
@@ -78,7 +78,7 @@ const LoggedUser = ({ token, onLogout }) => {
             value={"Kitap Onay Ekranı"}
           />,
         ]}
-        <MenuItem onClick={handleLogout} sx={{ gap: 1, color: "#fbc401" }}>
+        <MenuItem onClick={handleLogout} sx={{ gap: 1, color: "var(--color-primary-button)" }}>
           <LogoutIcon fontSize="small" />
           Çıkış Yap
         </MenuItem>

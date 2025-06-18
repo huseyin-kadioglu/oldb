@@ -2,22 +2,28 @@ body,
 html {
   display: flex;
   justify-content: center;
-  background-color:#1E242B
-;
+  background-color: var(--color-background);
+}
+
+hr {
+  background-color: var(--line-color);
 }
 
 :root {
   --color-primary: #1e90ff;
-  --color-secondary: #fbc401;
   --color-accent: #fcd34d;
-  --color-background: #f9f9f9;
   --color-text: #1a1a1a;
+
+  --line-color: #445;
+  --color-background: #1e242b;
+  --color-primary-button: #fbc401;
+  --color-button-hover: #e0a800;
+  --color-input-background: #2f2f2f;
 }
 
 .App {
   width: 1000px; /* %50 genişlik */
   padding: 20px; /* İç boşluk */
-  background-color: #1e242b;
 }
 
 .App h2 {
@@ -38,5 +44,5 @@ html {
 }
 
 .App a:hover {
-  color: rgb(58, 63, 68);
+  color: var(--color-secondary);
 }

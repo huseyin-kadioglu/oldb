@@ -32,7 +32,7 @@ export default function MinimalDatePicker({ readDate, setReadDate }) {
                   padding: "10px 12px",
                 },
                 "& .MuiSvgIcon-root": {
-                  color: "#fbc401",
+                  color: "var(--color-primary-button)",
                 },
                 "& .MuiFilledInput-root": {
                   borderRadius: 2,
@@ -43,14 +43,14 @@ export default function MinimalDatePicker({ readDate, setReadDate }) {
             popper: {
               sx: {
                 "& .MuiPaper-root": {
-                  backgroundColor: "#2f2f2f",
+                  backgroundColor: "var(----color-input-background)",
                   color: "#fff",
                   borderRadius: 2,
                 },
                 "& .MuiPickersDay-root": {
                   color: "#ddd",
                   "&.Mui-selected": {
-                    backgroundColor: "#fbc401",
+                    backgroundColor: "var(--color-primary-button)",
                     color: "#000",
                     fontWeight: 600,
                     "&:hover": {

@@ -20,13 +20,13 @@ const StatusSelector = ({ value, onChange }) => {
           <IconButton
             onClick={() => onChange(option.value)}
             sx={{
-              color: value === option.value ? "#fbc401" : "#888",
+              color: value === option.value ? "var(--color-primary-button)" : "#888",
               backgroundColor:
                 value === option.value ? "#2a2a2a" : "transparent",
               boxShadow: value === option.value ? "0 0 8px #fbc40188" : "none",
               transition: "all 0.3s",
               "&:hover": {
-                color: "#fbc401",
+                color: "var(--color-primary-button)",
                 backgroundColor: "#2a2a2a",
               },
             }}

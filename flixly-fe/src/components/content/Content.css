@@ -72,7 +72,7 @@
 /* Dalgalanan şerit stili */
 .wave-banner {
   background: linear-gradient(135deg, #a1883e 25%, #6b541f 50%, #a1883e 75%);
-  color: #1e242b;
+  color: var(--color-background);
   padding: 15px 60px;
   border-radius: 30px;
   font-weight: bold;

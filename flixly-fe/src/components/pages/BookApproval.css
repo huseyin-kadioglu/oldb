@@ -6,7 +6,7 @@
 
 .book-approval-card {
   display: flex;
-  background-color: #1e242b;
+  background-color: var(--color-background);
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);

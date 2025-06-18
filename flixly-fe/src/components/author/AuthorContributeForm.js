@@ -65,7 +65,7 @@ const AuthorContributeForm = () => {
         variant="h6"
         align="center"
         gutterBottom
-        sx={{ color: "#fbc401", mb: 3, fontWeight: 700 }}
+        sx={{ color: "var(--color-primary-button)", mb: 3, fontWeight: 700 }}
       >
         Yeni Yazar Ekle
       </Typography>
@@ -80,7 +80,7 @@ const AuthorContributeForm = () => {
         variant="filled"
         InputProps={{
           sx: {
-            backgroundColor: "#1e242b",
+            backgroundColor: "var(--color-background)",
             color: "#eee",
             borderRadius: 1,
           },
@@ -100,7 +100,7 @@ const AuthorContributeForm = () => {
         variant="filled"
         InputProps={{
           sx: {
-            backgroundColor: "#1e242b",
+            backgroundColor: "var(--color-background)",
             color: "#eee",
             borderRadius: 1,
           },
@@ -119,7 +119,7 @@ const AuthorContributeForm = () => {
         variant="filled"
         InputProps={{
           sx: {
-            backgroundColor: "#1e242b",
+            backgroundColor: "var(--color-background)",
             color: "#eee",
             borderRadius: 1,
           },
@@ -138,7 +138,7 @@ const AuthorContributeForm = () => {
         variant="filled"
         InputProps={{
           sx: {
-            backgroundColor: "#1e242b",
+            backgroundColor: "var(--color-background)",
             color: "#eee",
             borderRadius: 1,
           },
@@ -156,7 +156,7 @@ const AuthorContributeForm = () => {
         variant="filled"
         InputProps={{
           sx: {
-            backgroundColor: "#1e242b",
+            backgroundColor: "var(--color-background)",
             color: "#eee",
             borderRadius: 1,
           },
@@ -185,7 +185,7 @@ const AuthorContributeForm = () => {
         variant="filled"
         InputProps={{
           sx: {
-            backgroundColor: "#1e242b",
+            backgroundColor: "var(--color-background)",
             color: "#eee",
             borderRadius: 1,
           },
@@ -198,15 +198,15 @@ const AuthorContributeForm = () => {
           onClick={clearForm}
           variant="outlined"
           sx={{
-            color: "#fbc401",
-            borderColor: "#fbc401",
+            color: "var(--color-primary-button)",
+            borderColor: "var(--color-primary-button)",
             borderRadius: 2,
             textTransform: "none",
             fontWeight: 600,
             flex: 1,
             "&:hover": {
               backgroundColor: "rgba(251, 196, 1, 0.15)",
-              borderColor: "#fbc401",
+              borderColor: "var(--color-primary-button)",
             },
           }}
         >
@@ -216,8 +216,8 @@ const AuthorContributeForm = () => {
           onClick={handleSubmit}
           variant="contained"
           sx={{
-            bgcolor: "#fbc401",
-            color: "#1e242b",
+            bgcolor: "var(--color-primary-button)",
+            color: "var(--color-background)",
             borderRadius: 2,
             textTransform: "none",
             fontWeight: 700,

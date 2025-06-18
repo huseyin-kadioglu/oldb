@@ -21,12 +21,12 @@ const SignInPanel = ({ onClose, handleToken }) => {
   };
 
   const inputStyles = {
-    backgroundColor: "#1e242b",
-    input: { color: "#fbc401" },
-    label: { color: "#fbc401" },
+    backgroundColor: "var(--color-background)",
+    input: { color: "var(--color-primary-button)" },
+    label: { color: "var(--color-primary-button)" },
     "& .MuiOutlinedInput-root": {
       border: "none",
-      borderBottom: "2px solid #fbc401",
+      borderBottom: "2px solid var(--color-primary-button)",
       borderRadius: 0,
       boxShadow: "0 2px 4px rgba(251, 196, 1, 0.4)",
       transition: "box-shadow 0.3s ease",

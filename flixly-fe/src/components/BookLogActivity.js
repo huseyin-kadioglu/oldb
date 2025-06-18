@@ -22,7 +22,6 @@ import StarIcon from "@mui/icons-material/Star";
 import StatusSelector from "./common/StatusSelector";
 
 const BookLogActivity = ({ selectedBook, setPayload }) => {
-
   const [activityStatus, setActivityStatus] = useState(null);
   const [rating, setRating] = useState(null);
   const [readDate, setReadDate] = useState(null);
@@ -104,10 +103,10 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
               variant="contained"
               onClick={preparePayload}
               sx={{
-                backgroundColor: "#fbc401",
+                backgroundColor: "var(--color-primary-button)",
                 color: "#000",
                 "&:hover": {
-                  backgroundColor: "#e0a800",
+                  backgroundColor: "var(--color-button-hover)",
                 },
               }}
             >

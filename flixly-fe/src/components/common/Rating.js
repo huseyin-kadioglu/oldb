@@ -14,7 +14,7 @@ const RatingUtil = ({ rating, setRating }) => {
         backgroundColor: "#2a2a2a",
         transition: "background-color 0.3s",
         "&:hover": {
-          backgroundColor: "#3a3a3a",
+          backgroundColor: "var(----color-input-background)",
         },
       }}
     >
@@ -22,7 +22,7 @@ const RatingUtil = ({ rating, setRating }) => {
         sx={{
           minWidth: 110,
           fontWeight: 600,
-          color: "#fbc401",
+          color: "var(--color-primary-button)",
           userSelect: "none",
         }}
       >
@@ -36,7 +36,7 @@ const RatingUtil = ({ rating, setRating }) => {
         onChange={(event, newValue) => setRating(newValue)}
         sx={{
           "& .MuiRating-iconFilled": {
-            color: "#fbc401",
+            color: "var(--color-primary-button)",
           },
           "& .MuiRating-iconHover": {
             color: "#ffcb42",

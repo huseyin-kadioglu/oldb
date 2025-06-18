@@ -37,11 +37,11 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
-      <Box sx={{ backgroundColor: "#1e242b", color: "#fff", p: 2 }}>
+      <Box sx={{ backgroundColor: "var(--color-background)", color: "#fff", p: 2 }}>
         <DialogTitle>
           <Typography
             variant="h6"
-            sx={{ color: "#fbc401", fontWeight: "bold", textAlign: "center" }}
+            sx={{ color: "var(--color-primary-button)", fontWeight: "bold", textAlign: "center" }}
           >
             Hesap Oluştur
           </Typography>
@@ -122,9 +122,9 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
                 checked={privacyPolicy}
                 onChange={(e) => setPrivacyPolicy(e.target.checked)}
                 sx={{
-                  color: "#fbc401",
+                  color: "var(--color-primary-button)",
                   "&.Mui-checked": {
-                    color: "#fbc401",
+                    color: "var(--color-primary-button)",
                   },
                 }}
               />
@@ -143,11 +143,11 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
             onClick={onClose}
             variant="outlined"
             sx={{
-              borderColor: "#fbc401",
-              color: "#fbc401",
+              borderColor: "var(--color-primary-button)",
+              color: "var(--color-primary-button)",
               "&:hover": {
-                backgroundColor: "#fbc401",
-                color: "#1e242b",
+                backgroundColor: "var(--color-primary-button)",
+                color: "var(--color-background)",
               },
               textTransform: "none",
             }}
@@ -159,8 +159,8 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
             variant="contained"
             disabled={!privacyPolicy}
             sx={{
-              backgroundColor: "#fbc401",
-              color: "#1e242b",
+              backgroundColor: "var(--color-primary-button)",
+              color: "var(--color-background)",
               "&:hover": {
                 backgroundColor: "#e0ac00",
               },
