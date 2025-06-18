@@ -30,8 +30,13 @@ public class AuthorApprovalController {
         return authorApprovalService.getApprovals(userDetails);
     }
 
-    @DeleteMapping
-    public void rejectApproval(@RequestBody Long id) {
+    @DeleteMapping("/reject/{id}")
+    public void rejectApproval(@PathVariable Long id) {
         authorApprovalService.rejectApproval(id);
+    }
+
+    @PostMapping("/approve")
+    public void approve(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AuthorApprovalDto dto) {
+        authorApprovalService.approve(dto, userDetails);
     }
 }

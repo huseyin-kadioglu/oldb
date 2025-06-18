@@ -49,7 +49,7 @@ export const approveBookApproval = async (book) => {
 
 export const rejectAuthorApproval = async (id) => {
   const token = sessionStorage.getItem("token");
-  await fetch(`http://localhost:8080/author-approvals/${id}/reject`, {
+  await fetch(`http://localhost:8080/author-approvals/reject/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -108,18 +108,19 @@ export const rejectBookApproval = async (id) => {
   const token = sessionStorage.getItem("token");
 
   try {
-    const response = await fetch("http://localhost:8080/book-approvals", {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(id),
-      mode: "cors",
-    });
+    const response = await fetch(
+      `http://localhost:8080/book-approvals/reject/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        mode: "cors",
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Silme işlemi başarısız: " + response.statusText);
+      throw new Error("Reddetme işlemi başarısız: " + response.statusText);
     }
   } catch (error) {
     console.error("Kitap reddedilirken hata oluştu:", error);

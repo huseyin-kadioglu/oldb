@@ -236,7 +236,11 @@ const BookContributeForm = () => {
           <img
             src={coverUrl}
             alt="Kapak Önizleme"
-            style={{ maxWidth: "100px", maxHeight: "140px", borderRadius: "4px" }}
+            style={{
+              maxWidth: "100px",
+              maxHeight: "140px",
+              borderRadius: "4px",
+            }}
           />
         </Box>
       )}

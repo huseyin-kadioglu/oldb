@@ -8,10 +8,9 @@ import LoggedUserMenuItem from "./LoggedUserItem";
 
 const LoggedUser = ({ token, onLogout }) => {
   const navigate = useNavigate();
-
   const [anchorEl, setAnchorEl] = useState(null);
+  const role = sessionStorage.getItem("userRole");
 
-  let role = sessionStorage.getItem("userRole");
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -22,8 +21,26 @@ const LoggedUser = ({ token, onLogout }) => {
 
   const handleLogout = () => {
     handleClose();
-    onLogout(); // Token temizleme, yönlendirme vs.
+    onLogout();
   };
+
+  const adminMenuItems = [
+    {
+      key: "profileApproval",
+      url: "/profileApproval",
+      label: "Kullanıcıları Yönet",
+    },
+    {
+      key: "authorApproval",
+      url: "/authorApproval",
+      label: "Yazar Onay Ekranı",
+    },
+    {
+      key: "bookApproval",
+      url: "/bookApproval",
+      label: "Kitap Onay Ekranı",
+    },
+  ];
 
   return (
     <>
@@ -56,29 +73,27 @@ const LoggedUser = ({ token, onLogout }) => {
         }}
       >
         <LoggedUserMenuItem
-          navigateUrl={"/bookContribute"}
-          value={"Kitap Ekle/Düzenle"}
+          navigateUrl="/bookContribute"
+          value="Kitap Ekle/Düzenle"
+        />
+        <LoggedUserMenuItem
+          navigateUrl="/addAuthor"
+          value="Yazar Ekle/Düzenle"
         />
 
-        <LoggedUserMenuItem
-          navigateUrl={"/addAuthor"}
-          value={"Yazar Ekle/Düzenle"}
-        />
-        {role == "admin" && [
-          <LoggedUserMenuItem
-            navigateUrl={"/profileApproval"}
-            value={" Kullanıcıları Yönet"}
-          />,
-          <LoggedUserMenuItem
-            navigateUrl={"/authorApproval"}
-            value={"Yazar Onay Ekranı"}
-          />,
-          <LoggedUserMenuItem
-            navigateUrl={"/bookApproval"}
-            value={"Kitap Onay Ekranı"}
-          />,
-        ]}
-        <MenuItem onClick={handleLogout} sx={{ gap: 1, color: "var(--color-primary-button)" }}>
+        {role === "admin" &&
+          adminMenuItems.map((item) => (
+            <LoggedUserMenuItem
+              key={item.key}
+              navigateUrl={item.url}
+              value={item.label}
+            />
+          ))}
+
+        <MenuItem
+          onClick={handleLogout}
+          sx={{ gap: 1, color: "var(--color-primary-button)" }}
+        >
           <LogoutIcon fontSize="small" />
           Çıkış Yap
         </MenuItem>

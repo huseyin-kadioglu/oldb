@@ -1,5 +1,6 @@
 package org.hk.flixly.controller;
 
+import org.hk.flixly.model.AuthorApprovalDto;
 import org.hk.flixly.model.BookApprovalDto;
 import org.hk.flixly.model.entity.BookApprovalEntity;
 import org.hk.flixly.service.BookApprovalService;
@@ -30,8 +31,13 @@ public class BookApprovalController {
         return bookApprovalService.getApprovals(userDetails);
     }
 
-    @DeleteMapping
-    public void rejectApproval(@RequestBody Long id) {
+    @DeleteMapping("/reject/{id}")
+    public void rejectApproval(@PathVariable Long id) {
         bookApprovalService.rejectApproval(id);
+    }
+
+    @PostMapping("/approve")
+    public void approve(@AuthenticationPrincipal UserDetails userDetails, @RequestBody BookApprovalDto dto) {
+        bookApprovalService.approve(dto, userDetails);
     }
 }

@@ -1,5 +1,6 @@
 package org.hk.flixly.service;
 
+import org.hk.flixly.model.AuthorApprovalDto;
 import org.hk.flixly.model.AuthorDto;
 import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
@@ -38,5 +39,16 @@ public class AuthorService {
 
     public List<AuthorEntity> findAll() {
         return authorRepository.findAll();
+    }
+
+    public void createApprovedAuthor(AuthorApprovalDto dto) {
+        AuthorEntity authorEntity = new AuthorEntity();
+        authorEntity.setName(dto.getName());
+        authorEntity.setPortrait(dto.getPortrait());
+        authorEntity.setDescription(dto.getDescription());
+        authorEntity.setBirthYear(dto.getBirthYear());
+        authorEntity.setDeathYear(dto.getDeathYear());
+
+        authorRepository.save(authorEntity);
     }
 }

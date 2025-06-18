@@ -34,7 +34,7 @@ public class UserEntity implements UserDetails {
     private String password;
 
     private String role; // "USER", "ADMIN" gibi
-
+    private int contributionPoint;
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;

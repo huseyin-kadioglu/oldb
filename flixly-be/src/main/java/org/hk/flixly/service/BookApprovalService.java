@@ -64,4 +64,7 @@ public class BookApprovalService {
     public void rejectApproval(Long id) {
         bookApprovalRepository.deleteById(id);
     }
+
+    public void approve(BookApprovalDto dto, UserDetails userDetails) {
+    }
 }

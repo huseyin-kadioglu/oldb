@@ -19,10 +19,14 @@ public class AuthorApprovalService {
 
     private final AuthorApprovalRepository authorApprovalRepository;
     private final AuthorRepository authorRepository;
+    private final AuthorService authorService;
+    private final UserService userService;
 
-    public AuthorApprovalService(AuthorApprovalRepository authorApprovalRepository, AuthorRepository authorRepository) {
+    public AuthorApprovalService(AuthorApprovalRepository authorApprovalRepository, AuthorRepository authorRepository, AuthorService authorService, UserService userService) {
         this.authorApprovalRepository = authorApprovalRepository;
         this.authorRepository = authorRepository;
+        this.authorService = authorService;
+        this.userService = userService;
     }
 
     public AuthorApprovalEntity contributeAuthor(AuthorApprovalDto dto, UserDetails userDetails) {
@@ -55,5 +59,15 @@ public class AuthorApprovalService {
 
     public void rejectApproval(Long id) {
         authorApprovalRepository.deleteById(id);
+    }
+
+    public void approve(AuthorApprovalDto dto, UserDetails userDetails) {
+        authorService.createApprovedAuthor(dto);
+
+        UserEntity contributedUser = userService.loadUserByUsername(userDetails.getUsername());
+        contributedUser.setContributionPoint(contributedUser.getContributionPoint() + 1);
+        userService.save(contributedUser);
+
+        // burada bilgileri return edebiliriz.
     }
 }
