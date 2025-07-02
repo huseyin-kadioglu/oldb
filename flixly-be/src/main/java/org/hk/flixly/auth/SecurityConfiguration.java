@@ -35,7 +35,7 @@ public class SecurityConfiguration {
                 .cors().configurationSource(corsConfigurationSource()) // CORS aktif
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/books/**", "/authors/**", "/api/auth/**").permitAll()
+                .requestMatchers("/books/**", "/authors/**", "/api/auth/**", "/send-email").permitAll()
                 .requestMatchers("/book-approvals/**", "/author-approvals/**", "/profile/**", "/userActivity/**").authenticated()
                 .and()
                 .sessionManagement()
