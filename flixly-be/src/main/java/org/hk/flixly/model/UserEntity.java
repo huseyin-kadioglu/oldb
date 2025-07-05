@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +36,7 @@ public class UserEntity implements UserDetails {
 
     private String role; // "USER", "ADMIN" gibi
     private int contributionPoint;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;
@@ -48,6 +50,15 @@ public class UserEntity implements UserDetails {
 
     @Column(name = "page_per_day")
     private double pagePerDay;
+
+    @Column(name = "status", nullable = false)
+    private boolean status = false;
+
+    @Column(name = "activation_token", unique = true)
+    private String activationToken;
+
+    @Column(name = "token_expiry")
+    private LocalDateTime tokenExpiry;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -79,7 +90,7 @@ public class UserEntity implements UserDetails {
         return this.email;
     }
 
-    public String getProfilName(){
+    public String getProfilName() {
         return this.username;
     }
 }

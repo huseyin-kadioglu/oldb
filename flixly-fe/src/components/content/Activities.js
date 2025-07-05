@@ -1,14 +1,10 @@
-import "../content/Content.css";
-import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import { getBooks, getProfileSummary } from "../../service/APIService";
-import FrameBlock from "../common/FrameBlock";
-import { useParams } from "react-router-dom";
+import "./Activities.css"; // önce bu
+import { useEffect, useState } from "react";
+import { getProfileSummary } from "../../service/APIService";
 import Review from "../profile/Review";
 
-const Activies = ({ books }) => {
+const Activies = () => {
   const [profileSummary, setProfileSummary] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -27,10 +23,22 @@ const Activies = ({ books }) => {
     }
   };
 
+  const hasReviews = profileSummary?.reviews?.length > 0;
+
   return (
-    <div className="container">
-      <Review reviews={profileSummary?.reviews} />
+    <div className="activies-container">
+      {loading && <div className="loading-message">Yükleniyor...</div>}
+      {error && <div className="error-message">{error}</div>}
+
+      {!loading && !hasReviews && (
+        <div className="no-activity-message">
+          Henüz bir aktivite bulunamadı.
+        </div>
+      )}
+
+      {!loading && hasReviews && <Review reviews={profileSummary.reviews} />}
     </div>
   );
 };
+
 export default Activies;

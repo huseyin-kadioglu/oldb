@@ -17,6 +17,8 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
 
+    private static final String url =  "https://localhost:8080";
+
     public AuthController(JwtService jwtService, AuthenticationService authenticationService) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
@@ -27,6 +29,27 @@ public class AuthController {
         UserEntity registeredUser = authenticationService.signup(registerUserDto);
 
         return ResponseEntity.ok(registeredUser);
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateUser(@RequestParam String token) {
+        boolean isActivated = authenticationService.activateUser(token);
+        if (isActivated) {
+            return ResponseEntity.ok(
+                    "<html><body style='font-family:sans-serif;text-align:center;padding:50px;'>" +
+                            "<h2>🎉 Hesabınız başarıyla aktifleştirildi!</h2>" +
+                            "<p>Artık giriş yapabilirsiniz.</p>" +
+                            "<a href='https://localhost:8080/login'>Giriş Yap</a>" +
+                            "</body></html>"
+            );
+        } else {
+            return ResponseEntity.badRequest().body(
+                    "<html><body style='font-family:sans-serif;text-align:center;padding:50px;color:red;'>" +
+                            "<h2>❌ Aktivasyon başarısız</h2>" +
+                            "<p>Geçersiz veya süresi dolmuş bir aktivasyon linki.</p>" +
+                            "</body></html>"
+            );
+        }
     }
 
     @PostMapping("/login")

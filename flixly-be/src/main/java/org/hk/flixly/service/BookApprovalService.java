@@ -20,10 +20,15 @@ public class BookApprovalService {
 
     private final BookApprovalRepository bookApprovalRepository;
     private final BookRepository bookRepository;
+    private final BookService bookService;
+    private final UserService userService;
 
-    public BookApprovalService(BookApprovalRepository bookApprovalRepository, BookRepository bookRepository) {
+
+    public BookApprovalService(BookApprovalRepository bookApprovalRepository, BookRepository bookRepository, BookService bookService, UserService userService) {
         this.bookApprovalRepository = bookApprovalRepository;
         this.bookRepository = bookRepository;
+        this.bookService = bookService;
+        this.userService = userService;
     }
 
     public BookApprovalEntity contributeBook(BookApprovalDto dto, UserDetails userDetails) {
@@ -33,7 +38,7 @@ public class BookApprovalService {
             return null;
         }
 
-        BookEntity isExist = bookRepository.findByTitleAndPublicationYear(dto.getTitle(), dto.getPublicationYear());
+        BookEntity isExist = bookRepository.findByTitleAndPublicationYear(dto.getTitle(), dto.getYear());
         if (isExist != null) {
             log.info("kitap ekli");
             return null;
@@ -42,7 +47,7 @@ public class BookApprovalService {
         entity.setDescription(dto.getDescription());
         entity.setContributedUser(userDetails.getUsername());
         entity.setOriginalTitle(dto.getOriginalTitle());
-        entity.setYear(dto.getPublicationYear());
+        entity.setYear(dto.getYear());
         entity.setCreatedAt(LocalDateTime.now());
         entity.setCoverUrl(dto.getCoverUrl());
         entity.setStatus("PENDING");
@@ -66,5 +71,12 @@ public class BookApprovalService {
     }
 
     public void approve(BookApprovalDto dto, UserDetails userDetails) {
+        bookService.createApprovedBook(dto);
+
+        UserEntity contributedUser = userService.loadUserByUsername(userDetails.getUsername());
+        contributedUser.setContributionPoint(contributedUser.getContributionPoint() + 1);
+        userService.save(contributedUser);
+
+        // burada bilgileri return edebiliriz.
     }
 }

@@ -6,6 +6,7 @@ import { getBooks } from "./service/APIService";
 import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
 import Profile from "./components/profile/Profile";
+import ProfilePage from "./components/profile/ProfilPage";
 import Books from "./components/books/Books";
 import BookFilter from "./components/common/BookFilter";
 import SelectedBookDialog from "./components/common/SelectedBookDialog";
@@ -81,6 +82,7 @@ const App = () => {
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/:username" element={<ProfilePage />} />
         <Route path="/books" element={<Books books={books} />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />

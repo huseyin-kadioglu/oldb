@@ -104,3 +104,10 @@
   font-size: 1.2rem;
   margin: 0;
 }
+
+.no-activity-message {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+  margin-top: 2rem;
+}

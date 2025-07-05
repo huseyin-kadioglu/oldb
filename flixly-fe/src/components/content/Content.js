@@ -10,34 +10,7 @@ const Content = ({ books, token }) => {
 
   return (
     <div className="container">
-      {token ? (
-        <div className="background-stars">
-          {/* Yıldızlar */}
-          <div
-            style={{ top: "-10px", left: "10%", animationDelay: "0s" }}
-            className="star"
-          ></div>
-          <div
-            style={{ top: "-10px", left: "40%", animationDelay: "1.5s" }}
-            className="star"
-          ></div>
-          <div
-            style={{ top: "-10px", left: "70%", animationDelay: "3s" }}
-            className="star"
-          ></div>
-          <div
-            style={{ top: "-10px", left: "85%", animationDelay: "4.5s" }}
-            className="star"
-          ></div>
-
-          {/* Dalgalanan şerit */}
-          <div className="wave-banner">
-            <h2>Under Construction!</h2>
-          </div>
-        </div>
-      ) : (
-        <p>Sign up for more content!</p>
-      )}
+      {token ? <p></p> : ( <p>Sign up for more content!</p> )}
       <FrameBlock books={books} title="Popular Books" />
     </div>
   );

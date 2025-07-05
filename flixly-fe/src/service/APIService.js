@@ -38,13 +38,31 @@ export const approveAuthorApproval = async (author) => {
 export const approveBookApproval = async (book) => {
   console.log("book params", book);
 
-  // const token = sessionStorage.getItem("token");
-  // await fetch(`http://localhost:8080/book-approvals/${id}/approve`, {
-  //   method: "POST",
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // });
+  const token = sessionStorage.getItem("token");
+
+  try {
+    const response = await fetch(
+      "http://localhost:8080/book-approvals/approve",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(book), // burada book objesini gönderiyoruz
+        mode: "cors",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Onaylama işlemi başarısız: " + response.statusText);
+    }
+
+    return await response.json(); // veya response.text() — backend ne döndürüyorsa
+  } catch (error) {
+    console.error("Kitap onaylanırken hata oluştu:", error);
+    throw error;
+  }
 };
 
 export const rejectAuthorApproval = async (id) => {
@@ -274,6 +292,29 @@ export const getProfileSummary = async () => {
     return response.json();
   } catch (error) {
     console.error("Profil özeti alınırken hata oluştu", error);
+    throw error;
+  }
+};
+
+export const getProfileSummaryByUsername = async (username) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    const response = await fetch(`/api/users/${username}/summary`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+      credentials: "include",
+    });
+
+    if (!response.ok) throw new Error("Profil getirilemedi");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Kullanıcı profili alınırken hata oluştu", error);
     throw error;
   }
 };

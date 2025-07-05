@@ -22,6 +22,7 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
   const [privacyPolicy, setPrivacyPolicy] = useState(false);
 
   const handleCreateAccount = () => {
+    console.log("HESAP OLUŞTURULUYOR.");
     try {
       createAccount({
         email: email,
@@ -37,11 +38,21 @@ const CreateAccountModal = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
-      <Box sx={{ backgroundColor: "var(--color-background)", color: "var(--color-text)", p: 2 }}>
+      <Box
+        sx={{
+          backgroundColor: "var(--color-background)",
+          color: "var(--color-text)",
+          p: 2,
+        }}
+      >
         <DialogTitle>
           <Typography
             variant="h6"
-            sx={{ color: "var(--color-primary-button)", fontWeight: "bold", textAlign: "center" }}
+            sx={{
+              color: "var(--color-primary-button)",
+              fontWeight: "bold",
+              textAlign: "center",
+            }}
           >
             Hesap Oluştur
           </Typography>

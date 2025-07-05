@@ -18,7 +18,7 @@ public class BookApprovalDto {
 
     private String coverUrl;
     private String description;
-    private int publicationYear;
+    private int year;
     private boolean isWonNobelPrize;
 
 }
