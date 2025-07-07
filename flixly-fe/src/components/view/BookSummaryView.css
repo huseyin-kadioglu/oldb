@@ -1,3 +1,8 @@
+.container {
+  justify-content: left;
+  margin-left: 20px;
+}
+
 .bookSummaryMainView {
   display: flex;
   margin: 20px;
@@ -29,8 +34,6 @@
 .title {
   display: flex;
   gap: 8px;
-  margin: 0;
-  padding: 0;
   width: 100%; /* opsiyonel: tam satırı kaplasın */
 }
 
@@ -71,17 +74,6 @@
   display: flex;
 }
 
-.details-and-actions .desc-and-detail-card {
-  flex: 3;
-  flex-direction: column;
-}
-
-.desc {
-  width: 70%; /* Description alanını biraz daha genişlettik */
-  text-align: left; /* Yazıyı sola hizalar */
-  min-height: 120px; /* İçerik olmasa da 120px yüksekliğinde alan bırakır */
-}
-
 .desc p {
   color: #aaa !important;
   font-family: TiemposTextWeb, Georgia, serif !important;
@@ -89,46 +81,34 @@
   font-size: 1rem;
 }
 
-.details-and-actions .action-menu {
-  flex: 1;
-  padding: 20px;
-  width: 250px; /* Genişliği biraz artırdık */
-  border-radius: 10px; /* Kenarları yuvarladık */
-  /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Gölgeleme efekti ekledik */
-}
-
 .container .details-and-actions .detail-card {
   background-color: #34495e; /* Hover efekti */
-  margin: 20px 20px 20px 0;
+  /*margin: 20px 20px 20px 0;0*/
 }
 
 .container .details-and-actions .detail-card span {
   color: rgb(126, 123, 123);
   font-family: TiemposTextWeb, Georgia, serif;
-  text-align: center; /* Yazıyı sola hizalar */
   font-size: medium;
 }
 
 .container .details-and-actions .detail-card p {
   color: white;
   font-family: TiemposTextWeb, Georgia, serif;
-  text-align: left; /* Yazıyı sola hizalar */
   font-size: small;
 }
 
 .container .details-and-actions .detail-card ul {
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
   padding: 0;
   margin: 0;
-  list-style: none;
 }
 
 .container .details-and-actions .detail-card li {
   display: flex;
   flex-direction: column;
   align-items: center; /* İkon ve yazıyı yatayda hizaladık */
-  gap: 10px;
   color: white; /* Yazı rengi */
   cursor: pointer;
   padding: 10px;
@@ -146,46 +126,4 @@
 
 .container .details-and-actions .detail-card li svg {
   color: #80b7ff; /* İkon rengi */
-}
-
-.container .action-menu ul {
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  margin: 0;
-
-  gap: 10px; /* Menüyü biraz daha açtık */
-  list-style: none;
-}
-
-.container .action-menu li {
-  display: flex;
-  flex-direction: row;
-  align-items: center; /* İkon ve yazıyı yatayda hizaladık */
-
-  gap: 10px;
-  color: white; /* Yazı rengi */
-  cursor: pointer;
-  padding: 10px;
-  transition: background-color 0.3s, transform 0.2s; /* Hover efekti ekledik */
-  border-radius: 8px;
-}
-
-.container .action-menu li:hover {
-  background-color: #34495e; /* Hover efekti */
-  transform: translateX(10px); /* Sağ kaydırma efekti */
-}
-
-.container .action-menu li span {
-  font-size: 18px;
-  font-weight: bold; /* Yazı kalınlaştırıldı */
-}
-
-.container .action-menu li svg {
-  color: #80b7ff; /* İkon rengi */
-  transition: transform 0.2s;
-}
-
-.container .action-menu li:hover svg {
-  transform: scale(1.2); /* İkonun hoverda büyümesi */
 }

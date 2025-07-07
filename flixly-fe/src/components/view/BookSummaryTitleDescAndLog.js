@@ -20,6 +20,8 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
     setIsInReadlist(book?.readList);
   }, [book?.favourite, book?.like, book?.readList]);
 
+  console.log("BookSummaryTitleDescAndLog", book);
+
   const handleFavorite = () => {
     const newState = !isFavorited;
     setIsFavorited(newState);
@@ -110,36 +112,6 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
               </li>
             </ul>
           </div>
-        </div>
-        <div className="action-menu">
-          <aside>
-            <ul>
-              <li onClick={handleLike}>
-                {book?.liked || isLiked ? (
-                  <FavoriteIcon style={{ fontSize: 25 }} />
-                ) : (
-                  <FavoriteBorderIcon style={{ fontSize: 25 }} />
-                )}
-                <span>Read</span>
-              </li>
-              <li onClick={handleFavorite}>
-                {book?.favourite || isFavorited ? (
-                  <StarIcon style={{ fontSize: 25 }} />
-                ) : (
-                  <StarBorderIcon style={{ fontSize: 25 }} />
-                )}
-                <span>Favourite</span>
-              </li>
-              <li onClick={handleReadlist}>
-                {book?.readlist || isInReadlist ? (
-                  <PlaylistAddCheckIcon style={{ fontSize: 25 }} />
-                ) : (
-                  <PlaylistAddIcon style={{ fontSize: 25 }} />
-                )}
-                <span>Readlist</span>
-              </li>
-            </ul>
-          </aside>
         </div>
       </div>
     </div>
