@@ -1,6 +1,6 @@
 import "font-awesome/css/font-awesome.min.css";
 import AddIcon from "@mui/icons-material/Add";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./NavigationBar.css";
 import SignInPanel from "./SignInPanel";
@@ -15,16 +15,16 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
 
   useEffect(() => {}, [token]);
 
+  const username = sessionStorage.getItem("username");
+
   return (
     <nav className="navbar">
-      <div className="logo">
-        <img src="/logo.png" alt="Readin Logo" className="logo-img" />
-      </div>
+      <div className="logo"></div>
       <div className="navbar-content">
         {token ? (
           <>
             <p onClick={() => navigate("/profile")} className="nav-item">
-              faux
+              {username}
             </p>
           </>
         ) : (
@@ -43,7 +43,7 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
 
         {token && (
           <p onClick={() => navigate("/activities")} className="nav-item">
-            #
+            yorumlarım
           </p>
         )}
 
@@ -58,7 +58,7 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
           <i className="fa-solid fa-magnifying-glass"></i>
         </p>
         <p onClick={() => handleDialog(true)} className="nav-item">
-          <AddIcon></AddIcon>
+          <AddIcon />
         </p>
         {token && <LoggedUser token={token} onLogout={onLogout} />}
 

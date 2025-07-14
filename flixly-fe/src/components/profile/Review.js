@@ -3,6 +3,7 @@ import "./Review.css";
 const Review = ({ reviews }) => {
   if (!reviews || reviews.length === 0) return null;
 
+  console.log(reviews);
   return (
     <div className="review-section">
       <h2>Reviews</h2>
@@ -20,7 +21,7 @@ const Review = ({ reviews }) => {
               <div className="review-title-line">
                 <h3 className="review-title">{review.title}</h3>
                 <span className="release-date">{review.year}</span>
-                <span className="author-name">Tolstoy</span>
+                <span className="author-name">{review?.authorName}</span>
               </div>
             </div>
 
