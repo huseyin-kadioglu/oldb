@@ -19,6 +19,7 @@ import AuthorApproval from "./components/pages/AuthorApproval";
 import BookApproval from "./components/pages/BookApproval";
 import ProfileApproval from "./components/pages/ProfileApproval";
 import BookContributeForm from "./components/pages/BookContributeForm";
+import EditProfile from "./components/profile/EditProfile";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -84,6 +85,7 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/:username" element={<ProfilePage />} />
         <Route path="/books" element={<Books books={books} />} />
+        <Route path="/editProfile" element={<EditProfile />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
         <Route

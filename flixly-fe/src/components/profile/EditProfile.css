@@ -1,0 +1,67 @@
+.edit-profile-container {
+  max-width: 600px;
+  margin: 40px auto;
+  background-color: var(--color-background-secondary);
+  padding: 30px;
+  border-radius: 10px;
+  color: var(--color-text);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.edit-profile-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--color-text);
+  font-family: Graphik-Light-Web, sans-serif;
+}
+
+.edit-profile-form .form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.edit-profile-form label {
+  margin-bottom: 5px;
+  font-size: 0.95rem;
+  color: var(--color-secondary-text);
+}
+
+.edit-profile-form input,
+.edit-profile-form textarea,
+.edit-profile-form select {
+  padding: 8px 12px;
+  background-color: var(--color-input-background);
+  border: 1px solid #444;
+  border-radius: 5px;
+  color: var(--color-text);
+  font-family: Graphik-Regular-Web, sans-serif;
+}
+
+.edit-profile-form input[type="file"] {
+  padding: 6px;
+  background-color: transparent;
+  color: var(--color-secondary-text);
+}
+
+.checkbox-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.save-button {
+  background-color: var(--color-primary-button);
+  color: black;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.save-button:hover {
+  background-color: var(--color-button-hover);
+}

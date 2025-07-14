@@ -53,8 +53,10 @@ public class ProfileService {
         UserEntity userEntity = userRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+
         ProfileInfoDTO response = new ProfileInfoDTO();
         response.setUsername(username);
+        response.setProfileName(userEntity.getProfilName());
 
         // Kullanıcının kitap etkileşimleri
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());

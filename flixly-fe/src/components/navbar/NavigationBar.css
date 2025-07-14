@@ -46,7 +46,6 @@
 
 .user-info {
   display: flex;
-  flex-direction: column !important;
   justify-content: center;
 }
 

@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ProfileInfoDTO {
     private String username;
+    private String profileName;
     private double pagePerDay;
     private Integer bookRead;
     private Integer bookReadThisYear;

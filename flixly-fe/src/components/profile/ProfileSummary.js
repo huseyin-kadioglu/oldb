@@ -1,18 +1,48 @@
+import React, { useState } from "react";
 import Image from "../frame/Image";
-import React, { useEffect, useState } from "react";
-
 import "./Profile.css";
+import { useNavigate } from "react-router-dom";
 
-const ProfileSummary = ({ props, profileSummary }) => {
-  console.log("profileSummary", profileSummary);
+const ProfileSummary = ({ profileSummary }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  const handleEditProfile = () => {
+    navigate("/editProfile");
+  };
 
   return (
     <div className="profile-summary">
       <div className="user-info">
         <Image />
+
         <div className="user-info-text">
-          <p className="username">{profileSummary?.username}</p>
-          <p className="location">İstanbul, Türkiye</p>
+          <div className="username-row">
+            <p className="username">{profileSummary?.profileName}</p>
+
+            <div className="actions">
+              <button className="menu-button" onClick={toggleMenu}>
+                ⋯
+              </button>
+              <button className="edit-button" onClick={handleEditProfile}>
+                Edit Profile
+              </button>
+
+              {menuOpen && (
+                <div className="menu-popup">
+                  <p>Test içeriği buraya!</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <p className="description">
+            It’s just a place where I write notes to myself.
+          </p>
         </div>
       </div>
 
@@ -21,17 +51,17 @@ const ProfileSummary = ({ props, profileSummary }) => {
           <span className="value">{profileSummary?.pagePerDay}</span>
           <span className="definition">PAGE PER DAY</span>
         </div>
-        <div className="stat-divider"></div> {/* Uzun çubuk */}
+        <div className="stat-divider"></div>
         <div className="stat">
           <span className="value">{profileSummary?.bookRead}</span>
           <span className="definition">TOTAL</span>
         </div>
-        <div className="stat-divider"></div> {/* Uzun çubuk */}
+        <div className="stat-divider"></div>
         <div className="stat">
           <span className="value">{profileSummary?.bookReadThisYear}</span>
           <span className="definition">THIS YEAR</span>
         </div>
-        <div className="stat-divider"></div> {/* Uzun çubuk */}
+        <div className="stat-divider"></div>
         <div className="stat">
           <span className="value">{profileSummary?.readList?.length}</span>
           <span className="definition">READLIST</span>
@@ -40,4 +70,5 @@ const ProfileSummary = ({ props, profileSummary }) => {
     </div>
   );
 };
+
 export default ProfileSummary;
