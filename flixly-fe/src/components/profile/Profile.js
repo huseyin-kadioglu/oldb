@@ -54,7 +54,7 @@ const Profile = (props) => {
             <h2>Readlist</h2>
             <hr></hr>
             <div className="readlist-images">
-              {profileSummary?.readList?.slice(0, 5).map((book, index) => (
+              {profileSummary?.readList?.slice(0, 10).map((book, index) => (
                 <img
                   key={book.id}
                   src={book.coverUrl}

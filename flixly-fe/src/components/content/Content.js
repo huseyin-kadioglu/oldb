@@ -1,4 +1,5 @@
 import "./Content.css";
+import PublicContentPage from "./PublicContentPage";
 import FrameBlock from "../common/FrameBlock";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -10,7 +11,9 @@ const Content = ({ books, token }) => {
 
   return (
     <div className="container">
-      {token ? <p></p> : ( <p>Sign up for more content!</p> )}
+      {token 
+      ? <p></p> 
+      : <PublicContentPage/>}
       <FrameBlock books={books} title="Popular Books" />
     </div>
   );
