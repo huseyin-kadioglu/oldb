@@ -37,18 +37,14 @@ const Profile = (props) => {
             title="Favourite Books"
             books={profileSummary?.favoriteBooks}
           />
-          <FrameBlock
+{/*           <FrameBlock
             title="Recent Activity"
             books={profileSummary?.recentActivity}
-          />
+          /> */}
           <Review reviews={profileSummary?.reviews} />
         </div>
 
         <aside className="sidebar">
-          <div className="sidebar-logo">
-            <img src="getpro.png" alt="Logo" />
-          </div>
-
           <div className="readlist">
             <h2>Readlist</h2>
             <hr></hr>

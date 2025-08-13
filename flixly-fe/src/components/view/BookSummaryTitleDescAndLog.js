@@ -20,8 +20,6 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
     setIsInReadlist(book?.readList);
   }, [book?.favourite, book?.like, book?.readList]);
 
-  console.log("BookSummaryTitleDescAndLog", book);
-
   const handleFavorite = () => {
     const newState = !isFavorited;
     setIsFavorited(newState);
@@ -88,31 +86,7 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
         </span>
       </div>
       <div className="details-and-actions">
-        <div className="desc-and-detail-card">
-          <span className="desc">
-            <p>{book.description}</p>
-          </span>
-          <div className="detail-card">
-            <ul>
-              <li>
-                <span>Publisher</span>
-                <p>İş Bankası Kültür Yayınları</p>
-              </li>
-              <li>
-                <span>Publication Year</span>
-                <p>2014</p>
-              </li>
-              <li>
-                <span>Çevirmen</span>
-                <p>Levent Cinemre</p>
-              </li>
-              <li>
-                <span>Sayfa Sayısı</span>
-                <p>524</p>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <p>{book.description}</p>
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 .container {
-  justify-content: left;
-  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  margin-left: 30px;
 }
 
 .bookSummaryMainView {
   display: flex;
-  margin: 20px;
   padding: 10px;
 }
 
@@ -13,13 +13,7 @@
   flex: 1;
 }
 .bookSummaryMainView > :nth-child(2) {
-  flex: 2;
-  margin-left: 20px;
-}
-
-.coverAndStats {
-  width: 200px;
-  height: 200px;
+  flex: 3;
 }
 
 .coverAndStats p {
@@ -32,20 +26,17 @@
 }
 
 .title {
+  align-items: baseline;
   display: flex;
   gap: 8px;
   width: 100%; /* opsiyonel: tam satırı kaplasın */
 }
 
-.title p,
-.title span {
-  margin: 0;
-  padding: 0;
-}
-
 .book-title {
+  font-size: 3rem;
   font-weight: bold;
   color: white;
+  line-height: 1.2;
 }
 
 .book-year {
@@ -62,68 +53,19 @@
 }
 
 .title a {
-  margin: 0;
-  padding: 0;
   color: #aaa;
   text-decoration: underline;
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .details-and-actions {
   display: flex;
 }
 
-.desc p {
+.details-and-actions p {
   color: #aaa !important;
   font-family: TiemposTextWeb, Georgia, serif !important;
   line-height: 1.6;
   font-size: 1rem;
-}
-
-.container .details-and-actions .detail-card {
-  background-color: #34495e; /* Hover efekti */
-  /*margin: 20px 20px 20px 0;0*/
-}
-
-.container .details-and-actions .detail-card span {
-  color: rgb(126, 123, 123);
-  font-family: TiemposTextWeb, Georgia, serif;
-  font-size: medium;
-}
-
-.container .details-and-actions .detail-card p {
-  color: white;
-  font-family: TiemposTextWeb, Georgia, serif;
-  font-size: small;
-}
-
-.container .details-and-actions .detail-card ul {
-  display: flex;
-  justify-content: space-between;
-  padding: 0;
-  margin: 0;
-}
-
-.container .details-and-actions .detail-card li {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* İkon ve yazıyı yatayda hizaladık */
-  color: white; /* Yazı rengi */
-  cursor: pointer;
-  padding: 10px;
-  transition: background-color 0.3s, transform 0.2s; /* Hover efekti ekledik */
-  border-radius: 8px;
-}
-
-.container .details-and-actions .detail-card li:hover {
-  background-color: #34495e; /* Hover efekti */
-}
-
-.container .details-and-actions .detail-card li span {
-  font-size: 10px;
-}
-
-.container .details-and-actions .detail-card li svg {
-  color: #80b7ff; /* İkon rengi */
 }
