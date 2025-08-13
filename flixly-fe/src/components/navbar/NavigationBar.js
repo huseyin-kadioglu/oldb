@@ -12,6 +12,8 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
 
   const [showSignInPanel, setShowSignInPanel] = useState(false);
   const [showCreateAccountPanel, setShowCreateAccountPanel] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {}, [token]);
 
@@ -54,8 +56,27 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
         <p onClick={() => navigate("/books")} className="nav-item">
           Kitaplar
         </p>
-        <p onClick={() => console.log("search books")} className="nav-item">
-          <i className="fa-solid fa-magnifying-glass"></i>
+        <p className="nav-item search-wrapper">
+          {showSearch && (
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Kitap ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchTerm.trim()) {
+                  navigate(`/search/${encodeURIComponent(searchTerm)}`);
+                  setShowSearch(false);
+                }
+              }}
+              autoFocus
+            />
+          )}
+          <i
+            className="fa-solid fa-magnifying-glass search-icon"
+            onClick={() => setShowSearch(!showSearch)}
+          ></i>
         </p>
         <p onClick={() => handleDialog(true)} className="nav-item">
           <AddIcon />

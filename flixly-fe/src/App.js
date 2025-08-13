@@ -20,6 +20,7 @@ import BookApproval from "./components/pages/BookApproval";
 import ProfileApproval from "./components/pages/ProfileApproval";
 import BookContributeForm from "./components/pages/BookContributeForm";
 import EditProfile from "./components/profile/EditProfile";
+import SearchView from "./components/pages/SearchView";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -88,6 +89,7 @@ const App = () => {
         <Route path="/editProfile" element={<EditProfile />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
+        <Route path="/search/:searchTerm" element={<SearchView />} />
         <Route
           path="/book/:bookId"
           element={<BookSummaryView books={books} />}
