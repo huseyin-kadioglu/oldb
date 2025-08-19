@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Image from "../frame/Image";
 import "./Profile.css";
 import { useNavigate } from "react-router-dom";
+import InitialAvatar from "../common/InitialAvatar";
 
 const ProfileSummary = ({ profileSummary }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -18,7 +19,7 @@ const ProfileSummary = ({ profileSummary }) => {
   return (
     <div className="profile-summary">
       <div className="user-info">
-        <Image />
+        <InitialAvatar name={profileSummary?.profileName} />
 
         <div className="user-info-text">
           <div className="username-row">

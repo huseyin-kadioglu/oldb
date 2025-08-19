@@ -46,28 +46,30 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
         <p onClick={() => navigate("/books")} className="nav-item">
           Kitaplar
         </p>
-   <p className="nav-item search-wrapper">
-  <input
-    type="text"
-    className={`search-input ${showSearch ? "visible" : ""}`}
-    placeholder="Kitap ara..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" && searchTerm.trim()) {
-        navigate(`/search/${encodeURIComponent(searchTerm)}`);
-        setShowSearch(false);
-      }
-    }}
-  />
-  <i
-    className="fa-solid fa-magnifying-glass search-icon"
-    onClick={() => setShowSearch(!showSearch)}
-  ></i>
-</p>
-        <p onClick={() => handleDialog(true)} className="nav-item">
-          <button className="nav-add-btn">+ LOG</button>
+        <p className="nav-item search-wrapper">
+          <input
+            type="text"
+            className={`search-input ${showSearch ? "visible" : ""}`}
+            placeholder="Kitap ara..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && searchTerm.trim()) {
+                navigate(`/search/${encodeURIComponent(searchTerm)}`);
+                setShowSearch(false);
+              }
+            }}
+          />
+          <i
+            className="fa-solid fa-magnifying-glass search-icon"
+            onClick={() => setShowSearch(!showSearch)}
+          ></i>
         </p>
+        {token && (
+          <p onClick={() => handleDialog(true)} className="nav-item">
+            <button className="nav-add-btn">+ LOG</button>
+          </p>
+        )}
         {token && <LoggedUser token={token} onLogout={onLogout} />}
 
         {showSignInPanel && (

@@ -5,6 +5,7 @@ import "./NavigationBar.css";
 import Image from "../frame/Image";
 import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
+import InitialAvatar from "../common/InitialAvatar";
 
 const LoggedUser = ({ token, onLogout }) => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const LoggedUser = ({ token, onLogout }) => {
     <>
       {token && (
         <div className="logged-user" onClick={handleOpen}>
-          <Image className="navbar-img" />
+          <InitialAvatar name={username} navbarImg={true} />
           <div className="navbar-user-info">
             <span className="username">{username}</span>
             <span className="user-badge">{role}</span>

@@ -1,0 +1,28 @@
+/* Ortak avatar stilleri */
+.avatar,
+.navbar-avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+  background-color: #444;
+  user-select: none;
+}
+
+/* Büyük avatar (profile sayfası için) */
+.avatar {
+  width: 80px;
+  height: 80px;
+  font-size: 18px;
+}
+
+/* Küçük avatar (navbar için) */
+.navbar-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  border: 2px solid #554e4e;
+}

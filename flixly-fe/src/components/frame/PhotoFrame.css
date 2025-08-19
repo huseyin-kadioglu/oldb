@@ -7,7 +7,9 @@
 .small-pic {
   margin: 15px;
   width: 200px;
-  height: 100%;
+  height: 250px; /* Daha dengeli bir yükseklik */
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .photo-frame {
