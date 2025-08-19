@@ -24,11 +24,7 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
       <div className="logo"></div>
       <div className="navbar-content">
         {token ? (
-          <>
-            <p onClick={() => navigate("/profile")} className="nav-item">
-              {username}
-            </p>
-          </>
+          <></>
         ) : (
           <>
             <p onClick={() => setShowSignInPanel(true)} className="nav-item">
@@ -43,12 +39,6 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
           </>
         )}
 
-        {token && (
-          <p onClick={() => navigate("/activities")} className="nav-item">
-            yorumlarım
-          </p>
-        )}
-
         <p onClick={() => navigate("/")} className="nav-item">
           Ana Sayfa
         </p>
@@ -56,30 +46,27 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
         <p onClick={() => navigate("/books")} className="nav-item">
           Kitaplar
         </p>
-        <p className="nav-item search-wrapper">
-          {showSearch && (
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Kitap ara..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && searchTerm.trim()) {
-                  navigate(`/search/${encodeURIComponent(searchTerm)}`);
-                  setShowSearch(false);
-                }
-              }}
-              autoFocus
-            />
-          )}
-          <i
-            className="fa-solid fa-magnifying-glass search-icon"
-            onClick={() => setShowSearch(!showSearch)}
-          ></i>
-        </p>
+   <p className="nav-item search-wrapper">
+  <input
+    type="text"
+    className={`search-input ${showSearch ? "visible" : ""}`}
+    placeholder="Kitap ara..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" && searchTerm.trim()) {
+        navigate(`/search/${encodeURIComponent(searchTerm)}`);
+        setShowSearch(false);
+      }
+    }}
+  />
+  <i
+    className="fa-solid fa-magnifying-glass search-icon"
+    onClick={() => setShowSearch(!showSearch)}
+  ></i>
+</p>
         <p onClick={() => handleDialog(true)} className="nav-item">
-          <AddIcon />
+          <button className="nav-add-btn">+ LOG</button>
         </p>
         {token && <LoggedUser token={token} onLogout={onLogout} />}
 

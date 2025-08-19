@@ -6,8 +6,8 @@ const Review = ({ reviews }) => {
   console.log(reviews);
   return (
     <div className="review-section">
-      <h2>Reviews</h2>
-      <hr></hr>
+      <p>Reviews</p>
+      <hr/>
       {reviews.map((review) => (
         <div className="review-card" key={review.bookId}>
           <img

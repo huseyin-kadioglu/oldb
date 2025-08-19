@@ -10,6 +10,7 @@ const LoggedUser = ({ token, onLogout }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const role = sessionStorage.getItem("userRole");
+  const username = sessionStorage.getItem("username");
 
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -47,8 +48,8 @@ const LoggedUser = ({ token, onLogout }) => {
       {token && (
         <div className="logged-user" onClick={handleOpen}>
           <Image className="navbar-img" />
-          <div className="user-info">
-            <span className="username">Hüseyin</span>
+          <div className="navbar-user-info">
+            <span className="username">{username}</span>
             <span className="user-badge">{role}</span>
           </div>
         </div>
@@ -63,15 +64,17 @@ const LoggedUser = ({ token, onLogout }) => {
         PaperProps={{
           sx: {
             mt: 1.5,
-            bgcolor: "var(--color-background)",
+            bgcolor: "var(--color-background-secondary)",
             color: "var(--color-text)",
             borderRadius: 2,
             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
-            minWidth: 160,
-            transition: "all 0.3s ease",
+            minWidth: 200,
+            "& .MuiMenuItem-root": { fontSize: "14px" },
           },
         }}
       >
+        <LoggedUserMenuItem navigateUrl="/profile" value="Profilim" />
+        <LoggedUserMenuItem navigateUrl="/activities" value="Aktiviteler" />
         <LoggedUserMenuItem
           navigateUrl="/bookContribute"
           value="Kitap Ekle/Düzenle"

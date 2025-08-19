@@ -21,6 +21,7 @@ import ProfileApproval from "./components/pages/ProfileApproval";
 import BookContributeForm from "./components/pages/BookContributeForm";
 import EditProfile from "./components/profile/EditProfile";
 import SearchView from "./components/pages/SearchView";
+import ErrorDialog from "./components/common/ErrorDialog";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -117,6 +118,14 @@ const App = () => {
           selectedBookHandler={selectedBookHandler}
           selectedBook={selectedBookDialog}
           data={books}
+        />
+      )}
+
+      {error && (
+        <ErrorDialog
+          open={!!error}
+          errorMessage={error}
+          handleClose={() => setError(null)}
         />
       )}
     </div>

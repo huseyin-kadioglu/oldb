@@ -1,3 +1,6 @@
+
+
+
 .navbar {
   position: sticky;
   top: 0;
@@ -26,6 +29,31 @@
   align-items: center;
 }
 
+/* LOG KISMI */
+.nav-add-btn {
+  background-color: var(--color-primary-button);
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.nav-add-btn:hover {
+  background-color: var(--color-button-hover);
+  transform: translateY(-1px);
+}
+
+.nav-add-btn:active {
+  transform: translateY(0);
+}
+/* LOG KISMI */
+
+
+
 .logged-user {
   display: flex;
   align-items: center;
@@ -44,22 +72,18 @@
   border: 2px solid #333;
 }
 
-.user-info {
+.navbar-user-info {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
 }
 
 .username {
   color: var(--color-text);
-  font-weight: 600;
   font-size: 14px;
-  white-space: nowrap;
 }
 
 .user-badge {
   color: var(--color-primary-button);
-  font-size: 12px;
-  font-weight: 600;
 }
 
 .navbar p {

@@ -58,7 +58,7 @@ public class AuthenticationService {
 
         userRepository.save(user);
 
-        String activationLink = "https://seninsite.com/api/auth/activate?token=" + user.getActivationToken();
+        String activationLink = "http://localhost:8080/api/auth/activate?token=" + user.getActivationToken();
 
         String mailBody = "Merhaba " + user.getFullName() + ",\n\n" +
                 "Hesabınızı aktifleştirmek için lütfen aşağıdaki linke tıklayın:\n" +

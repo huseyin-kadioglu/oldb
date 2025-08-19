@@ -42,14 +42,14 @@ public class AuthController {
                             "<a href='https://localhost:8080/login'>Giriş Yap</a>" +
                             "</body></html>"
             );
-        } else {
-            return ResponseEntity.badRequest().body(
-                    "<html><body style='font-family:sans-serif;text-align:center;padding:50px;color:red;'>" +
-                            "<h2>❌ Aktivasyon başarısız</h2>" +
-                            "<p>Geçersiz veya süresi dolmuş bir aktivasyon linki.</p>" +
-                            "</body></html>"
-            );
         }
+        return ResponseEntity.badRequest().body(
+                "<html><body style='font-family:sans-serif;text-align:center;padding:50px;color:red;'>" +
+                        "<h2>❌ Aktivasyon başarısız</h2>" +
+                        "<p>Geçersiz veya süresi dolmuş bir aktivasyon linki.</p>" +
+                        "</body></html>"
+        );
+
     }
 
     @PostMapping("/login")
