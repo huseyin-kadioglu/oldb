@@ -22,6 +22,7 @@ import BookContributeForm from "./components/pages/BookContributeForm";
 import EditProfile from "./components/profile/EditProfile";
 import SearchView from "./components/pages/SearchView";
 import ErrorDialog from "./components/common/ErrorDialog";
+import GenericMessageDialog from "./components/common/GenericMessageDialog";
 
 const App = () => {
   const [activityDialog, setActivityDialog] = useState(false);
@@ -30,6 +31,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
+  const [successDialogOpen, setSuccessDialogOpen] = useState(null);
 
   const handleToken = (token) => {
     setToken(token);
@@ -81,6 +83,7 @@ const App = () => {
         token={token}
         handleToken={handleToken}
         onLogout={onLogout}
+        setSuccessDialogOpen={setSuccessDialogOpen}
       />
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
@@ -126,6 +129,15 @@ const App = () => {
           open={!!error}
           errorMessage={error}
           handleClose={() => setError(null)}
+        />
+      )}
+
+      {successDialogOpen && (
+        <GenericMessageDialog
+          open={successDialogOpen}
+          onClose={() => setSuccessDialogOpen(false)}
+          title="Aktivasyon Maili Gönderildi"
+          message="Lütfen e-posta kutunuzu kontrol ederek hesabınızı aktifleştirin."
         />
       )}
     </div>

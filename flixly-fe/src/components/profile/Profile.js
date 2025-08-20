@@ -37,7 +37,7 @@ const Profile = (props) => {
             title="Favourite Books"
             books={profileSummary?.favoriteBooks}
           />
-{/*           <FrameBlock
+          {/*           <FrameBlock
             title="Recent Activity"
             books={profileSummary?.recentActivity}
           /> */}

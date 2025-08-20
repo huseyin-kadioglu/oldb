@@ -7,7 +7,13 @@ import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
 import LoggedUser from "./LoggedUser";
 
-const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
+const NavigationBar = ({
+  handleDialog,
+  handleToken,
+  token,
+  onLogout,
+  setSuccessDialogOpen,
+}) => {
   const navigate = useNavigate();
 
   const [showSignInPanel, setShowSignInPanel] = useState(false);
@@ -83,6 +89,7 @@ const NavigationBar = ({ handleDialog, handleToken, token, onLogout }) => {
           <CreateAccountModal
             isOpen={showCreateAccountPanel}
             onClose={() => setShowCreateAccountPanel(false)}
+            setSuccessDialogOpen={setSuccessDialogOpen}
           />
         )}
       </div>
