@@ -7,14 +7,20 @@ import { getProfileSummary } from "../../service/APIService";
 import "./ProfilePage.css";
 
 const ProfilePage = () => {
+  // Burada profil sayfası açılacak. Kendi profilimi yoksa başkasının mı diye bakılmalı.
   const { username } = useParams(); // URL'den kullanıcı adını al
   const [profileSummary, setProfileSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Giriş yapan kullanıcıyı sistemden al (örneğin Context'ten)
-  const currentUser = sessionStorage.getItem("username");
+  const storedUser = sessionStorage.getItem("user");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
   const isOwnProfile = currentUser?.username === username;
+
+  console.log("storedUser", storedUser);
+  console.log("currentUser", currentUser);
+  console.log("isOwnProfile", isOwnProfile);
 
   useEffect(() => {
     fetchProfileSummary();

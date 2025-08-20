@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Image from "../frame/Image";
 import "./Profile.css";
 import { useNavigate } from "react-router-dom";
 import InitialAvatar from "../common/InitialAvatar";
@@ -13,7 +12,7 @@ const ProfileSummary = ({ profileSummary }) => {
   };
 
   const handleEditProfile = () => {
-    navigate("/editProfile");
+    navigate("/settings");
   };
 
   return (

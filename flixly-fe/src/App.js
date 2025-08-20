@@ -19,7 +19,7 @@ import AuthorApproval from "./components/pages/AuthorApproval";
 import BookApproval from "./components/pages/BookApproval";
 import ProfileApproval from "./components/pages/ProfileApproval";
 import BookContributeForm from "./components/pages/BookContributeForm";
-import EditProfile from "./components/profile/EditProfile";
+import SettingsView from "./components/profile/SettingsView";
 import SearchView from "./components/pages/SearchView";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
@@ -90,7 +90,7 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/:username" element={<ProfilePage />} />
         <Route path="/books" element={<Books books={books} />} />
-        <Route path="/editProfile" element={<EditProfile />} />
+        <Route path="/settings" element={<SettingsView />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
         <Route path="/search/:searchTerm" element={<SearchView />} />

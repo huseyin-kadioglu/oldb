@@ -1,0 +1,118 @@
+.edit-profile-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  color: var(--color-text);
+  font-family: Graphik-Light-Web, sans-serif;
+}
+
+.tabs {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-secondary-text);
+  transition: color 0.2s ease;
+}
+
+.tab-button:hover {
+  color: var(--color-text);
+}
+
+.tab-button.active {
+  color: var(--color-text);
+  border-bottom: 3px solid var(--color-primary-button);
+}
+
+.tab-content {
+  background-color: var(--color-background-secondary);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-row label {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: var(--color-secondary-text);
+}
+
+.form-row input,
+.form-row textarea,
+.form-row select {
+  padding: 10px;
+  border: 1px solid var(--line-color);
+  border-radius: 6px;
+  background-color: var(--color-input-background);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.form-row input[readonly] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.form-row input:focus,
+.form-row textarea:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: var(--color-primary-button);
+}
+
+.editable-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-primary-button);
+  transition: transform 0.2s ease;
+}
+
+.edit-icon:hover {
+  transform: scale(1.1);
+}
+
+.checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.save-button {
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--color-primary-button);
+  color: #000;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.save-button:hover {
+  background-color: var(--color-button-hover);
+}
