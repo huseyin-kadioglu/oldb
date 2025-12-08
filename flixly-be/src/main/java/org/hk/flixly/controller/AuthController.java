@@ -48,16 +48,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto dto) {
-        UserEntity user = authenticationService.authenticate(dto);
-        String jwtToken = jwtService.generateToken(user);
-
-        LoginResponse response = new LoginResponse(
-                user.getUsername(),
-                jwtToken,
-                jwtService.getExpirationTime(),
-                user.getProfilName(),
-                user.getRole()
-        );
+        UserEntity authenticatedUser = authenticationService.authenticate(dto);
+        String jwtToken = jwtService.generateToken(authenticatedUser);
+        LoginResponse response = new LoginResponse();
+        response.setUsername(authenticatedUser.getUsername());
+        response.setToken(jwtToken);
+        response.setExpiresIn(jwtService.getExpirationTime());
+        response.setProfileName(authenticatedUser.getProfilName());
+        response.setRole(authenticatedUser.getRole());
 
         return ResponseEntity.ok(response);
     }
