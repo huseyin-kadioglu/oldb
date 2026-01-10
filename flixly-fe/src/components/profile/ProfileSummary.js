@@ -5,6 +5,8 @@ import InitialAvatar from "../common/InitialAvatar";
 
 const ProfileSummary = ({ profileSummary }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -13,6 +15,23 @@ const ProfileSummary = ({ profileSummary }) => {
 
   const handleEditProfile = () => {
     navigate("/settings");
+  };
+
+  const handleCopyProfileLink = async () => {
+    const profileUrl = `${window.location.origin}/profile/${profileSummary?.username}`;
+
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      setCopied(true);
+
+      // kısa süre sonra kapansın
+      setTimeout(() => {
+        setCopied(false);
+        setMenuOpen(false);
+      }, 1200);
+    } catch (err) {
+      console.error("Link kopyalanamadı", err);
+    }
   };
 
   return (
@@ -25,18 +44,30 @@ const ProfileSummary = ({ profileSummary }) => {
             <p className="username">{profileSummary?.profileName}</p>
 
             <div className="actions">
-              <button className="menu-button" onClick={toggleMenu}>
-                ⋯
-              </button>
+              <div className="menu-wrapper">
+                <button className="menu-button" onClick={toggleMenu}>
+                  ⋯
+                </button>
+
+                {menuOpen && (
+                  <div className="menu-popup">
+                    {!copied ? (
+                      <button
+                        className="menu-item"
+                        onClick={handleCopyProfileLink}
+                      >
+                        Profil linkini kopyala
+                      </button>
+                    ) : (
+                      <span className="copied-text">Kopyalandı ✓</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <button className="edit-button" onClick={handleEditProfile}>
                 Edit Profile
               </button>
-
-              {menuOpen && (
-                <div className="menu-popup">
-                  <p>Test içeriği buraya!</p>
-                </div>
-              )}
             </div>
           </div>
 

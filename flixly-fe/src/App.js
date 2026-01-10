@@ -87,13 +87,13 @@ const App = () => {
       />
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:username" element={<Profile />} />
         <Route path="/:username" element={<ProfilePage />} />
         <Route path="/books" element={<Books books={books} />} />
         <Route path="/settings" element={<SettingsView />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
-        <Route path="/search/:searchTerm" element={<SearchView />} />
+        <Route path="/search/:searchTerm" element={<SearchView books={books}/>} />
         <Route
           path="/book/:bookId"
           element={<BookSummaryView books={books} />}

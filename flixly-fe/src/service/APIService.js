@@ -300,13 +300,12 @@ export const getProfileSummaryByUsername = async (username) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    const response = await fetch(`/api/users/${username}/summary`, {
+    const response = await fetch(`${BASE_URL}profile/${username}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      mode: "cors",
       credentials: "include",
     });
 
@@ -319,6 +318,7 @@ export const getProfileSummaryByUsername = async (username) => {
   }
 };
 
+
 // AUTH
 export const loginAccount = async (param) => {
   try {
@@ -326,7 +326,9 @@ export const loginAccount = async (param) => {
     sessionStorage.setItem("token", response.data.token);
     sessionStorage.setItem("username", response.data.profileName);
     sessionStorage.setItem("userRole", response.data.role);
-    console.log(response.data);
+    sessionStorage.setItem("emailAddress", response.data.username);
+    
+    console.log("loginAccount: ", response.data);
     return response.data;
   } catch (error) {
     console.error("Create error:", error);

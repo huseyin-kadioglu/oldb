@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "./NavigationBar.css";
-import Image from "../frame/Image";
 import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
 import InitialAvatar from "../common/InitialAvatar";
@@ -74,7 +73,7 @@ const LoggedUser = ({ token, onLogout }) => {
           },
         }}
       >
-        <LoggedUserMenuItem navigateUrl="/profile" value="Profilim" />
+        <LoggedUserMenuItem navigateUrl={`/profile/${username}`}value="Profilim"/> 
         <LoggedUserMenuItem navigateUrl="/activities" value="Aktiviteler" />
         <LoggedUserMenuItem
           navigateUrl="/bookContribute"

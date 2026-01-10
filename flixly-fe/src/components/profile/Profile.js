@@ -1,11 +1,14 @@
 import ProfileSummary from "./ProfileSummary";
 import FrameBlock from "./../common/FrameBlock";
-import { getProfileSummary } from "../../service/APIService";
 import { useEffect, useState } from "react";
 import "./ProfilePage.css";
 import Review from "./Review";
+import { getProfileSummaryByUsername } from "../../service/APIService";
+import { useParams } from "react-router-dom";
 
 const Profile = (props) => {
+  const { username } = useParams(); // URL'den gelen username
+
   const [profileSummary, setProfileSummary] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -17,7 +20,7 @@ const Profile = (props) => {
 
   const fetchProfileSummary = async () => {
     try {
-      const data = await getProfileSummary();
+      const data = await getProfileSummaryByUsername(username);
       setProfileSummary(data);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
