@@ -1,6 +1,7 @@
 package org.hk.flixly.service;
 
 import lombok.AllArgsConstructor;
+import org.hk.flixly.controller.UpdateProfileRequest;
 import org.hk.flixly.model.ProfileInfoDTO;
 import org.hk.flixly.model.ReviewWithBookInfoDto;
 import org.hk.flixly.model.UserActivityWithBookDTO;
@@ -57,6 +58,8 @@ public class ProfileService {
         ProfileInfoDTO response = new ProfileInfoDTO();
         response.setUsername(username);
         response.setProfileName(userEntity.getProfilName());
+        response.setBio(userEntity.getBio());
+        response.setLocation(userEntity.getLocation());
 
         // Kullanıcının kitap etkileşimleri
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
@@ -207,6 +210,8 @@ public class ProfileService {
         ProfileInfoDTO response = new ProfileInfoDTO();
         response.setUsername(username);
         response.setProfileName(userEntity.getProfilName());
+        response.setBio(userEntity.getBio());
+        response.setLocation(userEntity.getLocation());
 
         // Kullanıcının kitap etkileşimleri
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
@@ -346,5 +351,38 @@ public class ProfileService {
 
         return response;
     }
+
+    public ProfileInfoDTO updateProfileByEmail(String email, UpdateProfileRequest request) {
+
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getBio() != null) {
+            userEntity.setBio(request.getBio());
+        }
+
+        if (request.getLocation() != null) {
+            userEntity.setLocation(request.getLocation());
+        }
+
+        userRepository.save(userEntity);
+
+        return buildProfileInfo(userEntity);
+    }
+
+    private ProfileInfoDTO buildProfileInfo(UserEntity userEntity) {
+
+        ProfileInfoDTO response = new ProfileInfoDTO();
+        response.setUsername(userEntity.getUsername());      // profil username
+        response.setProfileName(userEntity.getProfilName()); // gösterilen ad
+        response.setBio(userEntity.getBio());
+        response.setLocation(userEntity.getLocation());
+
+        // 👉 buradan sonrası senin mevcut logic
+        // books, reviews, stats vs.
+
+        return response;
+    }
+
 
 }

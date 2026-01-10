@@ -34,6 +34,13 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "bio")
+    private String bio;
+
+    @Column(name = "location")
+    private String location;
+
+
     private String role; // "USER", "ADMIN" gibi
     private int contributionPoint;
 

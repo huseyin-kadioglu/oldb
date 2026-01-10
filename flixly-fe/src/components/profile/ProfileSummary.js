@@ -72,7 +72,7 @@ const ProfileSummary = ({ profileSummary }) => {
           </div>
 
           <p className="description">
-            It’s just a place where I write notes to myself.
+            {profileSummary?.bio || "Henüz bir biyografi eklenmemiş."}
           </p>
         </div>
       </div>

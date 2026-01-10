@@ -1,11 +1,51 @@
 import React, { useState } from "react";
 import "./SettingsView.css";
+import { useEffect } from "react";
+import { getProfileSummary, updateProfile } from "../../service/APIService";
 
 const SettingsView = () => {
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const data = await getProfileSummary();
+
+      console.log("settings view data: " ,data)
+      setForm((prev) => ({
+        ...prev,
+        username: data.profileName ?? "", // sadece gösterim
+        email: data.username ?? "", // sadece gösterim
+        bio: data.bio ?? "",
+        location: data.location ?? "",
+      }));
+    };
+
+    loadProfile();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      username: form.username,
+      location: form.location,
+      bio: form.bio,
+    };
+
+    try {
+      await updateProfile(payload);
+      setMessage("Profil güncellendi");
+      setTimeout(() => setMessage(null), 2500);
+    } catch {
+      setMessage("Profil güncellenemedi");
+      setTimeout(() => setMessage(null), 2500);
+    }
+  };
+
   const [activeTab, setActiveTab] = useState("profile");
   const [form, setForm] = useState({
-    username: "huseyin",
-    email: "huseyin@example.com",
+    username: "",
+    email: "",
     location: "",
     bio: "",
     currentPassword: "",
@@ -23,20 +63,18 @@ const SettingsView = () => {
       setForm({ ...form, [name]: checked });
     } else if (type === "file") {
       setForm({ ...form, avatar: files[0] });
-      alert("Profil fotoğrafı yükleme isteği gönderildi. Onay sonrası değişecektir.");
+      alert(
+        "Profil fotoğrafı yükleme isteği gönderildi. Onay sonrası değişecektir."
+      );
     } else {
       setForm({ ...form, [name]: value });
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted", form);
-    alert("Changes saved!");
-  };
-
   return (
     <div className="edit-profile-container">
+      {message && <div className="info-message">{message}</div>}
+
       {/* Tab Navigation */}
       <div className="tabs">
         {["profile", "auth", "avatar", "data"].map((tab) => (
@@ -57,13 +95,7 @@ const SettingsView = () => {
             <div className="form-row">
               <label>Username</label>
               {isEditingUsername ? (
-                <input
-                  name="username"
-                  value={form.username}
-                  onChange={handleChange}
-                  onBlur={() => setIsEditingUsername(false)}
-                  autoFocus
-                />
+                <input name="username" value={form.username} readOnly />
               ) : (
                 <div className="editable-field">
                   <span>{form.username}</span>
@@ -85,7 +117,11 @@ const SettingsView = () => {
 
             <div className="form-row">
               <label>Location</label>
-              <input name="location" value={form.location} onChange={handleChange} />
+              <input
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="form-row">

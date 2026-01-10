@@ -346,3 +346,29 @@ export const createAccount = async (param) => {
     throw error;
   }
 };
+
+export const updateProfile = async (payload) => {
+  const token = sessionStorage.getItem("token");
+
+  try {
+    const response = await fetch(`${BASE_URL}profile/edit`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Profil güncellenemedi");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Profil güncellenirken hata:", error);
+    throw error;
+  }
+};
+
+
