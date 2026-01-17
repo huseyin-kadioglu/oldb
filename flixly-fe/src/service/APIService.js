@@ -12,6 +12,39 @@ const SIGNUP_API = BASE_URL + "api/auth/signup";
 const LOGIN_API = BASE_URL + "api/auth/login";
 const USER_ACTIVITY_API = BASE_URL + "userActivity/"; // Backend URL
 
+  export const changePassword = async (payload) => {
+  const token = sessionStorage.getItem("token");
+
+  try {
+    const response = await fetch(`${BASE_URL}profile/change-password`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Şifre değiştirilemedi");
+    }
+
+    return;
+  } catch (error) {
+    console.error("Şifre değiştirilirken hata:", error);
+    throw error;
+  }
+};
+
+export const logout = () => {
+  // storage temizle
+  sessionStorage.clear();
+  localStorage.clear();
+
+  // axios header temizle
+  delete axios.defaults.headers.common["Authorization"];
+};
+
 // APPROVAL SERVICES
 export const getAuthorApprovals = async () => {
   const token = sessionStorage.getItem("token");

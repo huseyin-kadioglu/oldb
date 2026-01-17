@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     // Base URL config üzerinden de gelebilir
-    private static final String FRONTEND_URL = "http://localhost:5173";
+    private static final String FRONTEND_URL = "http://localhost:3000";
     private static final String LOGIN_URL = FRONTEND_URL + "/login";
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;

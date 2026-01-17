@@ -2,6 +2,7 @@ package org.hk.flixly.service;
 
 import lombok.AllArgsConstructor;
 import org.hk.flixly.controller.UpdateProfileRequest;
+import org.hk.flixly.model.ChangePasswordRequest;
 import org.hk.flixly.model.ProfileInfoDTO;
 import org.hk.flixly.model.ReviewWithBookInfoDto;
 import org.hk.flixly.model.UserActivityWithBookDTO;
@@ -16,6 +17,7 @@ import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.UserBookMapRepository;
 import org.hk.flixly.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -41,6 +43,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final UserBookMapRepository bookMapRepository;
     private final ActivityRepository activityRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public static long daysSinceStartOfYear() {
         LocalDate now = LocalDate.now();
@@ -384,5 +387,14 @@ public class ProfileService {
         return response;
     }
 
+    public void changePassword(String email, ChangePasswordRequest request) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
 }

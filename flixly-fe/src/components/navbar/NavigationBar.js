@@ -23,8 +23,6 @@ const NavigationBar = ({
 
   useEffect(() => {}, [token]);
 
-  const username = sessionStorage.getItem("username");
-
   return (
     <nav className="navbar">
       <div className="logo"></div>
@@ -76,7 +74,7 @@ const NavigationBar = ({
             <button className="nav-add-btn">+ LOG</button>
           </p>
         )}
-        {token && <LoggedUser token={token} onLogout={onLogout} />}
+        {token && <LoggedUser onLogout={onLogout} />}
 
         {showSignInPanel && (
           <SignInPanel

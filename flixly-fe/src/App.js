@@ -30,8 +30,19 @@ const App = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [token, setToken] = useState(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(null);
+
+  const [token, setToken] = useState(sessionStorage.getItem("token"));
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    localStorage.clear();
+
+    // axios kullanıyorsan
+    // delete axios.defaults.headers.common["Authorization"];
+
+    setToken(null); // 🔥 EN ÖNEMLİ SATIR
+  };
 
   const handleToken = (token) => {
     setToken(token);
@@ -51,19 +62,6 @@ const App = () => {
     fetchBooks();
   }, []);
 
-  // İlk açılışta token'ı çek
-  useEffect(() => {
-    const storedToken = sessionStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []);
-
-  const onLogout = () => {
-    sessionStorage.removeItem("token");
-    setToken(null);
-  };
-
   const fetchBooks = async () => {
     try {
       const data = await getBooks();
@@ -78,13 +76,15 @@ const App = () => {
 
   return (
     <div className="App">
+
       <NavigationBar
         handleDialog={handleDialog}
         token={token}
+        onLogout={handleLogout}
         handleToken={handleToken}
-        onLogout={onLogout}
         setSuccessDialogOpen={setSuccessDialogOpen}
       />
+
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
         <Route path="/profile/:username" element={<Profile />} />
@@ -93,7 +93,10 @@ const App = () => {
         <Route path="/settings" element={<SettingsView />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
-        <Route path="/search/:searchTerm" element={<SearchView books={books}/>} />
+        <Route
+          path="/search/:searchTerm"
+          element={<SearchView books={books} />}
+        />
         <Route
           path="/book/:bookId"
           element={<BookSummaryView books={books} />}

@@ -1,5 +1,6 @@
 package org.hk.flixly.controller;
 
+import org.hk.flixly.model.ChangePasswordRequest;
 import org.hk.flixly.model.ProfileInfoDTO;
 import org.hk.flixly.service.ProfileService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,6 +43,17 @@ public class ProfileSummaryController {
     ) {
         return profileService.updateProfileByEmail(
                 userDetails.getUsername(), // EMAIL
+                request
+        );
+    }
+
+    @PutMapping("/change-password")
+    public void changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ChangePasswordRequest request
+    ) {
+        profileService.changePassword(
+                userDetails.getUsername(), // email
                 request
         );
     }

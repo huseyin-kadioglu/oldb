@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
 import InitialAvatar from "../common/InitialAvatar";
 
-const LoggedUser = ({ token, onLogout }) => {
+const LoggedUser = ({ onLogout }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const role = sessionStorage.getItem("userRole");
@@ -45,15 +45,13 @@ const LoggedUser = ({ token, onLogout }) => {
 
   return (
     <>
-      {token && (
-        <div className="logged-user" onClick={handleOpen}>
-          <InitialAvatar name={username} navbarImg={true} />
-          <div className="navbar-user-info">
-            <span className="username">{username}</span>
-            <span className="user-badge">{role}</span>
-          </div>
+      <div className="logged-user" onClick={handleOpen}>
+        <InitialAvatar name={username} navbarImg={true} />
+        <div className="navbar-user-info">
+          <span className="username">{username}</span>
+          <span className="user-badge">{role}</span>
         </div>
-      )}
+      </div>
 
       <Menu
         anchorEl={anchorEl}
@@ -73,7 +71,10 @@ const LoggedUser = ({ token, onLogout }) => {
           },
         }}
       >
-        <LoggedUserMenuItem navigateUrl={`/profile/${username}`}value="Profilim"/> 
+        <LoggedUserMenuItem
+          navigateUrl={`/profile/${username}`}
+          value="Profilim"
+        />
         <LoggedUserMenuItem navigateUrl="/activities" value="Aktiviteler" />
         <LoggedUserMenuItem
           navigateUrl="/bookContribute"
