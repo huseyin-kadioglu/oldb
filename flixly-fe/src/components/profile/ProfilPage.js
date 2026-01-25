@@ -14,13 +14,7 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
 
   // Giriş yapan kullanıcıyı sistemden al (örneğin Context'ten)
-  const storedUser = sessionStorage.getItem("user");
-  const currentUser = storedUser ? JSON.parse(storedUser) : null;
-  const isOwnProfile = currentUser?.username === username;
-
-  console.log("storedUser", storedUser);
-  console.log("currentUser", currentUser);
-  console.log("isOwnProfile", isOwnProfile);
+  const isOwnProfile = sessionStorage.getItem("username") === username;
 
   useEffect(() => {
     fetchProfileSummary();

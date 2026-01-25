@@ -3,7 +3,8 @@ import "./Profile.css";
 import { useNavigate } from "react-router-dom";
 import InitialAvatar from "../common/InitialAvatar";
 
-const ProfileSummary = ({ profileSummary }) => {
+const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
+  console.log(isOwnProfile);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -65,9 +66,11 @@ const ProfileSummary = ({ profileSummary }) => {
                 )}
               </div>
 
-              <button className="edit-button" onClick={handleEditProfile}>
-                Edit Profile
-              </button>
+              {isOwnProfile && (
+                <button className="edit-button" onClick={handleEditProfile}>
+                  Edit Profile
+                </button>
+              )}
             </div>
           </div>
 

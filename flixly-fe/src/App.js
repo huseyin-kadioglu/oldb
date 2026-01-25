@@ -76,7 +76,6 @@ const App = () => {
 
   return (
     <div className="App">
-
       <NavigationBar
         handleDialog={handleDialog}
         token={token}
@@ -87,8 +86,8 @@ const App = () => {
 
       <Routes>
         <Route path="/*" element={<Content books={books} token={token} />} />
-        <Route path="/profile/:username" element={<Profile />} />
-        <Route path="/:username" element={<ProfilePage />} />
+        {/* PROFİL */}
+        <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/books" element={<Books books={books} />} />
         <Route path="/settings" element={<SettingsView />} />
         <Route path="/activities" element={<Activies />} />

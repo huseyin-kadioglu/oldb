@@ -85,7 +85,7 @@ const LoggedUser = ({ onLogout }) => {
           value="Yazar Ekle/Düzenle"
         />
 
-        {role === "admin" &&
+        {role === "ADMIN" &&
           adminMenuItems.map((item) => (
             <LoggedUserMenuItem
               key={item.key}
