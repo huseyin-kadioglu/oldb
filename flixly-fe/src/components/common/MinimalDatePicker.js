@@ -22,30 +22,44 @@ export default function MinimalDatePicker({ readDate, setReadDate }) {
               sx: {
                 width: 180,
                 fontFamily: `"Georgia", serif`,
-                fontWeight: 400,
                 fontSize: 14,
                 borderRadius: 2,
                 backgroundColor: "#3b4552",
-                color: "var(--color-secondary-text)",
-                input: {
+
+                "& .MuiFilledInput-root": {
+                  backgroundColor: "#3b4552",
+                  borderRadius: 8,
+                  overflow: "hidden",
+                },
+
+                "& .MuiFilledInput-root.Mui-focused": {
+                  backgroundColor: "#3b4552",
+                },
+
+                "& .MuiFilledInput-root::before": {
+                  borderBottom: "none",
+                },
+
+                "& .MuiFilledInput-root::after": {
+                  borderBottom: "none",
+                },
+
+                "& .MuiInputBase-input": {
                   color: "var(--color-secondary-text)",
                   padding: "10px 12px",
                 },
+
                 "& .MuiSvgIcon-root": {
                   color: "var(--color-primary-button)",
-                },
-                "& .MuiFilledInput-root": {
-                  borderRadius: 2,
-                  backgroundColor: "#3b4552",
                 },
               },
             },
             popper: {
               sx: {
                 "& .MuiPaper-root": {
-                  backgroundColor: "var(----color-input-background)",
+                  backgroundColor: "var(--color-input-background)",
                   color: "var(--color-text)",
-                  borderRadius: 2,
+                  borderRadius: 8,
                 },
                 "& .MuiPickersDay-root": {
                   color: "var(--color-secondary-text)",
@@ -53,9 +67,6 @@ export default function MinimalDatePicker({ readDate, setReadDate }) {
                     backgroundColor: "var(--color-primary-button)",
                     color: "#000",
                     fontWeight: 600,
-                    "&:hover": {
-                      backgroundColor: "#e6b800",
-                    },
                   },
                   "&:hover": {
                     backgroundColor: "#444",

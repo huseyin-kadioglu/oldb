@@ -1,82 +1,132 @@
+/* =========================
+   PAGE LAYOUT
+========================= */
+
 .profile-page {
-  display: flex;
-  gap: 30px; /* Sol ve sağ kolon arası boşluk */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 32px;
+  margin-top: 24px;
 }
 
-/* Sol kolon */
+/* =========================
+   MAIN CONTENT
+========================= */
+
 .main-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
 }
+/* =========================
+   SIDEBAR
+========================= */
 
-/* Sağ sidebar */
 .sidebar {
-  width: 250px;
+  position: sticky;
+  top: 90px;
+
+  width: 260px;
+  padding-top: 6px;
+
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
-.sidebar-logo img {
-  width: 150px;
-  margin-bottom: 30px;
+/* =========================
+   READLIST
+========================= */
+
+.readlist {
+  padding-left: 4px;
 }
 
-/* Readlist başlığı */
 .readlist h2 {
-  text-align: left;
   font-family: Graphik-Regular-Web, sans-serif;
-  font-weight: 400;
-  font-size: 1rem;
-  color: #9ab;
+  font-size: 0.75rem;
+  font-weight: 500;
+
   text-transform: uppercase;
-  letter-spacing: 0.075em;
-  margin-top: 0;
-  margin-bottom: 0px;
+  letter-spacing: 0.14em;
+  color: #8fa2b8;
+
+  margin-bottom: 6px;
 }
 
 .readlist hr {
-  width: 100%;
-  height: 1px;
+  width: 40px;
+  height: 2px;
   border: none;
-  background-color: #445; /* daha koyu bir çizgi için */
-  margin-top: 0.5rem; /* azalt veya 0 yap */
+  border-radius: 2px;
+
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-button),
+    transparent
+  );
+
+  margin-bottom: 14px;
 }
 
-.readlist h3 {
-  /* veya hangi etiketse */
-  margin-top: 0;
-  margin-bottom: 0;
-  font-size: 1rem;
-  color: #9ab;
-  text-transform: uppercase;
-  letter-spacing: 0.075em;
-}
+/* =========================
+   READLIST IMAGES
+========================= */
 
-/* Readlist resimler konteyneri */
 .readlist-images {
   position: relative;
-  height: 111px; /* İmaj yüksekliği + üst üste binme alanı */
-  width: 200px; /* toplam genişlik */
+  height: 100px;
+  margin-left: 2px;
 }
 
-/* Readlist tek bir resim */
 .readlist-image {
   position: absolute;
   top: 0;
-  width: 60px;
-  height: 80px;
+
+  width: 68px;
+  height: 92px;
   object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  border: 1px solid white;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   cursor: pointer;
-  transition: transform 0.3s ease;
 }
 
 .readlist-image:hover {
-  transform: translateY(-10px);
-  z-index: 10 !important; /* Hover eden ön plana çıksın */
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
+  z-index: 20 !important;
+}
+
+/* =========================
+   MORE TEXT
+========================= */
+
+.readlist-more {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: #9aa8b6;
+  opacity: 0.75;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .readlist-images {
+    height: 92px;
+  }
 }

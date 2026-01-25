@@ -6,8 +6,6 @@ import FrameBlock from "../common/FrameBlock";
 import { useParams } from "react-router-dom";
 
 const Books = ({ books }) => {
-  const user = "huseyinkadioglu";
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { bookId } = useParams();

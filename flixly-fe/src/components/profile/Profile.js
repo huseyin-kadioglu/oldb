@@ -7,12 +7,10 @@ import { getProfileSummaryByUsername } from "../../service/APIService";
 import { useParams } from "react-router-dom";
 
 const Profile = (props) => {
-  const { username } = useParams(); // URL'den gelen username
+  const { username } = useParams();
 
-  const [profileSummary, setProfileSummary] = useState([]);
-
+  const [profileSummary, setProfileSummary] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchProfileSummary();
@@ -23,13 +21,14 @@ const Profile = (props) => {
       const data = await getProfileSummaryByUsername(username);
       setProfileSummary(data);
     } catch (err) {
-      setError("Kitaplar yüklenirken bir hata oluştu.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  console.log("profileSummary", profileSummary);
+  if (loading) return null;
+
   return (
     <>
       <ProfileSummary props={props} profileSummary={profileSummary} />
@@ -40,17 +39,15 @@ const Profile = (props) => {
             title="Favourite Books"
             books={profileSummary?.favoriteBooks}
           />
-          {/*           <FrameBlock
-            title="Recent Activity"
-            books={profileSummary?.recentActivity}
-          /> */}
+
           <Review reviews={profileSummary?.reviews} />
         </div>
 
         <aside className="sidebar">
           <div className="readlist">
             <h2>Readlist</h2>
-            <hr></hr>
+            <hr />
+
             <div className="readlist-images">
               {profileSummary?.readList?.slice(0, 10).map((book, index) => (
                 <img
@@ -58,14 +55,21 @@ const Profile = (props) => {
                   src={book.coverUrl}
                   alt={book.title}
                   className="readlist-image"
-                  style={{ zIndex: 5 - index, left: `${index * 15}px` }} // bindirme efekti için
+                  style={{ left: `${index * 18}px`, zIndex: 10 - index }}
                 />
               ))}
             </div>
+
+            {profileSummary?.readList?.length > 10 && (
+              <span className="readlist-more">
+                +{profileSummary.readList.length - 10} more
+              </span>
+            )}
           </div>
         </aside>
       </div>
     </>
   );
 };
+
 export default Profile;
