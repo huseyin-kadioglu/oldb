@@ -1,107 +1,70 @@
+.page-layout .container {
+  width: 100%;
+  min-width: 0;
+  display: block;
+}
+
 .container {
-  max-width: 1000px; /* İçeriğin maksimum genişliği */
+  max-width: 100%;
   display: grid;
   justify-items: center;
 }
 
 .container .h2 {
   text-align: center;
-  font-size: 2rem;
-  line-height: 1.23076923;
-  color: rgb(46, 153, 46);
-  font-family: Graphik-Light-Web, sans-serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
   font-weight: 400;
-  text-align: center;
-  margin: 0 0 2.46153846rem;
+  margin: 0 0 1.5rem;
 }
 
+/* 8–10 kitap yan yana, küçük kartlar; minmax(0,1fr) taşmayı önler */
 .gallery {
-  width: 100%; /* Navbar'ın genişliği */
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
-  justify-items: center;
-}
-.background-stars {
-  position: relative;
   width: 100%;
-  height: 200px;
-  overflow: hidden;
-  color: #a1883e;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-family: "Graphik-Light-Web", sans-serif;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 12px 10px;
+  justify-items: start;
 }
 
-/* Yıldız şekli ve animasyonu */
-.star {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: #a1883e;
-  clip-path: polygon(
-    50% 0%,
-    61% 35%,
-    98% 35%,
-    68% 57%,
-    79% 91%,
-    50% 70%,
-    21% 91%,
-    32% 57%,
-    2% 35%,
-    39% 35%
-  );
-  animation: starFall 5s linear infinite;
-  opacity: 0.9;
-}
-
-@keyframes starFall {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(150px) rotate(720deg);
-    opacity: 0;
+@media (max-width: 1200px) {
+  .gallery {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
 
-/* Dalgalanan şerit stili */
+@media (max-width: 900px) {
+  .gallery {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
 .wave-banner {
-  background: linear-gradient(135deg, #a1883e 25%, #6b541f 50%, #a1883e 75%);
-  color: var(--color-background);
-  padding: 15px 60px;
-  border-radius: 30px;
-  font-weight: bold;
-  font-size: 1.8rem;
-  animation: waveMove 4s ease-in-out infinite;
-  box-shadow: 0 0 15px rgba(161, 136, 62, 0.7);
+  background: linear-gradient(135deg, var(--color-primary-button) 0%, var(--color-primary-button-hover) 100%);
+  color: #000;
+  padding: 12px 48px;
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 16px rgba(245, 197, 24, 0.35);
   user-select: none;
-  position: relative;
-  z-index: 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Dalgalanma animasyonu (yatay kayma + hafif yukarı aşağı hareket) */
-@keyframes waveMove {
-  0%,
-  100% {
-    transform: translateX(0) translateY(0);
-  }
-  50% {
-    transform: translateX(15px) translateY(-5px);
-  }
+.wave-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 197, 24, 0.4);
 }
 
-/* Alt yazı */
 .subtext {
-  color: #7d7d7d;
+  color: var(--color-text-muted);
   font-weight: 400;
-  font-size: 1.2rem;
+  font-size: 1rem;
   margin: 0;
 }
 

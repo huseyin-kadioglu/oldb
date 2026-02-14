@@ -15,9 +15,9 @@ const BookSummaryView = (props) => {
   const book = location.state?.book;
 
   useEffect(() => {
-    console.log("BookSummaryView render");
-    fetchAuthor();
-  }, []);
+    if (book?.authorId) fetchAuthor();
+    else setLoading(false);
+  }, [book?.authorId]);
 
   const fetchAuthor = async () => {
     try {
@@ -30,10 +30,19 @@ const BookSummaryView = (props) => {
     }
   };
 
+  if (!book) return <div className="page-layout"><main className="page-main"><p>Kitap bulunamadı.</p></main></div>;
+  if (loading) return <div className="page-layout"><main className="page-main"><p>Yükleniyor…</p></main></div>;
+  if (error) return <div className="page-layout"><main className="page-main"><p>{error}</p></main></div>;
+
   return (
-    <div className="bookSummaryMainView">
-      <BookSummaryViewCoverAndStats book={book} author={author} />
-      <BookSummaryTitleDescAndLog book={book} author={author} />
+    <div className="page-layout">
+      <main className="page-main">
+        <div className="bookSummaryMainView">
+          <BookSummaryViewCoverAndStats book={book} author={author} />
+          <BookSummaryTitleDescAndLog book={book} author={author} />
+        </div>
+      </main>
+      <aside className="page-sidebar" aria-hidden="true" />
     </div>
   );
 };

@@ -83,68 +83,39 @@ const PhotoFrame = ({
     setIsInReadlist(newState);
   };
 
+  const ghostButtons = showGhostMenu && (
+    <div className="ghost-menu">
+      <button onClick={(e) => { e.preventDefault(); handleLike(); }} data-active={book?.liked || isLiked} aria-label="Beğen">
+        {book?.liked || isLiked ? <FavoriteIcon style={{ fontSize: 16 }} /> : <FavoriteBorderIcon style={{ fontSize: 16 }} />}
+      </button>
+      <button onClick={(e) => { e.preventDefault(); handleFavorite(); }} data-active={book?.favourite || isFavorited} aria-label="Favori">
+        {book?.favourite || isFavorited ? <StarIcon style={{ fontSize: 16 }} /> : <StarBorderIcon style={{ fontSize: 16 }} />}
+      </button>
+      <button onClick={(e) => { e.preventDefault(); handleReadlist(); }} data-active={book?.readList || isInReadlist} aria-label="Okuma listesi">
+        {book?.readList || isInReadlist ? <PlaylistAddCheckIcon style={{ fontSize: 16 }} /> : <PlaylistAddIcon style={{ fontSize: 16 }} />}
+      </button>
+    </div>
+  );
+
+  const titleBlock = showTitle && (
+    <div className="frame-title-wrap">
+      <p className="title">{book.title}</p>
+    </div>
+  );
+
   return justShowCover == true ? (
     <div className="photo-frame">
       <img src={coverUrl} alt={book.title} className={imageClass} />
-      {showTitle && <p className="title">{book.title}</p>}
-      {showGhostMenu && (
-        <div className="ghost-menu">
-          <button onClick={handleLike}>
-            {book?.liked || isLiked ? (
-              <FavoriteIcon style={{ fontSize: 14 }} />
-            ) : (
-              <FavoriteBorderIcon style={{ fontSize: 14 }} />
-            )}
-          </button>
-
-          <button onClick={handleFavorite}>
-            {book.favourite || isFavorited ? (
-              <StarIcon style={{ fontSize: 14 }} />
-            ) : (
-              <StarBorderIcon style={{ fontSize: 14 }} />
-            )}
-          </button>
-          <button onClick={handleReadlist}>
-            {book?.readlist || isInReadlist ? (
-              <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
-            ) : (
-              <PlaylistAddIcon style={{ fontSize: 14 }} />
-            )}
-          </button>
-        </div>
-      )}
+      {titleBlock}
+      {ghostButtons}
     </div>
   ) : (
     <div className="photo-frame">
       <Link to={`/book/${book.id}`} state={{ book }}>
         <img src={coverUrl} alt={book.title} className={imageClass} />
       </Link>
-      {showTitle && <p className="title">{book.title}</p>}
-      {showGhostMenu && (
-        <div className="ghost-menu">
-          <button onClick={handleLike}>
-            {book.liked || isLiked ? (
-              <FavoriteIcon style={{ fontSize: 14 }} />
-            ) : (
-              <FavoriteBorderIcon style={{ fontSize: 14 }} />
-            )}
-          </button>
-          <button onClick={handleFavorite}>
-            {book.favourite || isFavorited ? (
-              <StarIcon style={{ fontSize: 14 }} />
-            ) : (
-              <StarBorderIcon style={{ fontSize: 14 }} />
-            )}
-          </button>
-          <button onClick={handleReadlist}>
-            {book.inReadList || isInReadlist ? (
-              <PlaylistAddCheckIcon style={{ fontSize: 14 }} />
-            ) : (
-              <PlaylistAddIcon style={{ fontSize: 14 }} />
-            )}
-          </button>
-        </div>
-      )}
+      {titleBlock}
+      {ghostButtons}
     </div>
   );
 };

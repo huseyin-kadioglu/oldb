@@ -11,8 +11,13 @@ const Books = ({ books }) => {
   const { bookId } = useParams();
 
   return (
-    <div className="container">
-      <FrameBlock books={books} title="All Books" />
+    <div className="page-layout">
+      <main className="page-main">
+        <div className="container">
+          <FrameBlock books={books} title="Tüm Kitaplar" />
+        </div>
+      </main>
+      <aside className="page-sidebar" aria-hidden="true" />
     </div>
   );
 };

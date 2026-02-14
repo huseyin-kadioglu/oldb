@@ -128,13 +128,18 @@ const SettingsView = () => {
 
         {/* Tab Navigation */}
         <div className="tabs">
-          {["profile", "auth", "avatar", "data"].map((tab) => (
+          {[
+            { id: "profile", label: "Profil" },
+            { id: "auth", label: "Şifre" },
+            { id: "avatar", label: "Avatar" },
+            { id: "data", label: "Veri" },
+          ].map(({ id, label }) => (
             <button
-              key={tab}
-              className={`tab-button ${activeTab === tab ? "active" : ""}`}
-              onClick={() => setActiveTab(tab)}
+              key={id}
+              className={`tab-button ${activeTab === id ? "active" : ""}`}
+              onClick={() => setActiveTab(id)}
             >
-              {tab.toUpperCase()}
+              {label}
             </button>
           ))}
         </div>
@@ -144,7 +149,7 @@ const SettingsView = () => {
           {activeTab === "profile" && (
             <div className="tab-content">
               <div className="form-row">
-                <label>Username</label>
+                <label>Kullanıcı adı</label>
                 {isEditingUsername ? (
                   <input name="username" value={form.username} readOnly />
                 ) : (
@@ -162,12 +167,12 @@ const SettingsView = () => {
               </div>
 
               <div className="form-row">
-                <label>Email</label>
+                <label>E-posta</label>
                 <input name="email" value={form.email} readOnly />
               </div>
 
               <div className="form-row">
-                <label>Location</label>
+                <label>Konum</label>
                 <input
                   name="location"
                   value={form.location}
@@ -176,7 +181,7 @@ const SettingsView = () => {
               </div>
 
               <div className="form-row">
-                <label>Bio</label>
+                <label>Hakkında</label>
                 <textarea
                   name="bio"
                   value={form.bio}
@@ -191,7 +196,7 @@ const SettingsView = () => {
           {activeTab === "auth" && (
             <div className="tab-content">
               <div className="form-row">
-                <label>Current Password</label>
+                <label>Mevcut şifre</label>
                 <input
                   type="password"
                   name="currentPassword"
@@ -201,7 +206,7 @@ const SettingsView = () => {
               </div>
 
               <div className="form-row">
-                <label>New Password</label>
+                <label>Yeni şifre</label>
                 <input
                   type="password"
                   name="newPassword"
@@ -211,7 +216,7 @@ const SettingsView = () => {
               </div>
 
               <div className="form-row">
-                <label>Confirm New Password</label>
+                <label>Yeni şifre (tekrar)</label>
                 <input
                   type="password"
                   name="confirmPassword"
@@ -225,7 +230,7 @@ const SettingsView = () => {
                 className="save-button"
                 onClick={handleChangePassword}
               >
-                Change Password
+                Şifreyi değiştir
               </button>
             </div>
           )}
@@ -234,7 +239,7 @@ const SettingsView = () => {
           {activeTab === "avatar" && (
             <div className="tab-content">
               <div className="form-row">
-                <label>Profile Picture</label>
+                <label>Profil fotoğrafı</label>
                 <input type="file" name="avatar" onChange={handleChange} />
               </div>
             </div>
@@ -251,16 +256,16 @@ const SettingsView = () => {
                     checked={form.notifications}
                     onChange={handleChange}
                   />
-                  Receive email notifications
+                  E-posta bildirimleri al
                 </label>
               </div>
 
               <div className="form-row">
-                <label>Theme</label>
+                <label>Tema</label>
                 <select name="theme" value={form.theme} onChange={handleChange}>
-                  <option value="dark">Dark</option>
-                  <option value="light">Light</option>
-                  <option value="system">System</option>
+                  <option value="dark">Koyu</option>
+                  <option value="light">Açık</option>
+                  <option value="system">Sistem</option>
                 </select>
               </div>
             </div>
@@ -268,7 +273,7 @@ const SettingsView = () => {
 
           {activeTab === "profile" && (
             <button type="submit" className="save-button">
-              Save Changes
+              Değişiklikleri kaydet
             </button>
           )}
         </form>

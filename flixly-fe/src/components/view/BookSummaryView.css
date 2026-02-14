@@ -1,71 +1,126 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  margin-left: 30px;
-}
 
 .bookSummaryMainView {
   display: flex;
-  padding: 10px;
+  padding: 24px 0;
+  align-items: flex-start;
+  gap: 40px;
 }
 
 .bookSummaryMainView > :nth-child(1) {
-  flex: 1;
+  flex: 0 0 auto;
+  width: 180px;
 }
 .bookSummaryMainView > :nth-child(2) {
-  flex: 3;
+  flex: 1;
+  min-width: 0;
+}
+
+.coverAndStats {
+  position: sticky;
+  top: 80px;
+}
+
+.coverAndStats .photo-frame {
+  max-width: 180px;
+}
+
+.coverAndStats .photo-frame img {
+  border-radius: var(--radius-md);
 }
 
 .coverAndStats p {
   margin: 0;
   padding: 0;
-  color: #aaa;
-  font-family: TiemposTextWeb, Georgia, serif;
-  text-align: left; /* Yazıyı sola hizalar */
-  line-height: 1.6; /* Satır aralığı arttırıldı */
+  color: var(--color-text-secondary);
+  font-family: var(--font-serif);
+  text-align: left;
+  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
-.title {
-  align-items: baseline;
+.cover-stats-minimal {
   display: flex;
-  gap: 8px;
-  width: 100%; /* opsiyonel: tam satırı kaplasın */
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
-.book-title {
-  font-size: 3rem;
-  font-weight: bold;
-  color: white;
+.cover-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cover-stat-icon {
+  font-size: 14px !important;
+}
+
+.cover-stat-icon.like {
+  color: #c75c6f;
+}
+
+.cover-stat-icon.star {
+  color: var(--color-primary-button);
+}
+
+/* Kitap başlık ve byline: sola yaslı, satır satır (1945 / Yazan / George Orwell) */
+.book-detail-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 32px;
+  max-width: 560px;
+  text-align: left;
+}
+
+.book-detail-title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--color-text);
   line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px 0;
 }
 
-.book-year {
-  color: #aaa; /* Gri ton, hafif soluk */
-}
-
-.book-written-by {
-  color: #aaa;
-}
-
-.book-author {
-  color: #aaa;
-  font-weight: bold;
-}
-
-.title a {
-  color: #aaa;
-  text-decoration: underline;
+.book-detail-byline {
+  text-align: left;
+  font-size: 0.95rem;
+  margin: 0 0 20px 0;
   line-height: 1.6;
-  font-size: 1.2rem;
 }
 
-.details-and-actions {
-  display: flex;
+.book-byline-row {
+  display: block;
+  margin-bottom: 2px;
 }
 
-.details-and-actions p {
-  color: #aaa !important;
-  font-family: TiemposTextWeb, Georgia, serif !important;
-  line-height: 1.6;
-  font-size: 1rem;
+.book-byline-row:last-child {
+  margin-bottom: 0;
+}
+
+.book-byline-written {
+  color: var(--color-text-muted);
+}
+
+.book-byline-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.book-byline-link:hover {
+  color: var(--color-primary-button);
+}
+
+.book-detail-description {
+  margin-top: 0;
+}
+
+.book-detail-description p {
+  color: var(--color-text-secondary) !important;
+  font-family: var(--font-serif) !important;
+  line-height: 1.65;
+  font-size: 0.95rem;
+  margin: 0;
 }

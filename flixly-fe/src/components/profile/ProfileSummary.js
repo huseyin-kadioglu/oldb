@@ -68,7 +68,7 @@ const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
 
               {isOwnProfile && (
                 <button className="edit-button" onClick={handleEditProfile}>
-                  Edit Profile
+                  Profili düzenle
                 </button>
               )}
             </div>

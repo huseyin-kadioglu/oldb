@@ -3,11 +3,10 @@ import "./Review.css";
 const Review = ({ reviews }) => {
   if (!reviews || reviews.length === 0) return null;
 
-  console.log(reviews);
   return (
     <div className="review-section">
-      <p>Reviews</p>
-      <hr/>
+      <h3 className="review-section-title">İncelemeler</h3>
+      <hr />
       {reviews.map((review) => (
         <div className="review-card" key={review.bookId}>
           <img
@@ -15,24 +14,25 @@ const Review = ({ reviews }) => {
             alt={review.title}
             className="review-cover"
           />
-
           <div className="review-content">
-            <div className="review-header">
-              <div className="review-title-line">
-                <h3 className="review-title">{review.title}</h3>
-                <span className="release-date">{review.year}</span>
-                <span className="author-name">{review?.authorName}</span>
-              </div>
+            <div className="review-title-line">
+              <h3 className="review-title">{review.title}</h3>
+              <span className="review-meta">{review.year}</span>
+              {review?.authorName && (
+                <span className="review-meta"> · {review.authorName}</span>
+              )}
             </div>
-
             <div className="review-rating-row">
-              <span className="review-rating">{"⭐".repeat(4)}</span>
+              <span className="review-rating">{"★".repeat(Math.min(5, Math.max(0, Number(review.rating) || 0)))}</span>
               <span className="review-date">
-                Read on {new Date(review.readDate).toLocaleDateString()}
+                {review.readDate
+                  ? new Date(review.readDate).toLocaleDateString("tr-TR")
+                  : ""}
               </span>
             </div>
-
-            <p className="review-comment">{review.comment}</p>
+            {review.comment && (
+              <p className="review-comment">{review.comment}</p>
+            )}
           </div>
         </div>
       ))}

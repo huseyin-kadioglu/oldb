@@ -14,7 +14,7 @@ const RatingUtil = ({ rating, setRating }) => {
         backgroundColor: "#2a2a2a",
         transition: "background-color 0.3s",
         "&:hover": {
-          backgroundColor: "var(----color-input-background)",
+          backgroundColor: "var(--color-background-card)",
         },
       }}
     >

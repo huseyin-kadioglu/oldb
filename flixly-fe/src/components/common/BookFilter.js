@@ -30,9 +30,10 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
               handleDialog(false);
             },
             sx: {
-              backgroundColor: "var(--color-background)",
-              color: "#7d7d7d", // Yumuşak orta koyulukta gri
-              padding: 2,
+              backgroundColor: "var(--color-background-secondary)",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--line-color)",
+              overflow: "hidden",
             },
           },
         }}
@@ -42,39 +43,33 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderBottom: "1px solid #444",
-            backgroundColor: "var(--color-background)",
-            color: "#a1883e", // Soft hardal-rengi
-            fontWeight: "bold",
+            borderBottom: "1px solid var(--line-color)",
+            backgroundColor: "var(--color-background-secondary)",
+            color: "var(--color-text)",
+            fontWeight: 600,
+            fontSize: "1rem",
           }}
         >
-          Add to your books
+          Kitap ara ve seç
           <Button
             onClick={() => handleDialog(false)}
+            size="small"
             sx={{
               minWidth: "auto",
-              color: "#a1883e",
-              fontSize: "1.2rem",
-              "&:hover": { backgroundColor: "rgba(161,136,62,0.15)" },
+              color: "var(--color-text-secondary)",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
             }}
           >
-            ✖
+            ✕
           </Button>
         </DialogTitle>
-        <DialogContent
-          sx={{
-            backgroundColor: "var(--color-background)",
-            color: "#7d7d7d",
-            pt: 2,
-            pb: 3,
-          }}
-        >
+        <DialogContent sx={{ backgroundColor: "var(--color-background-secondary)", pt: 2.5, pb: 3 }}>
           <Autocomplete
-            options={data}
-            getOptionLabel={(option) => option.title}
+            options={data ?? []}
+            getOptionLabel={(option) => option?.title ?? ""}
             filterOptions={(options, state) =>
               options.filter((option) =>
-                option.title
+                (option?.title ?? "")
                   .toLowerCase()
                   .includes(state.inputValue.toLowerCase())
               )
@@ -86,52 +81,31 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
             PaperComponent={(props) => (
               <Paper
                 {...props}
-                style={{
-                  backgroundColor: "#var(--color-background)", // koyu arka plan
-                  color: "#7d7d7d",
+                sx={{
+                  backgroundColor: "var(--color-background-card)",
+                  color: "var(--color-text-secondary)",
+                  border: "1px solid var(--line-color)",
                 }}
-                elevation={4}
+                elevation={0}
               />
             )}
             ListboxProps={{
-              style: {
-                backgroundColor: "var(--color-background)",
-                color: "#7d7d7d",
-                maxHeight: 200,
-                overflowY: "auto",
-              },
               sx: {
-                "&::-webkit-scrollbar": {
-                  width: "8px",
+                maxHeight: 220,
+                "& .MuiAutocomplete-option": {
+                  color: "var(--color-text-secondary)",
                 },
-                "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#555",
-                  borderRadius: "4px",
+                "& .MuiAutocomplete-option[aria-selected='true']": {
+                  backgroundColor: "rgba(245, 197, 24, 0.12)",
                 },
-                "&::-webkit-scrollbar-track": {
-                  backgroundColor: "#2a2f36",
-                },
+                "&::-webkit-scrollbar": { width: 6 },
+                "&::-webkit-scrollbar-thumb": { backgroundColor: "var(--line-color)", borderRadius: 3 },
+                "&::-webkit-scrollbar-track": { backgroundColor: "var(--color-background)" },
               },
             }}
-            renderOption={(props, option, { selected }) => (
-              <li
-                {...props}
-                style={{
-                  backgroundColor: selected ? "#3b4552" : "var(--color-background)",
-                  color: "#7d7d7d",
-                  padding: "8px 12px",
-                  cursor: "pointer",
-                }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#3b4552")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = selected
-                    ? "#3b4552"
-                    : "var(--color-background)")
-                }
-              >
-                {option.title}
+            renderOption={(props, option) => (
+              <li {...props} key={option?.id}>
+                {option?.title}
               </li>
             )}
             renderInput={(params) => (
@@ -139,27 +113,20 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
                 {...params}
                 autoFocus
                 required
-                margin="dense"
                 name="book"
-                type="text"
-                variant="standard"
+                placeholder="Kitap adı yazın..."
+                variant="outlined"
+                size="small"
                 sx={{
-                  input: {
-                    color: "#7d7d7d",
-                    backgroundColor: "var(--color-background)",
-                    borderRadius: 1,
-                    padding: "6px 8px",
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "var(--color-background-input)",
+                    color: "var(--color-text)",
+                    borderRadius: "var(--radius-sm)",
+                    "& fieldset": { borderColor: "var(--line-color)" },
+                    "&:hover fieldset": { borderColor: "var(--color-text-muted)" },
+                    "&.Mui-focused fieldset": { borderColor: "var(--color-primary-button)" },
                   },
-                  label: { color: "#a1883e" },
-                  "& .MuiInput-underline:before": {
-                    borderBottomColor: "#a1883e",
-                  },
-                  "& .MuiInput-underline:hover:before": {
-                    borderBottomColor: "#a1883e",
-                  },
-                  "& .MuiInput-underline:after": {
-                    borderBottomColor: "#a1883e",
-                  },
+                  "& .MuiInputLabel-root": { color: "var(--color-text-muted)" },
                 }}
               />
             )}

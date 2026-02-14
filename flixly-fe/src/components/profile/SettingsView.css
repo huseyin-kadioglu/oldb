@@ -1,70 +1,93 @@
 .edit-profile-container {
-  padding: 20px;
-  max-width: 800px;
-  margin: auto;
+  padding: 0;
+  max-width: 640px;
+  margin: 0 auto;
   color: var(--color-text);
-  font-family: Graphik-Light-Web, sans-serif;
+  font-family: var(--font-sans);
+}
+
+.edit-profile-container .info-message {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  background: rgba(245, 197, 24, 0.12);
+  border: 1px solid rgba(245, 197, 24, 0.3);
+  color: var(--color-primary-button);
 }
 
 .tabs {
   display: flex;
-  gap: 20px;
+  gap: 4px;
   margin-bottom: 20px;
+  padding-bottom: 0;
   border-bottom: 1px solid var(--line-color);
 }
 
 .tab-button {
   background: none;
   border: none;
-  padding: 10px 15px;
+  padding: 10px 16px;
   cursor: pointer;
   font-weight: 500;
-  color: var(--color-secondary-text);
-  transition: color 0.2s ease;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  transition: color 0.2s ease, border-color 0.2s ease;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
 }
 
 .tab-button:hover {
-  color: var(--color-text);
+  color: var(--color-text-secondary);
 }
 
 .tab-button.active {
-  color: var(--color-text);
-  border-bottom: 3px solid var(--color-primary-button);
+  color: var(--color-primary-button);
+  border-bottom-color: var(--color-primary-button);
 }
 
 .tab-content {
-  background-color: var(--color-background-secondary);
-  padding: 20px;
-  border-radius: 8px;
+  background: var(--color-background-card);
+  padding: 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-color);
   margin-bottom: 20px;
 }
 
 .form-row {
   display: flex;
   flex-direction: column;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
+}
+
+.form-row:last-of-type {
+  margin-bottom: 0;
 }
 
 .form-row label {
-  margin-bottom: 6px;
-  font-size: 0.95rem;
-  color: var(--color-secondary-text);
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
 .form-row input,
 .form-row textarea,
 .form-row select {
-  padding: 10px;
+  padding: 10px 12px;
   border: 1px solid var(--line-color);
-  border-radius: 6px;
-  background-color: var(--color-input-background);
+  border-radius: var(--radius-sm);
+  background: var(--color-background-input);
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
 }
 
 .form-row input[readonly] {
-  opacity: 0.7;
-  cursor: not-allowed;
+  opacity: 0.8;
+  cursor: default;
+  background: var(--color-background-secondary);
 }
 
 .form-row input:focus,
@@ -74,6 +97,11 @@
   border-color: var(--color-primary-button);
 }
 
+.form-row textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
 .editable-field {
   display: flex;
   align-items: center;
@@ -81,38 +109,42 @@
 }
 
 .edit-icon {
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
   font-size: 1rem;
+  padding: 4px;
   color: var(--color-primary-button);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .edit-icon:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
+  color: var(--color-primary-button-hover);
 }
 
 .checkbox-row label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
+  color: var(--color-text-secondary);
 }
 
 .save-button {
   margin-top: 20px;
-  padding: 12px 20px;
-  font-weight: bold;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
   border: none;
-  border-radius: 6px;
-  background-color: var(--color-primary-button);
+  border-radius: 20px;
+  background: var(--color-primary-button);
   color: #000;
-  font-size: 1rem;
-  transition: background-color 0.2s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .save-button:hover {
-  background-color: var(--color-button-hover);
+  background: var(--color-button-hover);
+  transform: translateY(-1px);
 }

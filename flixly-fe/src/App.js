@@ -84,12 +84,12 @@ const App = () => {
         setSuccessDialogOpen={setSuccessDialogOpen}
       />
 
-      <Routes>
-        <Route path="/*" element={<Content books={books} token={token} />} />
-        {/* PROFİL */}
-        <Route path="/profile/:username" element={<ProfilePage />} />
-        <Route path="/books" element={<Books books={books} />} />
-        <Route path="/settings" element={<SettingsView />} />
+      <div className="app-content">
+        <Routes>
+          <Route path="/*" element={<Content books={books} token={token} />} />
+          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/books" element={<Books books={books} />} />
+          <Route path="/settings" element={<SettingsView />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
         <Route
@@ -106,7 +106,8 @@ const App = () => {
         <Route path="/authorApproval" element={<AuthorApproval />} />
         <Route path="/bookApproval" element={<BookApproval />} />
         <Route path="/profileApproval" element={<ProfileApproval />} />
-      </Routes>
+        </Routes>
+      </div>
 
       {activityDialog && (
         <BookFilter

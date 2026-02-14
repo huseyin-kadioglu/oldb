@@ -35,48 +35,53 @@ const SearchView = ({ books }) => {
   );
 
   return (
-    <div className="search-page">
-      <h2>Arama Sonuçları: "{searchTerm}"</h2>
+    <div className="page-layout">
+      <main className="page-main">
+        <div className="search-page container">
+          <h2>
+            <span className="search-term">&ldquo;{searchTerm}&rdquo;</span> için arama sonuçları
+          </h2>
 
-      {/* Yazarlar */}
-      {filteredAuthors.length > 0 && (
-        <>
-          <h3>Yazarlar</h3>
-          <ul>
-            {filteredAuthors.map((author) => (
-              <li
-                key={author.id}
-                onClick={() => navigate(`/author/${author.id}`)}
-                className="search-item"
-              >
-                {author.name}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+          {filteredAuthors.length > 0 && (
+            <>
+              <h3>Yazarlar ({filteredAuthors.length})</h3>
+              <ul className="search-results-list">
+                {filteredAuthors.map((author) => (
+                  <li
+                    key={author.id}
+                    onClick={() => navigate(`/author/${author.id}`)}
+                    className="search-item"
+                  >
+                    {author.name}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
-      {/* Kitaplar */}
-      {filteredBooks.length > 0 && (
-        <>
-          <h3>Kitaplar</h3>
-          <ul>
-            {filteredBooks.map((book) => (
-              <li
-                key={book.id}
-                onClick={() => navigate(`/book/${book.id}`)}
-                className="search-item"
-              >
-                {book.title}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+          {filteredBooks.length > 0 && (
+            <>
+              <h3>Kitaplar ({filteredBooks.length})</h3>
+              <ul className="search-results-list">
+                {filteredBooks.map((book) => (
+                  <li
+                    key={book.id}
+                    onClick={() => navigate(`/book/${book.id}`, { state: { book } })}
+                    className="search-item"
+                  >
+                    {book.title}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
-      {filteredBooks.length === 0 && filteredAuthors.length === 0 && (
-        <p>Sonuç bulunamadı.</p>
-      )}
+          {filteredBooks.length === 0 && filteredAuthors.length === 0 && (
+            <p className="no-results">Kitap veya yazar bulunamadı.</p>
+          )}
+        </div>
+      </main>
+      <aside className="page-sidebar" aria-hidden="true" />
     </div>
   );
 };

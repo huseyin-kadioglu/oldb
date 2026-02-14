@@ -1,30 +1,49 @@
 .log-activity {
   display: flex;
-  gap: 16px;
-  padding: 16px;
-  border-radius: 8px;
+  gap: 24px;
+  padding: 0;
+  border-radius: var(--radius-md);
   color: var(--color-text);
+}
+
+.log-activity .summary {
+  flex-shrink: 0;
+  width: 100px;
+}
+
+.log-activity .summary .photo-frame {
+  max-width: 100px;
+}
+
+.log-activity .summary .photo-frame img {
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.log-activity .add {
+  flex: 1;
+  min-width: 0;
 }
 
 .status-option {
   text-align: center;
   cursor: pointer;
-  border-radius: 12px;
-  padding: 12px;
-  background-color: #2a2a2a;
-  color: var(--color-secondary-text);
-  transition: background-color 0.3s ease;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background-color: var(--color-background-input);
+  color: var(--color-text-secondary);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   border: 1px solid transparent;
 }
 
 .status-option:hover {
-  background-color: var(----color-input-background);
+  background-color: var(--color-background-card);
 }
 
 .status-option.selected {
-  background-color: var(--color-primary-button);
-  color: #000;
-  border: 1px solid var(--color-primary-button);
+  background-color: rgba(245, 197, 24, 0.15);
+  color: var(--color-primary-button);
+  border-color: var(--color-primary-button);
 }
 
 .status-option.disabled {
@@ -32,24 +51,33 @@
   pointer-events: none;
 }
 
-.add .MuiInputBase-root {
-  background-color: #2a2a2a;
+.log-activity .add .MuiInputBase-root {
+  background-color: var(--color-background-input);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+}
+
+.log-activity .add .MuiInputBase-input {
   color: var(--color-text);
 }
 
-.add .MuiInputBase-input {
-  color: var(--color-text);
+.log-activity .add label {
+  color: var(--color-text-muted);
 }
 
-.add label {
-  color: #aaa;
+.log-activity .footer {
+  margin-top: 20px;
 }
 
-.footer Button {
+.log-activity .footer Button {
   background-color: var(--color-primary-button);
   color: #000;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 10px 20px;
+  text-transform: none;
 }
 
-.footer Button:hover {
+.log-activity .footer Button:hover {
   background-color: var(--color-button-hover);
 }

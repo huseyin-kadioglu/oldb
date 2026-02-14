@@ -1,106 +1,110 @@
 .author-view {
   display: flex;
-  margin: 0 auto;
+  gap: 48px;
+  margin: 0;
+  padding: 24px 0;
+  max-width: 100%;
 }
 
 .author-left {
-  flex: 7;
+  flex: 1;
+  min-width: 0;
 }
 
-.author-left span p {
-  font-family: GraphikWeb, -apple-system, BlinkMacSystemFont, Segoe UI,
-    Hiragino Sans, Meiryo, sans-serif, ColorEmoji;
-  font-weight: 400;
-  font-size: 1rem;
-  color: #9ab;
+.author-left .author-heading-label {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.075em;
-  text-align: left;
-  margin: 0;
+  letter-spacing: 0.12em;
+  margin: 0 0 4px 0;
 }
 
-.author-left span h3 {
-  text-align: left;
+.author-left .author-name {
+  font-family: var(--font-sans);
+  font-size: 1.75rem;
+  font-weight: 700;
   color: var(--color-text);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 1.69230769rem;
   line-height: 1.2;
-  margin: 0;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.02em;
+}
+
+.author-left hr {
+  margin: 0 0 20px 0;
+}
+
+.author-left .author-gallery {
+  width: 100%;
 }
 
 .author-right {
-  flex: 2; /* Daha geniş alan verdik fotoğraf ve açıklama için */
-  color: #9ab;
-  font-size: 1rem;
-  text-align: left;
-  margin: 0 20px; /* Sağ ve sol biraz boşluk */
+  flex: 0 0 auto;
+  width: 200px;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .author-photo {
-  width: 160px !important;
-  height: 220px !important;
-  border-radius: 8px;
+  width: 140px !important;
+  height: 180px !important;
+  border-radius: var(--radius-md);
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  margin-bottom: 20px; /* Burayı artırdım */
+  box-shadow: var(--shadow-cover);
+  margin-bottom: 12px;
 }
 
 .author-description {
+  max-height: 4.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.25s ease;
+  transition: border-color 0.2s ease;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  text-align: center;
+  cursor: pointer;
 }
 
 .author-description:hover {
-  border-bottom-color: rgba(255, 255, 255, 0.2);
+  border-bottom-color: var(--line-color);
 }
 
 .author-description.full {
   max-height: none;
   overflow: visible;
-  display: block;
 }
 
 .show-more {
-  color:var(--color-primary-button);
+  color: var(--color-primary-button);
+  font-size: 0.8rem;
   font-weight: 600;
-  margin-left: 8px;
+  margin-left: 4px;
 }
 
 .author-info-container {
   width: 100%;
-  max-width: 320px; /* Fotoğraf genişliğine yakın */
-  margin-top: 12px;
+  max-width: 180px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
-}
-
-.author-dates-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  font-size: 0.95rem;
-  color: #bbb;
-  font-style: normal;
-  font-weight: 500;
-  user-select: none;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .author-dates {
   display: flex;
-  font-size: 0.9rem;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.8rem;
+  font-family: var(--font-sans);
   user-select: none;
-  margin-bottom: 20px;
-  gap: 12px;
-  color: #bbb;
-  justify-content: center;
+  margin-bottom: 4px;
+  gap: 8px;
+  color: var(--color-text-muted);
 }
 
 .author-date-item {
@@ -108,26 +112,32 @@
   font-weight: 500;
 }
 
-.author-progress-bar-container {
+/* Minimal yüzde göstergesi */
+.author-progress-wrap {
   width: 100%;
-  height: 10px;
-  background-color: #333;
-  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.author-progress-bar-container {
+  flex: 1;
+  height: 4px;
+  background: var(--color-background-input);
+  border-radius: 2px;
   overflow: hidden;
-  margin-bottom: 6px;
 }
 
 .author-progress-bar {
   height: 100%;
-  background-color: var(--color-primary-button);
-  transition: width 0.4s ease;
-  border-radius: 5px 0 0 5px;
+  background: var(--color-primary-button);
+  transition: width 0.3s ease;
+  border-radius: 2px;
 }
 
 .author-progress-text {
-  font-size: 0.85rem;
-  color: #bbb;
-  text-align: center;
-  user-select: none;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  min-width: 2.5em;
 }

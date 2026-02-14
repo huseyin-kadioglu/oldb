@@ -10,11 +10,27 @@ const Content = ({ books, token }) => {
   const username = sessionStorage.getItem("username");
 
   return (
-    <div className="container">
-      {token 
-      ? <p></p> 
-      : <PublicContentPage/>}
-      <FrameBlock books={books} title="Popular Books" />
+    <div className="page-layout">
+      <main className="page-main">
+        <div className="container">
+          {!token && <PublicContentPage />}
+          <FrameBlock books={(books ?? []).slice(0, 50)} title="Popular Books" />
+        </div>
+      </main>
+      <aside className="page-sidebar">
+        <div className="sidebar-block">
+          <h3 className="sidebar-title">Editörün Seçimi</h3>
+          <p className="sidebar-text">Bu hafta editörlerimizin öne çıkardığı kitaplar burada.</p>
+        </div>
+        <div className="sidebar-block">
+          <h3 className="sidebar-title">Haftanın Kitabı</h3>
+          <p className="sidebar-text">Her hafta bir kitap öne çıkarılıyor.</p>
+        </div>
+        <div className="sidebar-block">
+          <h3 className="sidebar-title">Kullanıcılara Notlar</h3>
+          <p className="sidebar-text">Duyurular ve ipuçları için bu alanı takip edin.</p>
+        </div>
+      </aside>
     </div>
   );
 };

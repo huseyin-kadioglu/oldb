@@ -139,47 +139,52 @@
 
 .stats {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  gap: 0;
   margin: 0;
+  background: var(--color-background-card);
+  border: 1px solid var(--line-color);
+  border-radius: var(--radius-md);
+  padding: 0;
+  overflow: hidden;
 }
 
 .stat {
+  flex: 1;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: Graphik-Regular-Web, sans-serif;
-  color: #9ab;
+  justify-content: center;
+  padding: 14px 16px;
+  min-width: 0;
+  font-family: var(--font-sans);
+}
+
+.stat + .stat {
+  border-left: 1px solid var(--line-color);
+}
+
+.stat-divider {
+  width: 1px;
+  min-width: 1px;
+  background: var(--line-color);
+  align-self: stretch;
 }
 
 .value {
   display: block;
-  font-size: 1.61538462rem;
-  font-family: TiemposTextWeb-Semibold, Georgia, serif;
-  font-weight: 400;
-  color: #d8e0e8;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.2;
 }
 
 .definition {
   display: block;
-  font-family: Graphik-Regular-Web, sans-serif;
-  font-weight: 400;
-  font-size: 1rem;
-  color: #9ab;
+  font-size: 0.7rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.075em;
-  font-size: 0.76923077rem;
-  margin-top: 0.75em;
-  color: #678;
-}
-
-.stat-label {
-  font-size: 5px;
-  color: gray;
-  font-family: Graphik-Regular-Web, sans-serif;
-}
-
-.stat-divider {
-  width: 40px; /* Uzunluğunu buradan ayarlayabilirsiniz */
-  height: 1px;
-  background-color: #ccc; /* Çubuğun rengini ayarlıyoruz */
-  transform: rotate(90deg); /* Çubuğu 90 derece döndürür */
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-top: 4px;
 }

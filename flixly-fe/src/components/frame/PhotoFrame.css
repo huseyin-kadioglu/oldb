@@ -1,52 +1,88 @@
+/* Kitap kapağı oranı ~2:3; galeri için küçük boyut */
+.photo-frame {
+  overflow: visible;
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  max-width: 110px;
+}
+
+.photo-frame img.cover,
+.photo-frame img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-cover);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.photo-frame:hover img.cover,
+.photo-frame:hover img {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
 .cover {
   width: 100%;
-  height: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
   object-fit: cover;
+  display: block;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-cover);
 }
 
 .small-pic {
-  margin: 15px;
-  width: 200px;
-  height: 250px; /* Daha dengeli bir yükseklik */
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.photo-frame {
-  overflow: hidden;
-  cursor: pointer;
-  position: relative;
-}
-
-.photo-frame img {
   width: 100%;
-  height: 100%;
+  height: auto;
+  aspect-ratio: 2/3;
   object-fit: cover;
-  display: block;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-cover);
 }
 
-.title {
+/* Başlık: kapaktan net ayrı, ghost menü ile çakışmaz */
+.photo-frame .frame-title-wrap {
   margin-top: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
+  padding-top: 0;
 }
 
+.photo-frame .title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-align: left;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.photo-frame a:hover + .frame-title-wrap .title,
+.photo-frame:hover .frame-title-wrap .title {
+  color: var(--color-primary-button);
+}
+
+/* Minimalist ghost menü: kapak üzerinde sağ üst köşe, küçük ikonlar */
 .ghost-menu {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(75, 67, 107, 0.7);
+  top: 6px;
+  right: 6px;
   display: flex;
-  gap: 10px;
-  padding: 5px;
-  border-radius: 10px;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: var(--radius-sm);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .photo-frame:hover .ghost-menu {
@@ -55,18 +91,23 @@
 }
 
 .photo-frame .ghost-menu button {
-  background-color: transparent;
-  color: var(--color-primary-button); /* İkon rengi */
-
+  background: transparent;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: background-color 0.3s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
-  padding: 5px;
+  padding: 4px;
+  border-radius: 2px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-button:hover {
-  background-color: rgba(255, 255, 255, 0.096);
+.photo-frame .ghost-menu button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-primary-button);
+}
+
+.photo-frame .ghost-menu button[data-active="true"] {
+  color: var(--color-primary-button);
 }

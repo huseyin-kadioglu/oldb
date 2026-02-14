@@ -1,14 +1,19 @@
 .frame-block {
-  margin-top: 20px;
+  margin-top: 32px;
+  width: 100%;
 }
 
-.frame-block p {
+.frame-block > p {
   text-align: left;
-  font-family: Graphik-Regular-Web, sans-serif;
-  font-weight: 400;
-  font-size: 1rem;
-  color: #9ab;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.075em;
-  margin-top: 0;
+  letter-spacing: 0.12em;
+  margin: 0 0 12px 0;
+}
+
+.frame-block hr {
+  margin: 0 0 20px 0;
 }

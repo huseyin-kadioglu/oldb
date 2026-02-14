@@ -5,31 +5,30 @@ import { useLocation } from "react-router-dom";
 import PhotoFrame from "../frame/PhotoFrame";
 import AuthorProgressBar from "./AuthorProgressBar";
 
-const Author = ({}) => {
+const Author = () => {
   const location = useLocation();
   const author = location.state?.author;
   const [showFullDesc, setShowFullDesc] = useState(false);
 
-  const totalBooks = author.bookWrittenBy.length;
-  // Authorizationdan sonra eklenecek.
-  const readBooks = 5;
-  const percentage = (readBooks / totalBooks) * 100;
+  if (!author) return <div className="author-view">Yazar bulunamadı.</div>;
+
+  const totalBooks = author.bookWrittenBy?.length ?? 0;
+  const readBooks = 5; // TODO: auth sonrası gerçek veri
+  const displayTotal = totalBooks > 0 ? totalBooks : 10;
 
   return (
+    <div className="page-layout">
+      <main className="page-main">
     <div className="author-view">
       <div className="author-left">
-        <span>
-          <p>Written by</p>
-        </span>
-        <span>
-          <h3>{author.name}</h3>
-        </span>
-        <hr></hr>
+        <p className="author-heading-label">Yazan</p>
+        <h1 className="author-name">{author.name}</h1>
+        <hr />
 
-        <div className="gallery">
+        <div className="author-gallery gallery">
           {author.bookWrittenBy != null &&
             author.bookWrittenBy.map((book, index) => (
-              <PhotoFrame key={index} book={book} justShowCover={true} />
+              <PhotoFrame key={book?.id ?? index} book={book} showTitle showGhostMenu={false} />
             ))}
         </div>
       </div>
@@ -50,15 +49,18 @@ const Author = ({}) => {
             title={showFullDesc ? "Gösterimi kapat" : "Devamını gör"}
             style={{ cursor: "pointer" }}
           >
-            <p>{author.description}</p>
-            {!showFullDesc && (
+            <p>{author.description || "—"}</p>
+            {!showFullDesc && author.description && (
               <span className="show-more">... Devamını gör</span>
             )}
           </div>
 
-          <AuthorProgressBar totalBooks={10} readBooks={5} />
+          <AuthorProgressBar totalBooks={displayTotal} readBooks={readBooks} />
         </div>
       </div>
+    </div>
+      </main>
+      <aside className="page-sidebar" aria-hidden="true" />
     </div>
   );
 };

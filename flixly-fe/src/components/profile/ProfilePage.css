@@ -1,12 +1,7 @@
-/* =========================
-   PAGE LAYOUT
-========================= */
+/* page-layout grid App.css'te tanımlı (tek genişlik) */
 
-.profile-page {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 32px;
-  margin-top: 24px;
+.page-layout .main-content {
+  margin-top: 0;
 }
 
 /* =========================
@@ -22,85 +17,62 @@
    SIDEBAR
 ========================= */
 
-.sidebar {
-  position: sticky;
-  top: 90px;
-
-  width: 260px;
+.readlist.sidebar-block {
   padding-top: 6px;
-
   display: flex;
   flex-direction: column;
 }
 
 /* =========================
-   READLIST
+   READLIST – minimal
 ========================= */
 
-.readlist {
-  padding-left: 4px;
+.readlist.sidebar-block {
+  padding: 16px;
 }
 
+.readlist .sidebar-title,
 .readlist h2 {
-  font-family: Graphik-Regular-Web, sans-serif;
   font-size: 0.75rem;
-  font-weight: 500;
-
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #8fa2b8;
-
-  margin-bottom: 6px;
+  margin: 0 0 12px 0;
 }
 
 .readlist hr {
-  width: 40px;
-  height: 2px;
+  width: 100%;
+  max-width: 32px;
+  height: 1px;
   border: none;
-  border-radius: 2px;
-
-  background: linear-gradient(
-    90deg,
-    var(--color-primary-button),
-    transparent
-  );
-
-  margin-bottom: 14px;
+  background: var(--line-color);
+  margin: 0 0 12px 0;
 }
 
-/* =========================
-   READLIST IMAGES
-========================= */
-
 .readlist-images {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
   position: relative;
-  height: 100px;
-  margin-left: 2px;
+  min-height: 60px;
 }
 
 .readlist-image {
-  position: absolute;
-  top: 0;
-
-  width: 68px;
-  height: 92px;
+  width: 48px;
+  height: 72px;
   object-fit: cover;
-
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
-
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-color);
+  box-shadow: var(--shadow-cover);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .readlist-image:hover {
-  transform: translateY(-10px) scale(1.05);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
-  z-index: 20 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* =========================
@@ -120,12 +92,6 @@
 ========================= */
 
 @media (max-width: 1024px) {
-  .sidebar {
-    position: relative;
-    width: 100%;
-    margin-top: 20px;
-  }
-
   .readlist-images {
     height: 92px;
   }

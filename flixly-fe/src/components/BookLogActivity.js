@@ -74,25 +74,24 @@ const BookLogActivity = ({ selectedBook, setPayload }) => {
           </div>
           <MinimalDatePicker readDate={readDate} setReadDate={setReadDate} />
           <TextField
-            label="Açıklama"
+            label="Açıklama (isteğe bağlı)"
             multiline
-            minRows={4}
+            minRows={3}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            InputLabelProps={{ style: { color: "#aaa" } }}
-            InputProps={{
-              style: {
+            placeholder="Not veya kısa yorum ekleyebilirsiniz."
+            InputLabelProps={{ sx: { color: "var(--color-text-muted)" } }}
+            sx={{
+              mt: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: "var(--color-background-input)",
                 color: "var(--color-text)",
-                backgroundColor: "transparent",
-                fontFamily: "'Comic Neue', cursive, sans-serif",
-                fontWeight: 400,
-                fontSize: "1rem",
-                borderRadius: 6,
-                border: "1px solid rgba(255, 255, 255, 0.3)", // hafif beyaz sınır
-                padding: "10px", // iç boşluk ekleyebiliriz, bazen lazım oluyor
+                borderRadius: "var(--radius-sm)",
+                "& fieldset": { borderColor: "var(--line-color)" },
+                "&:hover fieldset": { borderColor: "var(--color-text-muted)" },
+                "&.Mui-focused fieldset": { borderColor: "var(--color-primary-button)" },
               },
             }}
-            sx={{ mt: 2 }}
           />
 
           <RatingUtil rating={rating} setRating={setRating} />

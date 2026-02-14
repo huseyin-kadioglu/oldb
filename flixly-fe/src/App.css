@@ -1,47 +1,132 @@
+/* Letterboxd-inspired palette for books */
+:root {
+  --color-background: #14181c;
+  --color-background-secondary: #1c2228;
+  --color-background-card: #2c3440;
+  --color-background-input: #2f3540;
+  --line-color: #345;
+  --color-primary-button: #f5c518;
+  --color-primary-button-hover: #e0b000;
+  --color-button-hover: #e0b000;
+  --color-accent: #00e054;
+  --color-text: #fff;
+  --color-text-secondary: #9ab;
+  --color-text-muted: #678;
+  --color-secondary-text: #9ab;
+  --font-sans: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --shadow-cover: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
+
 body,
 html {
   display: flex;
   justify-content: center;
   background-color: var(--color-background);
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 hr {
+  border: none;
+  height: 1px;
   background-color: var(--line-color);
 }
 
-:root {
-  --line-color: #445;
-  --color-background: #1e242b;
-  --color-background-secondary: #2a2f38;
-  --color-primary-button: #fbc401;
-  --color-button-hover: #e0a800;
-  --color-input-background: #2f2f2f;
-  --color-text: #ffffff;
-  --color-secondary-text: #aaa;
+.App {
+  width: 100%;
+  max-width: 1600px;
+  min-width: 0;
+  padding: 0 32px 40px;
+  box-sizing: border-box;
 }
 
-.App {
-  width: 1000px; /* %50 genişlik */
-  padding: 20px; /* İç boşluk */
+.app-content {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Tek genişlik: tüm sayfalarda aynı grid (main + sidebar) */
+.page-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 32px;
+  width: 100%;
+  max-width: 1600px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.page-main {
+  min-width: 0;
+}
+
+.page-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 88px;
+  align-self: start;
+}
+
+.sidebar-block {
+  background: var(--color-background-card);
+  border: 1px solid var(--line-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.sidebar-block:last-child {
+  margin-bottom: 0;
+}
+
+.sidebar-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+.sidebar-text {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .page-layout {
+    grid-template-columns: 1fr;
+  }
+  .page-sidebar {
+    position: relative;
+    top: 0;
+    width: 100%;
+  }
 }
 
 .App h2 {
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.75rem;
   color: var(--color-text);
-  font-family: Graphik-Light-Web, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
 .App a {
-  text-align: center;
-  font-size: 2rem;
-  color: var(--color-text);
-  font-family: Graphik-Light-Web, sans-serif;
-  font-weight: 400;
-  margin: 0 0 2.46153846rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .App a:hover {
-  color: var(--color-secondary);
+  color: var(--color-primary-button);
 }

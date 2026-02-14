@@ -14,7 +14,7 @@ const FrameBlock = ({ title, books }) => {
       <hr></hr>
       <div className="gallery">
         {books?.map((book, index) => (
-          <PhotoFrame key={index} book={book} showGhostMenu={storedToken} />
+          <PhotoFrame key={book?.id ?? index} book={book} showGhostMenu={false} />
         ))}
       </div>
     </div>

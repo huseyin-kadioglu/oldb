@@ -10,7 +10,8 @@ import { Link } from "react-router-dom";
 const PublicContentPage = () => {
   return (
     <div className="public-content-wrapper">
-      <h2>What You Can Do</h2>
+      <h2>Kitaplarınızı takip edin</h2>
+      <p className="tagline">Okuduğunuz kitapları loglayın, puanlayın ve listelerinizi paylaşın.</p>
 
       <div className="feature-row">
         <div className="feature-card">

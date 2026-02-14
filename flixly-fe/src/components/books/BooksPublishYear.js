@@ -5,7 +5,6 @@ import FrameBlock from "../common/FrameBlock";
 import PhotoFrame from "../frame/PhotoFrame";
 import "./BooksPublishYear.css";
 import AuthorFrame from "../frame/AuthorFrame";
-import StarIcon from "@mui/icons-material/Star";
 
 const BooksPublishYear = () => {
   const [loading, setLoading] = useState(true);
@@ -37,23 +36,26 @@ const BooksPublishYear = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="container">
-      {nobelWinnerBook && (
-        <div className="nobel-section">
-          <div className="nobel-left">
-            <AuthorFrame coverUrl={nobelWinnerAuthor?.portrait} />
-          </div>
-          <div className="nobel-right">
-            <div className="nobel-badge">🏅 Nobel Edebiyat Ödülü</div>
-            <p className="nobel-text">
-              <strong>{nobelWinnerAuthor?.name}</strong>, "
-              <strong>{nobelWinnerBook?.title}</strong>" adlı kitabıyla{" "}
-              {publishYear} yılında Nobel Edebiyat Ödülü'nü kazanmıştır.
-            </p>
-          </div>
+    <div className="page-layout">
+      <main className="page-main">
+        <div className="books-year-page container">
+          {nobelWinnerBook && (
+            <div className="nobel-section">
+              <div className="nobel-left">
+                <AuthorFrame coverUrl={nobelWinnerAuthor?.portrait} />
+              </div>
+              <div className="nobel-right">
+                <span className="nobel-badge">Nobel Edebiyat Ödülü</span>
+                <p className="nobel-text">
+                  <strong>{nobelWinnerAuthor?.name}</strong>, &ldquo;{nobelWinnerBook?.title}&rdquo; ile {publishYear} yılında Nobel Edebiyat Ödülü&apos;nü kazanmıştır.
+                </p>
+              </div>
+            </div>
+          )}
+          <FrameBlock books={books ?? []} title={`${publishYear} yılında yayımlanan kitaplar`} />
         </div>
-      )}
-      <FrameBlock books={books} title={`Books written in ${publishYear}`} />
+      </main>
+      <aside className="page-sidebar" aria-hidden="true" />
     </div>
   );
 };

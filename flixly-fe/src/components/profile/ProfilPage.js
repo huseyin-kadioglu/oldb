@@ -43,35 +43,36 @@ const ProfilePage = () => {
         isOwnProfile={isOwnProfile}
       />
 
-      <div className="profile-page">
-        <div className="main-content">
-          <FrameBlock
-            title="Favourite Books"
-            books={profileSummary?.favoriteBooks}
-          />
-          <FrameBlock
-            title="Recent Activity"
-            books={profileSummary?.recentActivity}
-          />
-          <Review reviews={profileSummary?.reviews} />
-        </div>
+      <div className="page-layout">
+        <main className="page-main">
+          <div className="main-content">
+            <FrameBlock
+              title="Favori Kitaplar"
+              books={profileSummary?.favoriteBooks}
+            />
+            <FrameBlock
+              title="Son Aktiviteler"
+              books={profileSummary?.recentActivity}
+            />
+            <Review reviews={profileSummary?.reviews} />
+          </div>
+        </main>
 
-        <aside className="sidebar">
+        <aside className="page-sidebar">
           <div className="sidebar-logo">
             <img src="getpro.png" alt="Logo" />
           </div>
-
-          <div className="readlist">
-            <h2>Readlist</h2>
+          <div className="readlist sidebar-block">
+            <h2 className="sidebar-title">Okuma listesi</h2>
             <hr />
             <div className="readlist-images">
-              {profileSummary?.readList?.slice(0, 5).map((book, index) => (
+              {profileSummary?.readList?.slice(0, 6).map((book) => (
                 <img
                   key={book.id}
                   src={book.coverUrl}
                   alt={book.title}
                   className="readlist-image"
-                  style={{ zIndex: 5 - index, left: `${index * 15}px` }}
+                  title={book.title}
                 />
               ))}
             </div>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
+import TimelineIcon from "@mui/icons-material/Timeline";
 import "./NavigationBar.css";
 import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
@@ -62,12 +63,17 @@ const LoggedUser = ({ onLogout }) => {
         PaperProps={{
           sx: {
             mt: 1.5,
-            bgcolor: "var(--color-background-secondary)",
+            bgcolor: "var(--color-background-card)",
             color: "var(--color-text)",
-            borderRadius: 2,
-            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--line-color)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
             minWidth: 200,
-            "& .MuiMenuItem-root": { fontSize: "14px" },
+            py: 0.5,
+            "& .MuiMenuItem-root": {
+              fontSize: "13px",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
+            },
           },
         }}
       >
@@ -75,7 +81,13 @@ const LoggedUser = ({ onLogout }) => {
           navigateUrl={`/profile/${username}`}
           value="Profilim"
         />
-        <LoggedUserMenuItem navigateUrl="/activities" value="Aktiviteler" />
+        <MenuItem
+          onClick={() => { handleClose(); navigate("/activities"); }}
+          sx={{ fontSize: "13px", "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" } }}
+        >
+          <TimelineIcon sx={{ fontSize: 18, mr: 1, color: "var(--color-text-muted)" }} />
+          Aktiviteler
+        </MenuItem>
         <LoggedUserMenuItem
           navigateUrl="/bookContribute"
           value="Kitap Ekle/Düzenle"

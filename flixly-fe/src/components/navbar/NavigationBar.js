@@ -25,7 +25,9 @@ const NavigationBar = ({
 
   return (
     <nav className="navbar">
-      <div className="logo"></div>
+      <div className="logo">
+        <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}>OLDB</a>
+      </div>
       <div className="navbar-content">
         {token ? (
           <></>
@@ -69,7 +71,7 @@ const NavigationBar = ({
             onClick={() => setShowSearch(!showSearch)}
           ></i>
         </p>
-        {token && (
+        {token && !showSearch && (
           <p onClick={() => handleDialog(true)} className="nav-item">
             <button className="nav-add-btn">+ LOG</button>
           </p>
