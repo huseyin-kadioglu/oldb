@@ -63,7 +63,7 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
   };
 
   return (
-    <div className="book-detail-content container">
+    <div className="book-detail-content">
       <h1 className="book-detail-title">{book.title}</h1>
       <div className="book-detail-byline">
         <div className="book-byline-row">

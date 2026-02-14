@@ -83,19 +83,30 @@
 }
 
 .book-detail-byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
   text-align: left;
   font-size: 0.95rem;
   margin: 0 0 20px 0;
-  line-height: 1.6;
+  line-height: 1.2;
 }
 
 .book-byline-row {
-  display: block;
-  margin-bottom: 2px;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0;
 }
 
 .book-byline-row:last-child {
   margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .book-detail-byline {
+    gap: 8px;
+  }
 }
 
 .book-byline-written {

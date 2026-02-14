@@ -18,15 +18,17 @@
 .logo {
   display: flex;
   align-items: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  gap: 8px;
+  align-items: center;
   color: var(--color-text);
 }
 
 .logo a {
   color: inherit;
   text-decoration: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .logo a:hover {
@@ -37,6 +39,24 @@
   width: 270px;
   height: 25px;
   object-fit: contain;
+}
+
+.logo-word {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  background: var(--color-primary-button);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+@media (max-width: 600px) {
+  .logo-word { padding: 5px 8px; font-size: 14px; border-radius:6px; }
 }
 
 .navbar-content {

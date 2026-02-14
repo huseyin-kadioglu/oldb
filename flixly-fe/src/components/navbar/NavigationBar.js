@@ -26,7 +26,16 @@ const NavigationBar = ({
   return (
     <nav className="navbar">
       <div className="logo">
-        <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}>OLDB</a>
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/");
+          }}
+          aria-label="OLDB logo"
+        >
+          <span className="logo-word">OLDB</span>
+        </a>
       </div>
       <div className="navbar-content">
         {token ? (

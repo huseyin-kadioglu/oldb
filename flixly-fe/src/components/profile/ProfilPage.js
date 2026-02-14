@@ -49,19 +49,18 @@ const ProfilePage = () => {
             <FrameBlock
               title="Favori Kitaplar"
               books={profileSummary?.favoriteBooks}
+              showGhostMenu={false}
             />
             <FrameBlock
               title="Son Aktiviteler"
               books={profileSummary?.recentActivity}
+              showGhostMenu={false}
             />
             <Review reviews={profileSummary?.reviews} />
           </div>
         </main>
 
         <aside className="page-sidebar">
-          <div className="sidebar-logo">
-            <img src="getpro.png" alt="Logo" />
-          </div>
           <div className="readlist sidebar-block">
             <h2 className="sidebar-title">Okuma listesi</h2>
             <hr />

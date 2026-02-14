@@ -1,6 +1,5 @@
 package org.hk.flixly.controller;
 
-import org.hk.flixly.model.AuthorApprovalDto;
 import org.hk.flixly.model.BookApprovalDto;
 import org.hk.flixly.model.entity.BookApprovalEntity;
 import org.hk.flixly.service.BookApprovalService;

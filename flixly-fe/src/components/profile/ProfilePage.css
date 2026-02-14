@@ -21,6 +21,9 @@
   padding-top: 6px;
   display: flex;
   flex-direction: column;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 /* =========================
@@ -28,7 +31,9 @@
 ========================= */
 
 .readlist.sidebar-block {
-  padding: 16px;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
 }
 
 .readlist .sidebar-title,
@@ -63,9 +68,9 @@
   height: 72px;
   object-fit: cover;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--line-color);
-  box-shadow: var(--shadow-cover);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
   cursor: pointer;
   flex-shrink: 0;
 }
