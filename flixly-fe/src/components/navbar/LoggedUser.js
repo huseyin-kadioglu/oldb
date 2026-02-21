@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Menu, MenuItem } from "@mui/material";
+import { Menu, MenuItem, Divider } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import TimelineIcon from "@mui/icons-material/Timeline";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import "./NavigationBar.css";
 import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
@@ -28,19 +29,19 @@ const LoggedUser = ({ onLogout }) => {
 
   const adminMenuItems = [
     {
-      key: "profileApproval",
-      url: "/profileApproval",
-      label: "Kullanıcıları Yönet",
+      key: "bookApproval",
+      url: "/bookApproval",
+      label: "Kitap Onayla",
     },
     {
       key: "authorApproval",
       url: "/authorApproval",
-      label: "Yazar Onay Ekranı",
+      label: "Yazar Onayla",
     },
     {
-      key: "bookApproval",
-      url: "/bookApproval",
-      label: "Kitap Onay Ekranı",
+      key: "profileApproval",
+      url: "/profileApproval",
+      label: "Kullanıcıları Yönet",
     },
   ];
 
@@ -80,6 +81,7 @@ const LoggedUser = ({ onLogout }) => {
         <LoggedUserMenuItem
           navigateUrl={`/profile/${username}`}
           value="Profilim"
+          onClose={handleClose}
         />
         <MenuItem
           onClick={() => { handleClose(); navigate("/activities"); }}
@@ -91,20 +93,31 @@ const LoggedUser = ({ onLogout }) => {
         <LoggedUserMenuItem
           navigateUrl="/bookContribute"
           value="Kitap Ekle/Düzenle"
+          onClose={handleClose}
         />
         <LoggedUserMenuItem
           navigateUrl="/addAuthor"
           value="Yazar Ekle/Düzenle"
+          onClose={handleClose}
         />
 
-        {role === "ADMIN" &&
-          adminMenuItems.map((item) => (
-            <LoggedUserMenuItem
-              key={item.key}
-              navigateUrl={item.url}
-              value={item.label}
-            />
-          ))}
+        {role === "ADMIN" && (
+          <>
+            <Divider sx={{ my: 0.5, bgcolor: "rgba(255,255,255,0.1)" }} />
+            <MenuItem disabled sx={{ fontSize: "11px", color: "var(--color-text-muted)", py: 0.5 }}>
+              <AdminPanelSettingsIcon sx={{ fontSize: 14, mr: 1 }} />
+              Admin Paneli
+            </MenuItem>
+            {adminMenuItems.map((item) => (
+              <LoggedUserMenuItem
+                key={item.key}
+                navigateUrl={item.url}
+                value={item.label}
+                onClose={handleClose}
+              />
+            ))}
+          </>
+        )}
 
         <MenuItem
           onClick={handleLogout}

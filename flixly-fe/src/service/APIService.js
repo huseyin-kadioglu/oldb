@@ -221,6 +221,16 @@ export const getBooks = async () => {
   return response.json();
 };
 
+export const getBookById = async (id) => {
+  try {
+    const response = await axios.get(`${BOOKS_API}${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Kitap alınırken hata oluştu:", error);
+    throw error;
+  }
+};
+
 export const getBooksByPublishYear = async (publishYear) => {
   try {
     const response = await axios.get(`${BOOKS_BY_YEAR_API}${publishYear}`);

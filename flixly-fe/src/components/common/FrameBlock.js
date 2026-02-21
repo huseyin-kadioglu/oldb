@@ -1,12 +1,7 @@
 import PhotoFrame from "../frame/PhotoFrame";
 import "./FrameBlock.css";
-import { useState } from "react";
 
-const FrameBlock = ({ title, books }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const storedToken = sessionStorage.getItem("token");
+const FrameBlock = ({ title, books, showGhostMenu = true }) => {
 
   return (
     <div className="frame-block">
@@ -14,7 +9,7 @@ const FrameBlock = ({ title, books }) => {
       <hr></hr>
       <div className="gallery">
         {books?.map((book, index) => (
-          <PhotoFrame key={book?.id ?? index} book={book} showGhostMenu={false} />
+          <PhotoFrame key={book?.id ?? index} book={book} showGhostMenu={showGhostMenu} />
         ))}
       </div>
     </div>

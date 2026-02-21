@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { createBookContribution, getAuthors } from "../../service/APIService";
+import GenericMessageDialog from "../common/GenericMessageDialog";
 
 const inputSx = {
   "& .MuiInputBase-root": {
@@ -43,6 +44,7 @@ const BookContributeForm = () => {
   });
 
   const [authors, setAuthors] = useState([]);
+  const [dialog, setDialog] = useState({ open: false, title: "", message: "" });
 
   useEffect(() => {
     getAuthors().then(setAuthors);
@@ -66,11 +68,31 @@ const BookContributeForm = () => {
 
   const handleSubmit = () => {
     if (!form.title || !form.authorId) {
-      alert("Kitap adı ve yazar zorunludur.");
+      setDialog({
+        open: true,
+        title: "Hata",
+        message: "Kitap adı ve yazar zorunludur.",
+      });
       return;
     }
-    createBookContribution(form);
-    clearForm();
+    (async () => {
+      try {
+        await createBookContribution(form);
+        clearForm();
+        setDialog({
+          open: true,
+          title: "Teşekkürler",
+          message: "Katkınız alındı. Onaylandığında contribution puanınız eklenecektir.",
+        });
+      } catch (err) {
+        console.error(err);
+        setDialog({
+          open: true,
+          title: "Hata",
+          message: "Bir hata oluştu. Lütfen tekrar deneyin.",
+        });
+      }
+    })();
   };
 
   return (
@@ -238,6 +260,14 @@ const BookContributeForm = () => {
           Katkı Sağla
         </Button>
       </Box>
+      {dialog.open && (
+        <GenericMessageDialog
+          open={dialog.open}
+          onClose={() => setDialog({ ...dialog, open: false })}
+          title={dialog.title}
+          message={dialog.message}
+        />
+      )}
     </Box>
   );
 };

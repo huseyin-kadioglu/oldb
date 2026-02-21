@@ -1,16 +1,32 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getBookApprovals,
   rejectBookApproval,
   approveBookApproval,
 } from "../../service/APIService";
-
+import GenericMessageDialog from "../common/GenericMessageDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import "./BookApproval.css";
 
 const BookApproval = () => {
+  const navigate = useNavigate();
   const [approvals, setApprovals] = useState([]);
   const [editableId, setEditableId] = useState(null);
+  const [dialog, setDialog] = useState({ open: false, title: "", message: "" });
+
+  // Admin role check
+  useEffect(() => {
+    const userRole = sessionStorage.getItem("userRole");
+    if (!userRole || userRole !== "ADMIN") {
+      setDialog({
+        open: true,
+        title: "Erişim Reddedildi",
+        message: "Bu sayfa sadece admin tarafından erişilebilir.",
+      });
+      setTimeout(() => navigate("/"), 2000);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     handleBookApprovals();
@@ -40,20 +56,38 @@ const BookApproval = () => {
   const handleApprove = async (book) => {
     try {
       await approveBookApproval(book);
+      setDialog({
+        open: true,
+        title: "Başarılı",
+        message: "Kitap başarıyla onaylandı.",
+      });
       handleBookApprovals();
     } catch (err) {
       console.error("Onay işlemi başarısız:", err);
-      alert("Kitap onaylanırken bir hata oluştu.");
+      setDialog({
+        open: true,
+        title: "Hata",
+        message: "Kitap onaylanırken bir hata oluştu.",
+      });
     }
   };
 
   const handleReject = async (bookId) => {
     try {
       await rejectBookApproval(bookId);
+      setDialog({
+        open: true,
+        title: "Başarılı",
+        message: "Kitap başarıyla reddedildi.",
+      });
       handleBookApprovals();
     } catch (err) {
       console.error("Reddetme işlemi başarısız:", err);
-      alert("Kitap reddedilirken bir hata oluştu.");
+      setDialog({
+        open: true,
+        title: "Hata",
+        message: "Kitap reddedilirken bir hata oluştu.",
+      });
     }
   };
 
@@ -139,6 +173,51 @@ const BookApproval = () => {
                 placeholder="Kapak görseli URL"
               />
 
+              {isEditable && (
+                <>
+                  <label style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "12px", color: "#9ab" }}>
+                    <input
+                      type="checkbox"
+                      checked={book.isEditorChoice || false}
+                      onChange={(e) =>
+                        handleInputChange(book.id, "isEditorChoice", e.target.checked)
+                      }
+                    />
+                    Editörün Seçimi
+                  </label>
+                  <label style={{ display: "flex", gap: "8px", alignItems: "center", color: "#9ab" }}>
+                    <input
+                      type="checkbox"
+                      checked={book.isWeeklyPick || false}
+                      onChange={(e) =>
+                        handleInputChange(book.id, "isWeeklyPick", e.target.checked)
+                      }
+                    />
+                    Haftanın Kitabı
+                  </label>
+                  <label style={{ display: "flex", gap: "8px", alignItems: "center", color: "#9ab" }}>
+                    <input
+                      type="checkbox"
+                      checked={book.isNewRelease || false}
+                      onChange={(e) =>
+                        handleInputChange(book.id, "isNewRelease", e.target.checked)
+                      }
+                    />
+                    Yeni Çıkan
+                  </label>
+                  <textarea
+                    value={book.adminNotes || ""}
+                    onChange={(e) =>
+                      handleInputChange(book.id, "adminNotes", e.target.value)
+                    }
+                    className="editable-dark"
+                    placeholder="Admin notları (kullanıcılara gösterilir)"
+                    rows={2}
+                    style={{ marginTop: "8px" }}
+                  />
+                </>
+              )}
+
               <p className="book-contributor">Katkı: {book.contributedUser}</p>
 
               <div className="book-actions">
@@ -153,6 +232,14 @@ const BookApproval = () => {
           </div>
         );
       })}
+      {dialog.open && (
+        <GenericMessageDialog
+          open={dialog.open}
+          onClose={() => setDialog({ ...dialog, open: false })}
+          title={dialog.title}
+          message={dialog.message}
+        />
+      )}
     </div>
   );
 };

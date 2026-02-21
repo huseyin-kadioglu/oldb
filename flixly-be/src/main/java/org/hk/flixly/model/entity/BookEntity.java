@@ -34,4 +34,11 @@ public class BookEntity {
 
     private boolean isWonNobelPrize;
 
+    // Admin editorial fields
+    @Column(length = 500)
+    private String adminNotes;
+
+    private boolean isEditorChoice;
+    private boolean isWeeklyPick;
+    private boolean isNewRelease;
 }

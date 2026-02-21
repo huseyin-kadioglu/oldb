@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { createAuthorContribution } from "../../service/APIService";
+import GenericMessageDialog from "../common/GenericMessageDialog";
 
 const inputSx = {
   "& .MuiInputBase-root": {
@@ -36,6 +37,7 @@ const AuthorContributeForm = () => {
   const [deathYear, setDeathYear] = useState("");
   const [portrait, setPortrait] = useState("");
   const [description, setDescription] = useState("");
+  const [dialog, setDialog] = useState({ open: false, title: "", message: "" });
 
   const clearForm = () => {
     setFirstName("");
@@ -48,7 +50,11 @@ const AuthorContributeForm = () => {
 
   const handleSubmit = async () => {
     if (!firstName || !lastName) {
-      alert("Ad ve soyad zorunludur.");
+      setDialog({
+        open: true,
+        title: "Hata",
+        message: "Ad ve soyad zorunludur.",
+      });
       return;
     }
 
@@ -63,10 +69,18 @@ const AuthorContributeForm = () => {
     try {
       await createAuthorContribution(payload);
       clearForm();
-      alert("Yazar başarıyla gönderildi.");
+      setDialog({
+        open: true,
+        title: "Teşekkürler",
+        message: "Katkınız alındı. Onaylandığında contribution puanınız eklenecektir.",
+      });
     } catch (err) {
       console.error(err);
-      alert("Bir hata oluştu.");
+      setDialog({
+        open: true,
+        title: "Hata",
+        message: "Bir hata oluştu. Lütfen tekrar deneyin.",
+      });
     }
   };
 
@@ -218,6 +232,14 @@ const AuthorContributeForm = () => {
           Katkı Sağla
         </Button>
       </Box>
+      {dialog.open && (
+        <GenericMessageDialog
+          open={dialog.open}
+          onClose={() => setDialog({ ...dialog, open: false })}
+          title={dialog.title}
+          message={dialog.message}
+        />
+      )}
     </Box>
   );
 };

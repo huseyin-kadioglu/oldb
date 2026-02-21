@@ -1,15 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthorFrame from "../frame/AuthorFrame";
 import "./Author.css";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import PhotoFrame from "../frame/PhotoFrame";
 import AuthorProgressBar from "./AuthorProgressBar";
+import { getAuthorById } from "../../service/APIService";
 
 const Author = () => {
   const location = useLocation();
-  const author = location.state?.author;
+  const params = useParams();
+  const [author, setAuthor] = useState(location.state?.author || null);
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    if (!author) fetchAuthor();
+    else setLoading(false);
+  }, [author]);
+
+  const fetchAuthor = async () => {
+    try {
+      const data = await getAuthorById(params.authorId);
+      setAuthor(data?.author || data);
+    } catch (err) {
+      console.error(err);
+      setError("Yazar yüklenirken hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="author-view">Yükleniyor…</div>;
+  if (error) return <div className="author-view">{error}</div>;
   if (!author) return <div className="author-view">Yazar bulunamadı.</div>;
 
   const totalBooks = author.bookWrittenBy?.length ?? 0;
@@ -26,9 +49,9 @@ const Author = () => {
         <hr />
 
         <div className="author-gallery gallery">
-          {author.bookWrittenBy != null &&
+              {author.bookWrittenBy != null &&
             author.bookWrittenBy.map((book, index) => (
-              <PhotoFrame key={book?.id ?? index} book={book} showTitle showGhostMenu={false} />
+              <PhotoFrame key={book?.id ?? index} book={book} showTitle showGhostMenu={true} />
             ))}
         </div>
       </div>

@@ -16,7 +16,9 @@ const SearchView = ({ books }) => {
   const fetchAuthors = async () => {
     try {
       const data = await getAuthors();
-      setAuthors(data?.authors || []);
+      // backend may return an array or an object with `.authors`
+      if (Array.isArray(data)) setAuthors(data);
+      else setAuthors(data?.authors || data || []);
     } catch (err) {
       console.error("Authors yüklenirken hata:", err);
     }
@@ -63,15 +65,26 @@ const SearchView = ({ books }) => {
             <>
               <h3>Kitaplar ({filteredBooks.length})</h3>
               <ul className="search-results-list">
-                {filteredBooks.map((book) => (
-                  <li
-                    key={book.id}
-                    onClick={() => navigate(`/book/${book.id}`, { state: { book } })}
-                    className="search-item"
-                  >
-                    {book.title}
-                  </li>
-                ))}
+                {filteredBooks.map((book) => {
+                  const authorName = authors?.find((a) => String(a.id) === String(book.authorId))?.name;
+                  return (
+                    <li
+                      key={book.id}
+                      onClick={() => navigate(`/book/${book.id}`, { state: { book } })}
+                      className="search-item"
+                    >
+                      <img
+                        src={book.coverUrl || "https://www.ledr.com/colours/white.jpg"}
+                        alt={book.title}
+                        className="search-cover"
+                      />
+                      <div className="search-body">
+                        <div className="search-title">{book.title}</div>
+                        <div className="search-meta">{authorName || "—"} {book.publishYear ? `• ${book.publishYear}` : ""}</div>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </>
           )}

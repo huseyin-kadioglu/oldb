@@ -78,6 +78,61 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
           </Link>
         </div>
       </div>
+
+      {/* Editorial flags */}
+      <div style={{ display: "flex", gap: "8px", marginTop: "12px", flexWrap: "wrap" }}>
+        {book.isEditorChoice && (
+          <span style={{
+            fontSize: "0.85rem",
+            padding: "4px 8px",
+            background: "rgba(245, 197, 24, 0.2)",
+            color: "var(--color-primary-button)",
+            borderRadius: "4px",
+            fontWeight: "600"
+          }}>
+            ★ Editörün Seçimi
+          </span>
+        )}
+        {book.isWeeklyPick && (
+          <span style={{
+            fontSize: "0.85rem",
+            padding: "4px 8px",
+            background: "rgba(0, 224, 84, 0.2)",
+            color: "var(--color-accent)",
+            borderRadius: "4px",
+            fontWeight: "600"
+          }}>
+            ★ Haftanın Kitabı
+          </span>
+        )}
+        {book.isNewRelease && (
+          <span style={{
+            fontSize: "0.85rem",
+            padding: "4px 8px",
+            background: "rgba(100, 200, 255, 0.2)",
+            color: "#64c8ff",
+            borderRadius: "4px",
+            fontWeight: "600"
+          }}>
+            ✦ Yeni Çıkan
+          </span>
+        )}
+      </div>
+
+      {book.adminNotes && (
+        <div style={{
+          marginTop: "16px",
+          padding: "12px",
+          background: "rgba(255,255,255,0.05)",
+          borderLeft: "3px solid var(--color-primary-button)",
+          borderRadius: "4px"
+        }}>
+          <p style={{ margin: "0", fontSize: "0.95rem", color: "var(--color-text-secondary)" }}>
+            {book.adminNotes}
+          </p>
+        </div>
+      )}
+
       {book.description && (
         <div className="book-detail-description">
           <p>{book.description}</p>

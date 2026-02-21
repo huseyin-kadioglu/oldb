@@ -78,7 +78,7 @@
   flex-direction: column;
   gap: 2px;
   padding: 4px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.55);
   border-radius: var(--radius-sm);
   opacity: 0;
   visibility: hidden;
@@ -86,6 +86,12 @@
 }
 
 .photo-frame:hover .ghost-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Show ghost-menu when any child receives keyboard focus */
+.photo-frame:focus-within .ghost-menu {
   opacity: 1;
   visibility: visible;
 }
@@ -108,6 +114,21 @@
   color: var(--color-primary-button);
 }
 
+.photo-frame .ghost-menu button:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.14);
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-primary-button);
+}
+
 .photo-frame .ghost-menu button[data-active="true"] {
   color: var(--color-primary-button);
+}
+
+/* Slightly larger tap target on touch devices */
+@media (pointer: coarse) {
+  .photo-frame .ghost-menu button {
+    padding: 8px;
+    border-radius: 4px;
+  }
 }

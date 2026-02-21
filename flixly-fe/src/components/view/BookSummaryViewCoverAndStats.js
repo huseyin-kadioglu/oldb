@@ -6,7 +6,7 @@ import StarIcon from "@mui/icons-material/Star";
 const BookSummaryViewCoverAndStats = ({ book }) => {
   return (
     <div className="coverAndStats">
-      <PhotoFrame book={book} showTitle={false} showGhostMenu={false} />
+      <PhotoFrame book={book} showTitle={false} showGhostMenu={true} />
       <div className="cover-stats-minimal">
         <span className="cover-stat"><FavoriteIcon className="cover-stat-icon like" /> {book?.howManyPplLiked ?? 0}</span>
         <span className="cover-stat"><StarIcon className="cover-stat-icon star" /> {book?.howManyPplFavourited ?? 0}</span>

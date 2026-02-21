@@ -1,16 +1,32 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getAuthorApprovals,
   approveAuthorApproval,
   rejectAuthorApproval,
 } from "../../service/APIService";
-
+import GenericMessageDialog from "../common/GenericMessageDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import "./BookApproval.css";
 
 const AuthorApproval = () => {
+  const navigate = useNavigate();
   const [approvals, setApprovals] = useState([]);
   const [editableId, setEditableId] = useState(null);
+  const [dialog, setDialog] = useState({ open: false, title: "", message: "" });
+
+  // Admin role check
+  useEffect(() => {
+    const userRole = sessionStorage.getItem("userRole");
+    if (!userRole || userRole !== "ADMIN") {
+      setDialog({
+        open: true,
+        title: "Erişim Reddedildi",
+        message: "Bu sayfa sadece admin tarafından erişilebilir.",
+      });
+      setTimeout(() => navigate("/"), 2000);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     handleAuthorApprovals();
@@ -40,20 +56,38 @@ const AuthorApproval = () => {
   const handleApprove = async (author) => {
     try {
       await approveAuthorApproval(author);
+      setDialog({
+        open: true,
+        title: "Başarılı",
+        message: "Yazar başarıyla onaylandı.",
+      });
       handleAuthorApprovals();
     } catch (err) {
       console.error("Onay işlemi başarısız:", err);
-      alert("Yazar onaylanırken bir hata oluştu.");
+      setDialog({
+        open: true,
+        title: "Hata",
+        message: "Yazar onaylanırken bir hata oluştu.",
+      });
     }
   };
 
   const handleReject = async (authorId) => {
     try {
       await rejectAuthorApproval(authorId);
+      setDialog({
+        open: true,
+        title: "Başarılı",
+        message: "Yazar başarıyla reddedildi.",
+      });
       handleAuthorApprovals();
     } catch (err) {
       console.error("Reddetme işlemi başarısız:", err);
-      alert("Yazar reddedilirken bir hata oluştu.");
+      setDialog({
+        open: true,
+        title: "Hata",
+        message: "Yazar reddedilirken bir hata oluştu.",
+      });
     }
   };
 
@@ -182,6 +216,14 @@ const AuthorApproval = () => {
           </div>
         );
       })}
+      {dialog.open && (
+        <GenericMessageDialog
+          open={dialog.open}
+          onClose={() => setDialog({ ...dialog, open: false })}
+          title={dialog.title}
+          message={dialog.message}
+        />
+      )}
     </div>
   );
 };

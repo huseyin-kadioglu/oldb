@@ -100,6 +100,11 @@ const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
           <span className="value">{profileSummary?.readList?.length}</span>
           <span className="definition">READLIST</span>
         </div>
+        <div className="stat-divider"></div>
+        <div className="stat">
+          <span className="value">{profileSummary?.contributionPoint ?? 0}</span>
+          <span className="definition">CONTRIBUTION</span>
+        </div>
       </div>
     </div>
   );
