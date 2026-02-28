@@ -4,7 +4,7 @@ import "./Author.css";
 import { useLocation, useParams } from "react-router-dom";
 import PhotoFrame from "../frame/PhotoFrame";
 import AuthorProgressBar from "./AuthorProgressBar";
-import { getAuthorById } from "../../service/APIService";
+import { getAuthorById, rateAuthor } from "../../service/APIService";
 
 const Author = () => {
   const location = useLocation();
@@ -13,21 +13,41 @@ const Author = () => {
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userRating, setUserRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
 
   useEffect(() => {
     if (!author) fetchAuthor();
-    else setLoading(false);
+    else {
+      setLoading(false);
+      if (author.userRating) setUserRating(author.userRating);
+    }
   }, [author]);
 
   const fetchAuthor = async () => {
     try {
       const data = await getAuthorById(params.authorId);
-      setAuthor(data?.author || data);
+      const authorData = data?.author || data;
+      setAuthor(authorData);
+      if (authorData?.userRating) setUserRating(authorData.userRating);
     } catch (err) {
       console.error(err);
       setError("Yazar yüklenirken hata oluştu.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRate = async (rating) => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+    const newRating = userRating === rating ? 0 : rating;
+    setUserRating(newRating);
+    try {
+      await rateAuthor(author.id, newRating);
+    } catch (err) {
+      console.error("Rating gönderilemedi:", err);
+      setUserRating(userRating);
     }
   };
 
@@ -79,6 +99,33 @@ const Author = () => {
           </div>
 
           <AuthorProgressBar totalBooks={displayTotal} readBooks={readBooks} />
+
+          <div className="author-rating-block">
+            {author.averageRating > 0 && (
+              <div className="author-avg-rating">
+                <span className="author-avg-star">★</span>
+                <span className="author-avg-val">{Number(author.averageRating).toFixed(1)}</span>
+                {author.ratingCount > 0 && (
+                  <span className="author-avg-count">({author.ratingCount} oy)</span>
+                )}
+              </div>
+            )}
+            <p className="author-rating-label">Puanla</p>
+            <div className="author-rating-stars">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  className={`author-star-btn ${(hoverRating || userRating) >= star ? "active" : ""}`}
+                  onClick={() => handleRate(star)}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  aria-label={`${star} yıldız`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

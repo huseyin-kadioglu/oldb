@@ -69,6 +69,31 @@
   color: var(--color-primary-button);
 }
 
+/* Rating display below title */
+.frame-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.frame-rating-star {
+  color: var(--color-primary-button);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.frame-rating-val {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.frame-rating-count {
+  font-size: 9px;
+  color: var(--color-text-muted);
+}
+
 /* Minimalist ghost menü: kapak üzerinde sağ üst köşe, küçük ikonlar */
 .ghost-menu {
   position: absolute;

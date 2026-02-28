@@ -1,24 +1,56 @@
 import "../content/Content.css";
-import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import { getBooks } from "../../service/APIService";
+import "./Books.css";
+import React, { useMemo, useState } from "react";
 import FrameBlock from "../common/FrameBlock";
-import { useParams } from "react-router-dom";
+import BooksFilterPanel from "./BooksFilterPanel";
+import { getFilteredBooks } from "../../service/APIService";
 
 const Books = ({ books }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { bookId } = useParams();
+  const [displayBooks, setDisplayBooks] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const shownBooks = displayBooks !== null ? displayBooks : books;
+
+  const allCountries = useMemo(() => {
+    const set = new Set(books?.map((b) => b.authorCountry).filter(Boolean));
+    return Array.from(set).sort();
+  }, [books]);
+
+  const handleFilterChange = async (filters) => {
+    const hasFilter =
+      filters.nobelOnly ||
+      filters.country ||
+      filters.yearFrom ||
+      filters.yearTo ||
+      filters.minRating > 0;
+
+    if (!hasFilter) {
+      setDisplayBooks(null);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await getFilteredBooks(filters);
+      setDisplayBooks(result.books ?? []);
+    } catch (err) {
+      console.error("Filtre hatası:", err);
+      setDisplayBooks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const title = loading
+    ? "Kitaplar..."
+    : `Kitaplar (${shownBooks?.length ?? 0})`;
 
   return (
-    <div className="page-layout">
-      <main className="page-main">
-        <div className="container">
-          <FrameBlock books={books} title="Tüm Kitaplar" />
-        </div>
-      </main>
-      <aside className="page-sidebar" aria-hidden="true" />
+    <div className="books-page">
+      <BooksFilterPanel allCountries={allCountries} onFilterChange={handleFilterChange} />
+      <FrameBlock books={shownBooks} title={title} />
     </div>
   );
 };
+
 export default Books;

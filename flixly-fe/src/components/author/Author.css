@@ -112,6 +112,73 @@
   font-weight: 500;
 }
 
+/* Author rating block */
+.author-rating-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-color);
+}
+
+.author-avg-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.author-avg-star {
+  color: var(--color-primary-button);
+  font-size: 13px;
+}
+
+.author-avg-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.author-avg-count {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.author-rating-label {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.author-rating-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.author-star-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--color-text-muted);
+  padding: 2px;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+
+.author-star-btn:hover,
+.author-star-btn.active {
+  color: var(--color-primary-button);
+}
+
+.author-star-btn:hover {
+  transform: scale(1.15);
+}
+
 /* Minimal yüzde göstergesi */
 .author-progress-wrap {
   width: 100%;

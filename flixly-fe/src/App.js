@@ -20,6 +20,7 @@ import BookApproval from "./components/pages/BookApproval";
 import ProfileApproval from "./components/pages/ProfileApproval";
 import BookContributeForm from "./components/pages/BookContributeForm";
 import SettingsView from "./components/profile/SettingsView";
+import ProfileListPage from "./components/profile/ProfileListPage";
 import SearchView from "./components/pages/SearchView";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
@@ -88,6 +89,7 @@ const App = () => {
         <Routes>
           <Route path="/*" element={<Content books={books} token={token} />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/profile/:username/list/:listType" element={<ProfileListPage />} />
           <Route path="/books" element={<Books books={books} />} />
           <Route path="/settings" element={<SettingsView />} />
         <Route path="/activities" element={<Activies />} />

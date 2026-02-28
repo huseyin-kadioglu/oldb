@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./SettingsView.css";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ErrorDialog from "../common/ErrorDialog"; // path'i kontrol et
+import ErrorDialog from "../common/ErrorDialog";
 import GenericMessageDialog from "./../common/GenericMessageDialog";
 
 import {
@@ -16,81 +16,6 @@ const SettingsView = () => {
   const [message, setMessage] = useState(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(null);
   const [error, setError] = useState(null);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      const data = await getProfileSummary();
-
-      console.log("settings view data: ", data);
-      setForm((prev) => ({
-        ...prev,
-        username: data.profileName ?? "", // sadece gösterim
-        email: data.username ?? "", // sadece gösterim
-        bio: data.bio ?? "",
-        location: data.location ?? "",
-      }));
-    };
-
-    loadProfile();
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const payload = {
-      username: form.username,
-      location: form.location,
-      bio: form.bio,
-    };
-
-    try {
-      await updateProfile(payload);
-      setMessage("Profil güncellendi");
-      setTimeout(() => setMessage(null), 2500);
-    } catch {
-      setMessage("Profil güncellenemedi");
-      setTimeout(() => setMessage(null), 2500);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
-      setMessage("Tüm alanları doldurun");
-      return;
-    }
-
-    if (form.newPassword !== form.confirmPassword) {
-      setError("Yeni şifreler eşleşmiyor");
-      return;
-    }
-
-    if (form.newPassword.length < 8) {
-      setError("Şifre en az 8 karakter olmalı");
-      return;
-    }
-
-    try {
-      await changePassword({
-        currentPassword: form.currentPassword,
-        newPassword: form.newPassword,
-      });
-
-      setSuccessDialogOpen(
-        "Şifre başarıyla değiştirildi. Tekrar giriş yapmalısınız."
-      );
-
-      // 🔐 Logout + redirect
-      setTimeout(() => {
-        logout();
-        navigate("/");
-      }, 1500);
-    } catch {
-      setError("Mevcut şifre yanlış");
-    }
-  };
-
   const [activeTab, setActiveTab] = useState("profile");
   const [form, setForm] = useState({
     username: "",
@@ -99,184 +24,251 @@ const SettingsView = () => {
     bio: "",
     currentPassword: "",
     newPassword: "",
-    confirmPassword: "", // ✅ BU EKSİKTİ
-    avatar: null,
-    notifications: true,
-    theme: "dark",
+    confirmPassword: "",
+    avatarUrl: "",
   });
 
-  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
-    if (type === "checkbox") {
-      setForm({ ...form, [name]: checked });
-    } else if (type === "file") {
-      setForm({ ...form, avatar: files[0] });
-      alert(
-        "Profil fotoğrafı yükleme isteği gönderildi. Onay sonrası değişecektir."
-      );
-    } else {
-      setForm({ ...form, [name]: value });
+  useEffect(() => {
+    const loadProfile = async () => {
+      const data = await getProfileSummary();
+      setForm((prev) => ({
+        ...prev,
+        username: data.profileName ?? "",
+        email: data.username ?? "",
+        bio: data.bio ?? "",
+        location: data.location ?? "",
+      }));
+    };
+    loadProfile();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const payload = {
+      username: form.username,
+      location: form.location,
+      bio: form.bio,
+    };
+    try {
+      await updateProfile(payload);
+      setMessage("Profil güncellendi.");
+      setTimeout(() => setMessage(null), 2500);
+    } catch {
+      setMessage("Profil güncellenemedi.");
+      setTimeout(() => setMessage(null), 2500);
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
+      setError("Tüm alanları doldurun.");
+      return;
+    }
+    if (form.newPassword !== form.confirmPassword) {
+      setError("Yeni şifreler eşleşmiyor.");
+      return;
+    }
+    if (form.newPassword.length < 8) {
+      setError("Şifre en az 8 karakter olmalı.");
+      return;
+    }
+    try {
+      await changePassword({
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword,
+      });
+      setSuccessDialogOpen("Şifre başarıyla değiştirildi. Tekrar giriş yapmalısınız.");
+      setTimeout(() => {
+        logout();
+        navigate("/");
+      }, 1500);
+    } catch {
+      setError("Mevcut şifre yanlış.");
+    }
+  };
+
+  const handleAvatarSubmit = async () => {
+    if (!form.avatarUrl.trim()) {
+      setError("Lütfen bir fotoğraf URL'si girin.");
+      return;
+    }
+    try {
+      await updateProfile({ avatarUrl: form.avatarUrl });
+      setMessage("Profil fotoğrafı güncellendi. Admin onayı bekleniyor.");
+      setTimeout(() => setMessage(null), 3000);
+    } catch {
+      setError("Fotoğraf isteği gönderilemedi.");
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const tabs = [
+    { id: "profile", label: "Profil" },
+    { id: "auth", label: "Şifre" },
+    { id: "avatar", label: "Avatar" },
+  ];
+
   return (
     <>
-      <div className="edit-profile-container">
-        {message && <div className="info-message">{message}</div>}
-
-        {/* Tab Navigation */}
-        <div className="tabs">
-          {[
-            { id: "profile", label: "Profil" },
-            { id: "auth", label: "Şifre" },
-            { id: "avatar", label: "Avatar" },
-            { id: "data", label: "Veri" },
-          ].map(({ id, label }) => (
-            <button
-              key={id}
-              className={`tab-button ${activeTab === id ? "active" : ""}`}
-              onClick={() => setActiveTab(id)}
-            >
-              {label}
-            </button>
-          ))}
+      <div className="settings-page">
+        <div className="settings-header">
+          <h1 className="settings-title">Hesap Ayarları</h1>
+          <p className="settings-subtitle">Profil bilgilerini ve hesap güvenliğini yönet</p>
         </div>
 
-        <form className="edit-profile-form" onSubmit={handleSubmit}>
-          {/* Profile Tab */}
-          {activeTab === "profile" && (
-            <div className="tab-content">
-              <div className="form-row">
-                <label>Kullanıcı adı</label>
-                {isEditingUsername ? (
-                  <input name="username" value={form.username} readOnly />
-                ) : (
-                  <div className="editable-field">
-                    <span>{form.username}</span>
-                    <button
-                      type="button"
-                      className="edit-icon"
-                      onClick={() => setIsEditingUsername(true)}
-                    >
-                      ✏️
-                    </button>
+        <div className="settings-body">
+          <nav className="settings-tabs">
+            {tabs.map(({ id, label }) => (
+              <button
+                key={id}
+                className={`settings-tab-btn ${activeTab === id ? "active" : ""}`}
+                onClick={() => setActiveTab(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="settings-content">
+            {message && <div className="settings-banner settings-banner--info">{message}</div>}
+
+            {activeTab === "profile" && (
+              <form onSubmit={handleSubmit}>
+                <div className="settings-section-title">Profil Bilgileri</div>
+
+                <div className="settings-field">
+                  <label>Kullanıcı adı</label>
+                  <input name="username" value={form.username} readOnly className="settings-input settings-input--readonly" />
+                  <span className="settings-hint">Kullanıcı adı değiştirilemez.</span>
+                </div>
+
+                <div className="settings-field">
+                  <label>E-posta</label>
+                  <input name="email" value={form.email} readOnly className="settings-input settings-input--readonly" />
+                </div>
+
+                <div className="settings-field">
+                  <label>Konum</label>
+                  <input
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    className="settings-input"
+                    placeholder="Şehir, Ülke"
+                  />
+                </div>
+
+                <div className="settings-field">
+                  <label>Biyografi</label>
+                  <textarea
+                    name="bio"
+                    value={form.bio}
+                    onChange={handleChange}
+                    className="settings-input settings-textarea"
+                    placeholder="Kendinizden bahsedin..."
+                    rows="4"
+                  />
+                </div>
+
+                <button type="submit" className="settings-save-btn">
+                  Değişiklikleri Kaydet
+                </button>
+              </form>
+            )}
+
+            {activeTab === "auth" && (
+              <div>
+                <div className="settings-section-title">Şifre Değiştir</div>
+
+                <div className="settings-field">
+                  <label>Mevcut Şifre</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    value={form.currentPassword}
+                    onChange={handleChange}
+                    className="settings-input"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <div className="settings-field">
+                  <label>Yeni Şifre</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={form.newPassword}
+                    onChange={handleChange}
+                    className="settings-input"
+                    placeholder="En az 8 karakter"
+                  />
+                </div>
+
+                <div className="settings-field">
+                  <label>Yeni Şifre (Tekrar)</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    className="settings-input"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="settings-save-btn"
+                  onClick={handleChangePassword}
+                >
+                  Şifreyi Değiştir
+                </button>
+              </div>
+            )}
+
+            {activeTab === "avatar" && (
+              <div>
+                <div className="settings-section-title">Profil Fotoğrafı</div>
+                <p className="settings-hint settings-hint--block">
+                  Profil fotoğrafınızı güncellemek için bir görsel URL'si girin.
+                  Değişiklikler admin onayından sonra aktif olur.
+                </p>
+
+                <div className="settings-field">
+                  <label>Fotoğraf URL'si</label>
+                  <input
+                    type="url"
+                    name="avatarUrl"
+                    value={form.avatarUrl}
+                    onChange={handleChange}
+                    className="settings-input"
+                    placeholder="https://örnek.com/foto.jpg"
+                  />
+                </div>
+
+                {form.avatarUrl && (
+                  <div className="settings-avatar-preview">
+                    <img src={form.avatarUrl} alt="Önizleme" />
                   </div>
                 )}
+
+                <button
+                  type="button"
+                  className="settings-save-btn"
+                  onClick={handleAvatarSubmit}
+                >
+                  Onaya Gönder
+                </button>
               </div>
-
-              <div className="form-row">
-                <label>E-posta</label>
-                <input name="email" value={form.email} readOnly />
-              </div>
-
-              <div className="form-row">
-                <label>Konum</label>
-                <input
-                  name="location"
-                  value={form.location}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="form-row">
-                <label>Hakkında</label>
-                <textarea
-                  name="bio"
-                  value={form.bio}
-                  onChange={handleChange}
-                  rows="3"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Auth Tab */}
-          {activeTab === "auth" && (
-            <div className="tab-content">
-              <div className="form-row">
-                <label>Mevcut şifre</label>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  value={form.currentPassword}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="form-row">
-                <label>Yeni şifre</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={form.newPassword}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="form-row">
-                <label>Yeni şifre (tekrar)</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <button
-                type="button"
-                className="save-button"
-                onClick={handleChangePassword}
-              >
-                Şifreyi değiştir
-              </button>
-            </div>
-          )}
-
-          {/* Avatar Tab */}
-          {activeTab === "avatar" && (
-            <div className="tab-content">
-              <div className="form-row">
-                <label>Profil fotoğrafı</label>
-                <input type="file" name="avatar" onChange={handleChange} />
-              </div>
-            </div>
-          )}
-
-          {/* Data Tab */}
-          {activeTab === "data" && (
-            <div className="tab-content">
-              <div className="form-row checkbox-row">
-                <label>
-                  <input
-                    type="checkbox"
-                    name="notifications"
-                    checked={form.notifications}
-                    onChange={handleChange}
-                  />
-                  E-posta bildirimleri al
-                </label>
-              </div>
-
-              <div className="form-row">
-                <label>Tema</label>
-                <select name="theme" value={form.theme} onChange={handleChange}>
-                  <option value="dark">Koyu</option>
-                  <option value="light">Açık</option>
-                  <option value="system">Sistem</option>
-                </select>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "profile" && (
-            <button type="submit" className="save-button">
-              Değişiklikleri kaydet
-            </button>
-          )}
-        </form>
+            )}
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -291,7 +283,7 @@ const SettingsView = () => {
         <GenericMessageDialog
           open={successDialogOpen}
           onClose={() => setSuccessDialogOpen(false)}
-          title="Şifre başarıyla değiştirildi"
+          title="Şifre Değiştirildi"
           message="Şifre başarıyla değiştirildi. Tekrar giriş yapmalısınız."
         />
       )}

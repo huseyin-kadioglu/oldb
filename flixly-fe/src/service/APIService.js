@@ -204,6 +204,25 @@ export const getBookApprovals = async () => {
 };
 
 // BOOK SERVICE
+export const getFilteredBooks = async ({ nobelOnly, country, yearFrom, yearTo, minRating } = {}) => {
+  const token = sessionStorage.getItem("token");
+  const params = new URLSearchParams();
+  if (nobelOnly) params.append("nobelOnly", "true");
+  if (country) params.append("country", country);
+  if (yearFrom) params.append("yearFrom", yearFrom);
+  if (yearTo) params.append("yearTo", yearTo);
+  if (minRating > 0) params.append("minRating", minRating);
+
+  const response = await fetch(`${BASE_URL}books/filter?${params}`, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) throw new Error(`Filtre isteği başarısız (${response.status})`);
+  return response.json();
+};
+
 export const getBooks = async () => {
   const token = sessionStorage.getItem("token");
 
@@ -245,7 +264,10 @@ export const getBooksByPublishYear = async (publishYear) => {
 // AUTHOR SERVICE
 export const getAuthorById = async (id) => {
   try {
-    const response = await axios.get(`${AUTHOR_API}${id}`);
+    const token = sessionStorage.getItem("token");
+    const response = await axios.get(`${AUTHOR_API}${id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     return response.data;
   } catch (error) {
     console.error("Yazarlar alınırken hata oluştu:", error);
@@ -388,6 +410,55 @@ export const createAccount = async (param) => {
     console.error("Create error:", error);
     throw error;
   }
+};
+
+export const getProfileBookList = async (username, listType) => {
+  const token = sessionStorage.getItem("token");
+  const response = await fetch(`${BASE_URL}profile/${username}/list/${listType}`, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) throw new Error("Liste alınamadı");
+  return response.json();
+};
+
+export const getPendingAvatars = async () => {
+  const token = sessionStorage.getItem("token");
+  const response = await fetch(`${BASE_URL}admin/pending-avatars`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.json();
+};
+
+export const approveAvatar = async (userId) => {
+  const token = sessionStorage.getItem("token");
+  await fetch(`${BASE_URL}admin/pending-avatars/${userId}/approve`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const rejectAvatar = async (userId) => {
+  const token = sessionStorage.getItem("token");
+  await fetch(`${BASE_URL}admin/pending-avatars/${userId}/reject`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const rateAuthor = async (authorId, rating) => {
+  const token = sessionStorage.getItem("token");
+  const response = await fetch(`${BASE_URL}authors/${authorId}/rate`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ rating }),
+  });
+  if (!response.ok) throw new Error("Rating gönderilemedi");
 };
 
 export const updateProfile = async (payload) => {
