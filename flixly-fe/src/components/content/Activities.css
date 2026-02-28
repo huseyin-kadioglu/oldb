@@ -1,10 +1,7 @@
 /* src/components/activies/Activies.css */
 
 .activies-container {
-  max-width: 1000px;
-  display: grid;
-  justify-items: center;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .no-activity-message {

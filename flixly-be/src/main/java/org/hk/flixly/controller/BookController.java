@@ -37,7 +37,23 @@ public class BookController {
 
     @GetMapping("/publishYear/{publishYear}")
     public BookResponse findByPublishYear(@PathVariable Integer publishYear) {
-
         return bookService.findAllByPublishYear(publishYear);
+    }
+
+    @GetMapping("/filter")
+    public BookResponse filterBooks(
+            @RequestParam(required = false, defaultValue = "false") boolean nobelOnly,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) Integer yearFrom,
+            @RequestParam(required = false) Integer yearTo,
+            @RequestParam(required = false, defaultValue = "0") double minRating,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Long userId = null;
+        if (userDetails != null) {
+            userId = userRepository.findByEmail(userDetails.getUsername())
+                    .map(UserEntity::getId).orElse(null);
+        }
+        return bookService.getFilteredBooks(userId, nobelOnly, country, yearFrom, yearTo, minRating);
     }
 }

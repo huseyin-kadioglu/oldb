@@ -43,6 +43,8 @@ public class UserEntity implements UserDetails {
 
     private String role; // "USER", "ADMIN" gibi
     private int contributionPoint;
+    private String avatarUrl;
+    private String pendingAvatarUrl;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

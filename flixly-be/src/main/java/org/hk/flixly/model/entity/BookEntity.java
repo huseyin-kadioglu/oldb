@@ -38,7 +38,7 @@ public class BookEntity {
     @Column(length = 500)
     private String adminNotes;
 
-    private boolean isEditorChoice;
-    private boolean isWeeklyPick;
-    private boolean isNewRelease;
+    //private boolean isEditorChoice;
+    //private boolean isWeeklyPick;
+    //private boolean isNewRelease;
 }

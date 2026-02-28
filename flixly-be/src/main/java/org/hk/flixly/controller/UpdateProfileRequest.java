@@ -9,4 +9,5 @@ public class UpdateProfileRequest {
     private String username;
     private String location;
     private String bio;
+    private String avatarUrl;
 }

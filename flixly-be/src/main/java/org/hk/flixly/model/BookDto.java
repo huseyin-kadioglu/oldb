@@ -22,10 +22,17 @@ public class BookDto {
     private boolean isLiked;
     private boolean isFavourite;
     private boolean isInReadList;
+    private boolean isInLibrary;
     private boolean isWonNobelPrize;
 
     private long howManyPplLiked;
     private long howManyPplFavourited;
     private long howManyPplAddedToReadList;
     private long howManyPplDropped;
+
+    private double averageRating;
+    private long ratingCount;
+
+    private String authorName;
+    private String authorCountry;
 }

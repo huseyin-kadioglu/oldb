@@ -88,6 +88,9 @@ public class ProfileService {
 
         response.setFavoriteBooks(statusBookListMap.getOrDefault("FAVOURITE", Collections.emptyList()));
         response.setReadList(statusBookListMap.getOrDefault("READLIST", Collections.emptyList()));
+        response.setCompletedBooks(statusBookListMap.getOrDefault("COMPLETED", Collections.emptyList()));
+        response.setLibraryBooks(statusBookListMap.getOrDefault("LIBRARY", Collections.emptyList()));
+        response.setContributionPoint(userEntity.getContributionPoint());
 
         // Aktivite listesi
         List<UserActivityEntity> userActivities = activityRepository.findAllByUserId(userEntity.getId());
@@ -240,6 +243,9 @@ public class ProfileService {
 
         response.setFavoriteBooks(statusBookListMap.getOrDefault("FAVOURITE", Collections.emptyList()));
         response.setReadList(statusBookListMap.getOrDefault("READLIST", Collections.emptyList()));
+        response.setCompletedBooks(statusBookListMap.getOrDefault("COMPLETED", Collections.emptyList()));
+        response.setLibraryBooks(statusBookListMap.getOrDefault("LIBRARY", Collections.emptyList()));
+        response.setContributionPoint(userEntity.getContributionPoint());
 
         // Aktivite listesi
         List<UserActivityEntity> userActivities = activityRepository.findAllByUserId(userEntity.getId());
@@ -355,6 +361,10 @@ public class ProfileService {
             userEntity.setLocation(request.getLocation());
         }
 
+        if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
+            userEntity.setPendingAvatarUrl(request.getAvatarUrl());
+        }
+
         userRepository.save(userEntity);
 
         return buildProfileInfo(userEntity);
@@ -383,5 +393,20 @@ public class ProfileService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    public List<BookEntity> getBookListByStatus(String username, String status) {
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
+
+        List<Long> bookIds = userBookMaps.stream()
+                .filter(ub -> status.equalsIgnoreCase(ub.getStatus()))
+                .map(UserBookMapEntity::getBookId)
+                .distinct()
+                .toList();
+
+        return bookRepository.findAllById(bookIds);
     }
 }

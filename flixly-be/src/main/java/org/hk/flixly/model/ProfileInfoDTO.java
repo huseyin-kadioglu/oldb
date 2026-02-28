@@ -20,7 +20,10 @@ public class ProfileInfoDTO {
     private Integer bookReadThisYear;
     private List<BookEntity> favoriteBooks;
     private List<BookEntity> readList;
+    private List<BookEntity> completedBooks;
+    private List<BookEntity> libraryBooks;
     private List<UserActivityWithBookDTO> recentActivity;
     private List<ReviewWithBookInfoDto> reviews;
+    private Integer contributionPoint;
 
 }

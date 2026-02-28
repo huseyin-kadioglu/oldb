@@ -26,17 +26,22 @@ const Activies = () => {
   const hasReviews = profileSummary?.reviews?.length > 0;
 
   return (
-    <div className="activies-container">
-      {loading && <div className="loading-message">Yükleniyor...</div>}
-      {error && <div className="error-message">{error}</div>}
+    <div className="page-layout">
+      <main className="page-main">
+        <div className="activies-container">
+          {loading && <div className="loading-message">Yükleniyor...</div>}
+          {error && <div className="error-message">{error}</div>}
 
-      {!loading && !hasReviews && (
-        <div className="no-activity-message">
-          Henüz bir aktivite bulunamadı.
+          {!loading && !hasReviews && (
+            <div className="no-activity-message">
+              Henüz bir aktivite bulunamadı.
+            </div>
+          )}
+
+          {!loading && hasReviews && <Review reviews={profileSummary.reviews} />}
         </div>
-      )}
-
-      {!loading && hasReviews && <Review reviews={profileSummary.reviews} />}
+      </main>
+      <aside className="page-sidebar" aria-hidden="true" />
     </div>
   );
 };

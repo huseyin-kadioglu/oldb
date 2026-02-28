@@ -2,10 +2,13 @@ package org.hk.flixly.controller;
 
 import org.hk.flixly.model.ChangePasswordRequest;
 import org.hk.flixly.model.ProfileInfoDTO;
+import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.service.ProfileService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -52,5 +55,10 @@ public class ProfileSummaryController {
         );
     }
 
+    @GetMapping("/{username}/list/{listType}")
+    public List<BookEntity> getBookList(@PathVariable String username,
+                                        @PathVariable String listType) {
+        return profileService.getBookListByStatus(username, listType.toUpperCase());
+    }
 
 }
