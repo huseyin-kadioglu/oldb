@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.hk</groupId>
-    <artifactId>flixly</artifactId>
+    <artifactId>oldb-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>flixly</name>
-    <description>Book Archive</description>
+    <name>oldb-backend</name>
+    <description>Oldb Book Archive API</description>
     <url/>
     <licenses>
         <license/>

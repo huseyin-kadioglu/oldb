@@ -1,7 +1,7 @@
 import "font-awesome/css/font-awesome.min.css";
 import AddIcon from "@mui/icons-material/Add";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./NavigationBar.css";
 import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
@@ -15,6 +15,7 @@ const NavigationBar = ({
   setSuccessDialogOpen,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [showSignInPanel, setShowSignInPanel] = useState(false);
   const [showCreateAccountPanel, setShowCreateAccountPanel] = useState(false);
@@ -22,6 +23,19 @@ const NavigationBar = ({
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {}, [token]);
+
+  useEffect(() => {
+    if (location.pathname === "/signup") {
+      setShowCreateAccountPanel(true);
+    }
+  }, [location.pathname]);
+
+  const handleCloseCreateAccount = () => {
+    setShowCreateAccountPanel(false);
+    if (location.pathname === "/signup") {
+      navigate("/");
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -97,7 +111,7 @@ const NavigationBar = ({
         {showCreateAccountPanel && (
           <CreateAccountModal
             isOpen={showCreateAccountPanel}
-            onClose={() => setShowCreateAccountPanel(false)}
+            onClose={handleCloseCreateAccount}
             setSuccessDialogOpen={setSuccessDialogOpen}
           />
         )}

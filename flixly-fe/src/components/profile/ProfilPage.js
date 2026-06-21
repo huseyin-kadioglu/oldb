@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import ProfileSummary from "./ProfileSummary";
 import FrameBlock from "./../common/FrameBlock";
 import Review from "./Review";
-import { getProfileSummary } from "../../service/APIService";
+import { getProfileSummaryByUsername } from "../../service/APIService";
 import "./ProfilePage.css";
 
 const ProfilePage = () => {
@@ -22,7 +22,7 @@ const ProfilePage = () => {
 
   const fetchProfileSummary = async () => {
     try {
-      const data = await getProfileSummary(username);
+      const data = await getProfileSummaryByUsername(username);
       console.log("ProfilePage rendered! Fetching data for", username);
       setProfileSummary(data);
     } catch (err) {

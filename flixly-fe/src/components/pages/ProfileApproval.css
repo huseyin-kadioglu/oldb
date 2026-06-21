@@ -1,0 +1,111 @@
+.approval-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.approval-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.approval-banner {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 197, 24, 0.12);
+  color: var(--color-text);
+}
+
+.approval-status,
+.approval-empty {
+  color: var(--color-text-secondary);
+}
+
+.approval-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.approval-card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-color);
+  background: var(--color-background-secondary);
+}
+
+.approval-avatars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.approval-avatar-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.approval-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.approval-img,
+.approval-img-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line-color);
+}
+
+.approval-img-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  background: var(--color-background);
+}
+
+.approval-arrow {
+  color: var(--color-text-muted);
+}
+
+.approval-username {
+  margin: 0 0 0.75rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.approval-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.approval-btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.approval-btn--approve {
+  background: var(--color-primary-button);
+  color: #111;
+}
+
+.approval-btn--reject {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--line-color);
+}

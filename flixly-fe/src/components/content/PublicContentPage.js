@@ -43,7 +43,7 @@ const PublicContentPage = () => {
         </div>
       </div>
 
-      <Link to="/register" className="signup-button">
+      <Link to="/signup" className="signup-button">
         Hemen Kaydol
       </Link>
     </div>

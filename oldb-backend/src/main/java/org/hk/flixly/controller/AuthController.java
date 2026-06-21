@@ -3,6 +3,7 @@ package org.hk.flixly.controller;
 import org.hk.flixly.model.LoginResponse;
 import org.hk.flixly.model.LoginUserDto;
 import org.hk.flixly.model.RegisterUserDto;
+import org.hk.flixly.model.SignupResponse;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.service.AuthenticationService;
 import org.hk.flixly.service.JwtService;
@@ -30,9 +31,9 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserEntity> register(@RequestBody RegisterUserDto dto) {
-        UserEntity registeredUser = authenticationService.signup(dto);
-        return ResponseEntity.ok(registeredUser);
+    public ResponseEntity<SignupResponse> register(@RequestBody RegisterUserDto dto) {
+        SignupResponse response = authenticationService.signup(dto);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(value = "/activate", produces = MediaType.TEXT_HTML_VALUE)

@@ -12,7 +12,7 @@ import {
   DialogActions,
   Divider,
 } from "@mui/material";
-import { createAccount } from "../../service/APIService";
+import { createAccount, extractApiErrorMessage } from "../../service/APIService";
 import GenericMessageDialog from "../common/GenericMessageDialog";
 
 const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
@@ -21,22 +21,43 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [privacyPolicy, setPrivacyPolicy] = useState(false);
+  const [feedbackDialog, setFeedbackDialog] = useState(null);
 
   const handleCreateAccount = async () => {
-    console.log("HESAP OLUŞTURULUYOR.");
     try {
-      await createAccount({
+      const result = await createAccount({
         email,
         password,
         fullName,
         username,
       });
 
-      setSuccessDialogOpen(true);
+      const isResent = result?.status === "ACTIVATION_RESENT";
+
+      setFeedbackDialog({
+        title: isResent ? "Aktivasyon Maili Tekrar Gönderildi" : "Aktivasyon Maili Gönderildi",
+        message:
+          result?.message ||
+          (isResent
+            ? "Bu e-posta ile kayıtlı ancak aktifleştirilmemiş bir hesap bulundu. Yeni aktivasyon maili gönderildi."
+            : "Lütfen e-posta kutunuzu kontrol ederek hesabınızı aktifleştirin."),
+      });
 
       onClose();
     } catch (error) {
-      alert(error.message);
+      const code = error.response?.data?.code;
+      let title = "Kayıt Başarısız";
+
+      if (code === "EMAIL_ALREADY_ACTIVE") {
+        title = "E-posta Zaten Kayıtlı";
+      } else if (code === "USERNAME_TAKEN") {
+        title = "Kullanıcı Adı Kullanımda";
+      }
+
+      setFeedbackDialog({
+        title,
+        message: extractApiErrorMessage(error, "Hesap oluşturulamadı."),
+      });
     }
   };
 
@@ -53,7 +74,7 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
           <DialogTitle>
             <Typography
               variant="h6"
-              component="div" // 🔥 BURADA düzeltme yapıldı
+              component="div"
               sx={{
                 color: "var(--color-primary-button)",
                 fontWeight: "bold",
@@ -189,6 +210,15 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
           </DialogActions>
         </Box>
       </Dialog>
+
+      {feedbackDialog && (
+        <GenericMessageDialog
+          open={!!feedbackDialog}
+          onClose={() => setFeedbackDialog(null)}
+          title={feedbackDialog.title}
+          message={feedbackDialog.message}
+        />
+      )}
     </>
   );
 };

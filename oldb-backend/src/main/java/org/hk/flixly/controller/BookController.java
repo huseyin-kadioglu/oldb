@@ -1,5 +1,6 @@
 package org.hk.flixly.controller;
 
+import org.hk.flixly.model.BookDto;
 import org.hk.flixly.model.BookResponse;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.repository.UserRepository;
@@ -55,5 +56,16 @@ public class BookController {
                     .map(UserEntity::getId).orElse(null);
         }
         return bookService.getFilteredBooks(userId, nobelOnly, country, yearFrom, yearTo, minRating);
+    }
+
+    @GetMapping("/{bookId}")
+    public BookDto findById(@PathVariable Long bookId,
+                            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = null;
+        if (userDetails != null) {
+            userId = userRepository.findByEmail(userDetails.getUsername())
+                    .map(UserEntity::getId).orElse(null);
+        }
+        return bookService.findById(bookId, userId);
     }
 }

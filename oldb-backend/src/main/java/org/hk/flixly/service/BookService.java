@@ -262,6 +262,33 @@ public class BookService {
         return response;
     }
 
+    public BookDto findById(Long bookId, Long userId) {
+        BookEntity book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found: " + bookId));
+
+        Map<Long, Set<String>> userBookStatusMap = Collections.emptyMap();
+        if (userId != null) {
+            List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userId);
+            userBookStatusMap = userBookMaps.stream()
+                    .collect(Collectors.groupingBy(
+                            UserBookMapEntity::getBookId,
+                            Collectors.mapping(UserBookMapEntity::getStatus, Collectors.toSet())
+                    ));
+        }
+
+        Map<Long, Map<String, Integer>> bookStatusCountsMap = mapTotalStats();
+        Map<Long, double[]> ratingMap = buildRatingMap();
+        Map<Long, AuthorEntity> authorMap = buildAuthorMap(List.of(book));
+
+        return mapBookEntityToResponse(
+                List.of(book),
+                userBookStatusMap,
+                bookStatusCountsMap,
+                ratingMap,
+                authorMap
+        ).get(0);
+    }
+
     public void createApprovedBook(BookApprovalDto dto) {
         BookEntity bookEntity = new BookEntity();
         bookEntity.setTitle(dto.getTitle());

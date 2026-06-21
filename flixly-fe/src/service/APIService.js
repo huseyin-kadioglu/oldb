@@ -401,9 +401,21 @@ export const loginAccount = async (param) => {
   }
 };
 
+export const extractApiErrorMessage = (error, fallback = "Bir hata oluştu.") => {
+  if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+    return "Sunucuya bağlanılamadı. Backend (localhost:8080) çalışıyor mu?";
+  }
+
+  const data = error.response?.data;
+  if (typeof data === "string") return data;
+  if (data?.message) return data.message;
+  if (typeof data?.error === "string") return data.error;
+
+  return error.message || fallback;
+};
+
 export const createAccount = async (param) => {
   try {
-    console.log("creatcreateAccounteUserActivity", param);
     const response = await axios.post(SIGNUP_API, param);
     return response.data;
   } catch (error) {

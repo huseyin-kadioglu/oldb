@@ -45,3 +45,34 @@ Ayrıca kullanıcılar kitap ekleyerek community'e destek olabilir, bunun karş�
 - Font Awesome
 - Backend API (REST veya GraphQL)
 - Session Storage tabanlı token yönetimi
+
+---
+
+## Kurulum
+
+### Gereksinimler
+
+- Node.js 18+
+- Java 17
+- Docker (PostgreSQL)
+
+### Veritabanı
+
+```bash
+docker compose up -d
+```
+
+### Backend
+
+```bash
+cd oldb-backend
+./mvnw spring-boot:run
+```
+
+### Frontend
+
+```bash
+cd oldb-frontend   # geçiş sürecinde klasör adı flixly-fe olabilir
+npm install
+npm start
+```

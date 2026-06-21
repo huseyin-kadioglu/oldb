@@ -1,10 +1,14 @@
 package org.hk.flixly.service;
 
+import org.hk.flixly.exception.SignupConflictException;
 import org.hk.flixly.model.LoginUserDto;
 import org.hk.flixly.model.MailRequest;
 import org.hk.flixly.model.RegisterUserDto;
+import org.hk.flixly.model.SignupResponse;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +22,8 @@ import java.util.UUID;
 
 @Service
 public class AuthenticationService {
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
+
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder passwordEncoder;
@@ -37,13 +43,37 @@ public class AuthenticationService {
         this.mailService = mailService;
     }
 
-    public UserEntity signup(RegisterUserDto dto) {
-        // Email veya username kontrolü
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("Bu e-posta zaten kayıtlı");
+    public SignupResponse signup(RegisterUserDto dto) {
+        Optional<UserEntity> existingByEmail = userRepository.findByEmail(dto.getEmail());
+        if (existingByEmail.isPresent()) {
+            UserEntity existing = existingByEmail.get();
+            if (existing.isStatus()) {
+                throw new SignupConflictException(
+                        "EMAIL_ALREADY_ACTIVE",
+                        "Bu e-posta zaten kayıtlı. Giriş yapabilirsiniz."
+                );
+            }
+            existing.setPassword(passwordEncoder.encode(dto.getPassword()));
+            if (dto.getFullName() != null && !dto.getFullName().isBlank()) {
+                existing.setFullName(dto.getFullName());
+            }
+            sendActivationEmail(existing);
+            return SignupResponse.activationResent();
         }
-        if (userRepository.existsByUsername(dto.getUsername())) {
-            throw new IllegalArgumentException("Bu kullanıcı adı zaten kayıtlı");
+
+        Optional<UserEntity> existingByUsername = userRepository.findByUsername(dto.getUsername());
+        if (existingByUsername.isPresent()) {
+            UserEntity existing = existingByUsername.get();
+            if (existing.isStatus()) {
+                throw new SignupConflictException(
+                        "USERNAME_TAKEN",
+                        "Bu kullanıcı adı zaten kullanılıyor."
+                );
+            }
+            throw new SignupConflictException(
+                    "USERNAME_TAKEN",
+                    "Bu kullanıcı adı zaten kullanılıyor."
+            );
         }
 
         UserEntity user = new UserEntity();
@@ -57,12 +87,18 @@ public class AuthenticationService {
         user.setTokenExpiry(LocalDateTime.now().plusHours(24));
 
         userRepository.save(user);
+        sendActivationEmail(user);
 
-        // URL encode
+        return SignupResponse.created();
+    }
+
+    private void sendActivationEmail(UserEntity user) {
+        user.setActivationToken(UUID.randomUUID().toString());
+        user.setTokenExpiry(LocalDateTime.now().plusHours(24));
+        userRepository.save(user);
+
         String encodedToken = URLEncoder.encode(user.getActivationToken(), StandardCharsets.UTF_8);
         String activationLink = "http://localhost:8080/api/auth/activate?token=" + encodedToken;
-
-        // HTML mail body
         String mailBody = buildActivationEmail(user.getFullName(), activationLink);
 
         MailRequest emailRequest = new MailRequest();
@@ -70,9 +106,14 @@ public class AuthenticationService {
         emailRequest.setSubject("Hesap Aktivasyonu");
         emailRequest.setBody(mailBody);
 
-        mailService.sendHtmlEmail(emailRequest);
-
-        return user;
+        try {
+            mailService.sendHtmlEmail(emailRequest);
+        } catch (RuntimeException ex) {
+            log.warn("Aktivasyon maili gönderilemedi: {}", user.getEmail(), ex);
+            throw new IllegalArgumentException(
+                    "Hesap kaydedildi ancak aktivasyon maili gönderilemedi. Lütfen daha sonra tekrar deneyin."
+            );
+        }
     }
 
     private String buildActivationEmail(String fullName, String link) {
