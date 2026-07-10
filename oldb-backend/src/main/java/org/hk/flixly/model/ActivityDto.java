@@ -17,6 +17,10 @@ public class ActivityDto {
     private double rating;
     private String comment;
     private String status;
-    private String actionType; // LIKE, FAVOURITE, READLIST
+    private String actionType; // LIKE, READ, READLIST, LIBRARY
     private String action; // ADD, REMOVE
+    /** LIBRARY durumunda: PHYSICAL veya PDF */
+    private String libraryFormat;
+    /** Okuma ilerlemesi (sayfa) */
+    private Integer currentPage;
 }

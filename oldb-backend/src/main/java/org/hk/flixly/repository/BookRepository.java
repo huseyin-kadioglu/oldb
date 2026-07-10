@@ -14,6 +14,12 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
 
     BookEntity findByTitleAndPublicationYear(String title, int publicationYear);
 
+    BookEntity findByOpenLibraryKey(String openLibraryKey);
+
+    java.util.Optional<BookEntity> findFirstByIsbn(String isbn);
+
+    long countByOpenLibraryKeyIsNotNull();
+
     @Query("SELECT b FROM BookEntity b WHERE " +
            "(:nobelOnly = false OR b.isWonNobelPrize = true) AND " +
            "(:yearFrom IS NULL OR b.publicationYear >= :yearFrom) AND " +

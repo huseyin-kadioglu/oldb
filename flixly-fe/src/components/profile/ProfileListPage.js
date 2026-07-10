@@ -5,9 +5,13 @@ import FrameBlock from "../common/FrameBlock";
 import "./ProfilePage.css";
 
 const LIST_TITLES = {
-  library: "Kütüphanem",
+  library: "Kütüphanem (sahip olduklarım)",
+  shopping: "Alınacaklar",
   readlist: "Okuma Listesi",
-  completed: "Tamamlananlar",
+  read: "Okunanlar",
+  completed: "Okunanlar",
+  dropped: "Bırakılanlar",
+  favorites: "Favori Kitaplar",
 };
 
 const ProfileListPage = () => {

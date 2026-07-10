@@ -1,6 +1,5 @@
 package org.hk.flixly.model.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,10 +18,17 @@ public class AuthorEntity {
 
     @Column(nullable = false, unique = true)
     private String name;
+
     private String portrait;
     private Integer birthYear;
     private Integer deathYear;
+
+    @Column(length = 4000)
     private String description;
+
     private String country;
 
+    /** Open Library author key, e.g. /authors/OL23919A */
+    @Column(unique = true)
+    private String openLibraryKey;
 }

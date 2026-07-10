@@ -52,7 +52,7 @@ public class AuthController {
         UserEntity authenticatedUser = authenticationService.authenticate(dto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
         LoginResponse response = new LoginResponse();
-        response.setUsername(authenticatedUser.getUsername());
+        response.setUsername(authenticatedUser.getProfilName());
         response.setToken(jwtToken);
         response.setExpiresIn(jwtService.getExpirationTime());
         response.setProfileName(authenticatedUser.getProfilName());

@@ -16,10 +16,15 @@ public class AuthorDto {
     private Integer deathYear;
     private String description;
     private String country;
+    /** Ham kitap listesi (geriye uyumluluk) */
     private List<BookEntity> bookWrittenBy;
+    /** Kullanıcı durumlarıyla zenginleştirilmiş kitaplar */
+    private List<BookDto> books;
     private List<BookEntity> haveBeenReadByTheUser;
+    private int userReadCount;
+    private int totalBookCount;
 
     private double averageRating;
     private long ratingCount;
-    private double userRating; // logged-in user's own rating (0 if not rated)
+    private double userRating;
 }

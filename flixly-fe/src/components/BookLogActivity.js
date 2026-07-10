@@ -1,120 +1,97 @@
-import {
-  Box,
-  Typography,
-  Tooltip,
-  Grid,
-  Paper,
-  Button,
-  FormControl,
-  TextField,
-} from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import "./BookLogActivity.css";
-import PhotoFrame from "./frame/PhotoFrame";
+import CoverImage from "./ui/CoverImage";
 import { useState } from "react";
 import RatingUtil from "./common/Rating";
 import MinimalDatePicker from "./common/MinimalDatePicker";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
-import ThumbDownIcon from "@mui/icons-material/ThumbDown";
-import BlockIcon from "@mui/icons-material/Block";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import StarIcon from "@mui/icons-material/Star";
 import StatusSelector from "./common/StatusSelector";
 
-const BookLogActivity = ({ selectedBook, setPayload }) => {
+const BookLogActivity = ({ selectedBook, onSubmit }) => {
   const [activityStatus, setActivityStatus] = useState(null);
+  const [libraryFormat, setLibraryFormat] = useState("PHYSICAL");
   const [rating, setRating] = useState(null);
   const [readDate, setReadDate] = useState(null);
   const [comment, setComment] = useState("");
 
-  const clearForm = () => {
-    setActivityStatus(null);
-    setRating(null);
-    setReadDate(null);
-    setComment("");
-  };
-
-  const preparePayload = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (!activityStatus) {
       alert("Lütfen bir durum seçiniz.");
       return;
     }
 
-    const result = {
+    onSubmit({
       bookId: selectedBook?.id,
       authorId: selectedBook?.authorId,
       status: activityStatus,
       rating,
-      readDate,
+      readDate: readDate ? readDate.format("YYYY-MM-DD") : null,
       comment,
       actionType: activityStatus,
-    };
-
-    setPayload(result);
-    clearForm();
+      libraryFormat: activityStatus === "LIBRARY" ? libraryFormat : null,
+    });
   };
 
   return (
-    <div className="log-activity">
-      <div className="summary">
-        <PhotoFrame
-          book={selectedBook}
-          showGhostMenu={true}
-          justShowCover={true}
-          showTitle={false}
+    <form className="log-activity" onSubmit={handleSubmit}>
+      <div className="log-book-header">
+        <CoverImage
+          src={selectedBook?.coverUrl}
+          alt={selectedBook?.title}
+          className="log-book-cover"
+        />
+        <div className="log-book-meta">
+          <h3 className="log-book-title">{selectedBook?.title}</h3>
+          <p className="log-book-author">{selectedBook?.authorName || "—"}</p>
+          {selectedBook?.originalTitle && (
+            <p className="log-book-original">{selectedBook.originalTitle}</p>
+          )}
+        </div>
+      </div>
+
+      <StatusSelector
+        value={activityStatus}
+        onChange={setActivityStatus}
+        libraryFormat={libraryFormat}
+        onLibraryFormatChange={setLibraryFormat}
+      />
+
+      <MinimalDatePicker readDate={readDate} setReadDate={setReadDate} />
+
+      <div className="log-field">
+        <p className="log-field-label">Açıklama (isteğe bağlı)</p>
+        <TextField
+          multiline
+          minRows={3}
+          fullWidth
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Not veya kısa yorum ekleyebilirsiniz."
+          variant="outlined"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              backgroundColor: "var(--color-background-input)",
+              color: "var(--color-text)",
+              borderRadius: "var(--radius-md)",
+              "& fieldset": { borderColor: "var(--color-border-subtle)" },
+              "&:hover fieldset": { borderColor: "var(--color-text-muted)" },
+              "&.Mui-focused fieldset": { borderColor: "var(--color-primary-button)" },
+            },
+          }}
         />
       </div>
-      <div>
-        <FormControl className="add">
-          <div className="status-box">
-            <StatusSelector
-              value={activityStatus}
-              onChange={setActivityStatus}
-            />
-          </div>
-          <MinimalDatePicker readDate={readDate} setReadDate={setReadDate} />
-          <TextField
-            label="Açıklama (isteğe bağlı)"
-            multiline
-            minRows={3}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Not veya kısa yorum ekleyebilirsiniz."
-            InputLabelProps={{ sx: { color: "var(--color-text-muted)" } }}
-            sx={{
-              mt: 2,
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "var(--color-background-input)",
-                color: "var(--color-text)",
-                borderRadius: "var(--radius-sm)",
-                "& fieldset": { borderColor: "var(--line-color)" },
-                "&:hover fieldset": { borderColor: "var(--color-text-muted)" },
-                "&.Mui-focused fieldset": { borderColor: "var(--color-primary-button)" },
-              },
-            }}
-          />
 
-          <RatingUtil rating={rating} setRating={setRating} />
-          <div className="footer">
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={preparePayload}
-              sx={{
-                backgroundColor: "var(--color-primary-button)",
-                color: "#000",
-                "&:hover": {
-                  backgroundColor: "var(--color-button-hover)",
-                },
-              }}
-            >
-              Kütüphaneye Ekle
-            </Button>
-          </div>
-        </FormControl>
+      <div className="log-field">
+        <p className="log-field-label">Kitap puanı</p>
+        <RatingUtil rating={rating} setRating={setRating} />
       </div>
-    </div>
+
+      <div className="log-footer">
+        <Button type="submit" fullWidth variant="contained" className="log-submit-btn">
+          Aktiviteyi Kaydet
+        </Button>
+      </div>
+    </form>
   );
 };
 

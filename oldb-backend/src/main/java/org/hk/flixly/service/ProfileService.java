@@ -7,6 +7,7 @@ import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.UserActivityEntity;
 import org.hk.flixly.model.entity.UserBookMapEntity;
+import org.hk.flixly.model.enums.BookActivityStatus;
 import org.hk.flixly.repository.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +18,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,378 +31,345 @@ public class ProfileService {
     private final UserBookMapRepository bookMapRepository;
     private final ActivityRepository activityRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public static long daysSinceStartOfYear() {
-        LocalDate now = LocalDate.now();
-        LocalDate startOfYear = LocalDate.of(now.getYear(), 1, 1);
-        return ChronoUnit.DAYS.between(startOfYear, now);
-    }
+    private final GamificationService gamificationService;
+    private final GenrePreferenceService genrePreferenceService;
 
     public ProfileInfoDTO getProfileInfo(UserDetails userDetails) {
+        UserEntity user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        return buildProfileInfo(user);
+    }
 
-        String username = userDetails.getUsername();
-        UserEntity userEntity = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ProfileInfoDTO getProfileInfo(String identifier, UserDetails userDetails) {
+        UserEntity user = resolveUser(identifier);
+        return buildProfileInfo(user);
+    }
 
+    private UserEntity resolveUser(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            throw new RuntimeException("Kullanıcı bulunamadı");
+        }
+        return userRepository.findByUsername(identifier)
+                .or(() -> userRepository.findByEmail(identifier))
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + identifier));
+    }
 
+    private ProfileInfoDTO buildProfileInfo(UserEntity userEntity) {
         ProfileInfoDTO response = new ProfileInfoDTO();
-        response.setUsername(username);
+        response.setUsername(userEntity.getProfilName());
         response.setProfileName(userEntity.getProfilName());
+        response.setEmail(userEntity.getEmail());
         response.setBio(userEntity.getBio());
         response.setLocation(userEntity.getLocation());
+        response.setContributionPoint(userEntity.getContributionPoint());
 
-        // Kullanıcının kitap etkileşimleri
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
 
-        // Etkileşime girilen kitap ID'leri
         List<Long> bookIds = userBookMaps.stream()
                 .map(UserBookMapEntity::getBookId)
                 .distinct()
                 .toList();
 
-        // Kitap ID -> BookEntity
         List<BookEntity> bookEntities = bookRepository.findAllById(bookIds);
         Map<Long, BookEntity> bookIdToEntityMap = bookEntities.stream()
                 .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
 
-        // Tüm authorId'leri toplayalım
         Set<Long> authorIds = bookEntities.stream()
                 .map(BookEntity::getAuthorId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        // Author ID -> AuthorEntity map'i
-        List<AuthorEntity> authors = authorRepository.findAllById(authorIds);
-        Map<Long, AuthorEntity> authorIdToEntityMap = authors.stream()
+        Map<Long, AuthorEntity> authorIdToEntityMap = authorRepository.findAllById(authorIds).stream()
                 .collect(Collectors.toMap(AuthorEntity::getId, Function.identity()));
 
-        // Status -> List<BookEntity> map'i
         Map<String, List<BookEntity>> statusBookListMap = userBookMaps.stream()
                 .collect(Collectors.groupingBy(
                         UserBookMapEntity::getStatus,
                         Collectors.mapping(
                                 map -> bookIdToEntityMap.get(map.getBookId()),
-                                Collectors.toList()
+                                Collectors.filtering(Objects::nonNull, Collectors.toList())
                         )
                 ));
 
-        response.setFavoriteBooks(statusBookListMap.getOrDefault("FAVOURITE", Collections.emptyList()));
-        response.setReadList(statusBookListMap.getOrDefault("READLIST", Collections.emptyList()));
-        response.setCompletedBooks(statusBookListMap.getOrDefault("COMPLETED", Collections.emptyList()));
-        response.setLibraryBooks(statusBookListMap.getOrDefault("LIBRARY", Collections.emptyList()));
-        response.setContributionPoint(userEntity.getContributionPoint());
+        response.setFavoriteBooks(statusBookListMap.getOrDefault(BookActivityStatus.FAVOURITE, Collections.emptyList()));
+        response.setReadList(statusBookListMap.getOrDefault(BookActivityStatus.READLIST, Collections.emptyList()));
+        List<BookEntity> readBooks = mergeReadLists(statusBookListMap);
+        response.setReadBooks(readBooks);
+        response.setCompletedBooks(readBooks);
+        response.setLibraryBooks(statusBookListMap.getOrDefault(BookActivityStatus.LIBRARY, Collections.emptyList()));
+        response.setShoppingBooks(statusBookListMap.getOrDefault(BookActivityStatus.SHOPPING, Collections.emptyList()));
+        response.setDroppedBooks(statusBookListMap.getOrDefault(BookActivityStatus.DROPPED, Collections.emptyList()));
 
-        // Aktivite listesi
         List<UserActivityEntity> userActivities = activityRepository.findAllByUserId(userEntity.getId());
-        List<UserActivityWithBookDTO> recentActivityList = new ArrayList<>();
+        response.setRecentActivity(buildRecentActivities(userActivities, bookIdToEntityMap, authorIdToEntityMap));
+        response.setReviews(buildReviews(userActivities, bookIdToEntityMap, authorIdToEntityMap));
+        applyReadingStats(response, userActivities, bookIdToEntityMap, readBooks.size());
 
-        for (UserActivityEntity activity : userActivities) {
-            BookEntity book = bookIdToEntityMap.get(activity.getBookId());
-            if (book == null) continue;
-
-            UserActivityWithBookDTO recentActivity = new UserActivityWithBookDTO();
-            recentActivity.setBookId(activity.getBookId());
-            recentActivity.setBookTitle(book.getTitle());
-            recentActivity.setCoverUrl(book.getCoverUrl());
-            recentActivity.setReadDate(activity.getReadDate());
-            recentActivity.setUserId(activity.getUserId());
-            recentActivity.setRating(activity.getRating());
-            recentActivity.setComment(activity.getComment());
-            recentActivity.setStatus(activity.getStatus());
-            recentActivity.setUpdateDate(activity.getUpdateDate());
-
-            recentActivityList.add(recentActivity);
-        }
-
-        response.setRecentActivity(recentActivityList);
-
-        int totalBooksRead = userActivities.size();
-        int booksReadThisYear = 0;
-        AtomicInteger totalPagesReadThisYear = new AtomicInteger(0);
-        LocalDate firstReadDate = null;
-
+        response.setContinueReading(buildContinueReading(userBookMaps, bookIdToEntityMap, authorIdToEntityMap));
         try {
-            for (UserActivityEntity activity : userActivities) {
-                if (activity.getReadDate() == null) continue;
-
-                if (activity.getReadDate().getYear() == LocalDate.now().getYear()) {
-                    booksReadThisYear++;
-
-                    BookEntity book = bookIdToEntityMap.get(activity.getBookId());
-                    if (book != null) {
-                        totalPagesReadThisYear.addAndGet(book.getPageCount());
-
-                        if (firstReadDate == null || activity.getReadDate().isBefore(firstReadDate)) {
-                            firstReadDate = activity.getReadDate();
-                        }
-                    }
-                }
-            }
-
-            response.setBookRead(totalBooksRead);
-            response.setBookReadThisYear(booksReadThisYear);
-
-            long daysThisYear = daysSinceStartOfYear();
-            double averagePagesPerDay = (daysThisYear > 0)
-                    ? (double) totalPagesReadThisYear.get() / daysThisYear
-                    : 0;
-
-            BigDecimal rounded = new BigDecimal(averagePagesPerDay)
-                    .setScale(2, RoundingMode.HALF_UP);
-            response.setPagePerDay(rounded.doubleValue());
-
-            // Review'lar
-            List<ReviewWithBookInfoDto> reviews = new ArrayList<>();
-
-            for (UserActivityEntity activity : userActivities) {
-                if (activity.getReadDate() == null ||
-                        activity.getComment() == null ||
-                        activity.getComment().isBlank()) {
-                    continue;
-                }
-
-                BookEntity book = bookIdToEntityMap.get(activity.getBookId());
-                if (book == null) continue;
-
-                ReviewWithBookInfoDto review = new ReviewWithBookInfoDto();
-                review.setBookId(book.getId());
-                review.setTitle(book.getTitle());
-                review.setCoverUrl(book.getCoverUrl());
-                review.setYear(book.getPublicationYear());
-                review.setReadDate(activity.getReadDate());
-                review.setComment(activity.getComment());
-
-                // Author adı authorId üzerinden alınıyor
-                if (book.getAuthorId() != null) {
-                    AuthorEntity author = authorIdToEntityMap.get(book.getAuthorId());
-                    review.setAuthorName(author != null ? author.getName() : "Unknown");
-                } else {
-                    review.setAuthorName("Unknown");
-                }
-
-                reviews.add(review);
-            }
-
-            response.setReviews(reviews);
-
-        } catch (Exception e) {
-            response.setBookRead(0);
-            response.setBookReadThisYear(0);
+            response.setChallenges(gamificationService.getChallengesForUser(userEntity.getId()));
+            response.setEarnedBadges(
+                    gamificationService.getBadgesForUser(userEntity.getId()).stream()
+                            .filter(BadgeProgressDto::isEarned)
+                            .toList()
+            );
+        } catch (Exception ignored) {
+            response.setChallenges(Collections.emptyList());
+            response.setEarnedBadges(Collections.emptyList());
         }
+        try {
+            response.setGenrePreferences(genrePreferenceService.forUserId(userEntity.getId()));
+        } catch (Exception ignored) {
+            response.setGenrePreferences(Collections.emptyList());
+        }
+
+        // null-safe lists for FE
+        if (response.getFavoriteBooks() == null) response.setFavoriteBooks(Collections.emptyList());
+        if (response.getReadList() == null) response.setReadList(Collections.emptyList());
+        if (response.getReadBooks() == null) response.setReadBooks(Collections.emptyList());
+        if (response.getLibraryBooks() == null) response.setLibraryBooks(Collections.emptyList());
+        if (response.getShoppingBooks() == null) response.setShoppingBooks(Collections.emptyList());
+        if (response.getDroppedBooks() == null) response.setDroppedBooks(Collections.emptyList());
+        if (response.getContinueReading() == null) response.setContinueReading(Collections.emptyList());
+        if (response.getRecentActivity() == null) response.setRecentActivity(Collections.emptyList());
+        if (response.getReviews() == null) response.setReviews(Collections.emptyList());
 
         return response;
     }
 
-    public ProfileInfoDTO getProfileInfo(String userName, UserDetails userDetails) {
-
-        String username = userName;
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-
-        ProfileInfoDTO response = new ProfileInfoDTO();
-        response.setUsername(username);
-        response.setProfileName(userEntity.getProfilName());
-        response.setBio(userEntity.getBio());
-        response.setLocation(userEntity.getLocation());
-
-        // Kullanıcının kitap etkileşimleri
-        List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
-
-        // Etkileşime girilen kitap ID'leri
-        List<Long> bookIds = userBookMaps.stream()
-                .map(UserBookMapEntity::getBookId)
-                .distinct()
-                .toList();
-
-        // Kitap ID -> BookEntity
-        List<BookEntity> bookEntities = bookRepository.findAllById(bookIds);
-        Map<Long, BookEntity> bookIdToEntityMap = bookEntities.stream()
-                .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
-
-        // Tüm authorId'leri toplayalım
-        Set<Long> authorIds = bookEntities.stream()
-                .map(BookEntity::getAuthorId)
+    private List<ContinueReadingDto> buildContinueReading(
+            List<UserBookMapEntity> maps,
+            Map<Long, BookEntity> books,
+            Map<Long, AuthorEntity> authors) {
+        return maps.stream()
+                .filter(m -> BookActivityStatus.READLIST.equals(m.getStatus()))
+                .filter(m -> m.getCurrentPage() != null && m.getCurrentPage() > 0)
+                .map(m -> {
+                    BookEntity book = books.get(m.getBookId());
+                    if (book == null) return null;
+                    AuthorEntity author = book.getAuthorId() != null ? authors.get(book.getAuthorId()) : null;
+                    Integer total = book.getPageCount();
+                    Integer current = m.getCurrentPage();
+                    Integer pct = (total != null && total > 0)
+                            ? Math.min(100, (int) Math.round(100.0 * current / total))
+                            : null;
+                    return ContinueReadingDto.builder()
+                            .id(book.getId())
+                            .title(book.getTitle())
+                            .coverUrl(book.getCoverUrl())
+                            .authorId(book.getAuthorId())
+                            .authorName(author != null ? author.getName() : null)
+                            .pageCount(total)
+                            .currentPage(current)
+                            .progressPercent(pct)
+                            .build();
+                })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                .limit(5)
+                .toList();
+    }
 
-        // Author ID -> AuthorEntity map'i
-        List<AuthorEntity> authors = authorRepository.findAllById(authorIds);
-        Map<Long, AuthorEntity> authorIdToEntityMap = authors.stream()
-                .collect(Collectors.toMap(AuthorEntity::getId, Function.identity()));
+    private static List<BookEntity> mergeReadLists(Map<String, List<BookEntity>> statusBookListMap) {
+        List<BookEntity> read = new ArrayList<>(statusBookListMap.getOrDefault(BookActivityStatus.READ, Collections.emptyList()));
+        for (BookEntity book : statusBookListMap.getOrDefault(BookActivityStatus.COMPLETED, Collections.emptyList())) {
+            if (read.stream().noneMatch(b -> b.getId().equals(book.getId()))) {
+                read.add(book);
+            }
+        }
+        return read;
+    }
 
-        // Status -> List<BookEntity> map'i
-        Map<String, List<BookEntity>> statusBookListMap = userBookMaps.stream()
-                .collect(Collectors.groupingBy(
-                        UserBookMapEntity::getStatus,
-                        Collectors.mapping(
-                                map -> bookIdToEntityMap.get(map.getBookId()),
-                                Collectors.toList()
-                        )
-                ));
+    private List<UserActivityWithBookDTO> buildRecentActivities(
+            List<UserActivityEntity> activities,
+            Map<Long, BookEntity> bookMap,
+            Map<Long, AuthorEntity> authorMap) {
 
-        response.setFavoriteBooks(statusBookListMap.getOrDefault("FAVOURITE", Collections.emptyList()));
-        response.setReadList(statusBookListMap.getOrDefault("READLIST", Collections.emptyList()));
-        response.setCompletedBooks(statusBookListMap.getOrDefault("COMPLETED", Collections.emptyList()));
-        response.setLibraryBooks(statusBookListMap.getOrDefault("LIBRARY", Collections.emptyList()));
-        response.setContributionPoint(userEntity.getContributionPoint());
+        return activities.stream()
+                .sorted(Comparator.comparing(
+                        UserActivityEntity::getUpdateDate,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(activity -> {
+                    BookEntity book = bookMap.get(activity.getBookId());
+                    if (book == null) return null;
 
-        // Aktivite listesi
-        List<UserActivityEntity> userActivities = activityRepository.findAllByUserId(userEntity.getId());
-        List<UserActivityWithBookDTO> recentActivityList = new ArrayList<>();
+                    UserActivityWithBookDTO dto = new UserActivityWithBookDTO();
+                    dto.setBookId(activity.getBookId());
+                    dto.setBookTitle(book.getTitle());
+                    dto.setCoverUrl(book.getCoverUrl());
+                    dto.setReadDate(activity.getReadDate());
+                    dto.setUserId(activity.getUserId());
+                    dto.setRating(activity.getRating());
+                    dto.setComment(activity.getComment());
+                    dto.setStatus(activity.getStatus());
+                    dto.setUpdateDate(activity.getUpdateDate());
 
-        for (UserActivityEntity activity : userActivities) {
-            BookEntity book = bookIdToEntityMap.get(activity.getBookId());
+                    if (book.getAuthorId() != null) {
+                        AuthorEntity author = authorMap.get(book.getAuthorId());
+                        dto.setAuthorName(author != null ? author.getName() : null);
+                    }
+                    return dto;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private List<ReviewWithBookInfoDto> buildReviews(
+            List<UserActivityEntity> activities,
+            Map<Long, BookEntity> bookMap,
+            Map<Long, AuthorEntity> authorMap) {
+
+        List<ReviewWithBookInfoDto> reviews = new ArrayList<>();
+        for (UserActivityEntity activity : activities) {
+            if (activity.getReadDate() == null
+                    || activity.getComment() == null
+                    || activity.getComment().isBlank()) {
+                continue;
+            }
+            BookEntity book = bookMap.get(activity.getBookId());
             if (book == null) continue;
 
-            UserActivityWithBookDTO recentActivity = new UserActivityWithBookDTO();
-            recentActivity.setBookId(activity.getBookId());
-            recentActivity.setBookTitle(book.getTitle());
-            recentActivity.setCoverUrl(book.getCoverUrl());
-            recentActivity.setReadDate(activity.getReadDate());
-            recentActivity.setUserId(activity.getUserId());
-            recentActivity.setRating(activity.getRating());
-            recentActivity.setComment(activity.getComment());
-            recentActivity.setStatus(activity.getStatus());
-            recentActivity.setUpdateDate(activity.getUpdateDate());
+            ReviewWithBookInfoDto review = new ReviewWithBookInfoDto();
+            review.setBookId(book.getId());
+            review.setTitle(book.getTitle());
+            review.setCoverUrl(book.getCoverUrl());
+            review.setYear(book.getPublicationYear());
+            review.setReadDate(activity.getReadDate());
+            review.setComment(activity.getComment());
 
-            recentActivityList.add(recentActivity);
+            if (book.getAuthorId() != null) {
+                AuthorEntity author = authorMap.get(book.getAuthorId());
+                review.setAuthorName(author != null ? author.getName() : "Bilinmeyen");
+            } else {
+                review.setAuthorName("Bilinmeyen");
+            }
+            reviews.add(review);
+        }
+        return reviews;
+    }
+
+    private void applyReadingStats(
+            ProfileInfoDTO response,
+            List<UserActivityEntity> activities,
+            Map<Long, BookEntity> bookMap,
+            int totalBooksRead) {
+
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+
+        Map<Long, UserActivityEntity> latestReadByBook = new LinkedHashMap<>();
+        for (UserActivityEntity activity : activities) {
+            if (!isReadStatus(activity.getStatus()) || activity.getReadDate() == null) {
+                continue;
+            }
+            UserActivityEntity existing = latestReadByBook.get(activity.getBookId());
+            if (existing == null || activity.getReadDate().isAfter(existing.getReadDate())) {
+                latestReadByBook.put(activity.getBookId(), activity);
+            }
         }
 
-        response.setRecentActivity(recentActivityList);
+        int pagesAll = 0;
+        int pagesThisYear = 0;
+        int pagesThisMonth = 0;
+        int booksThisYear = 0;
+        int booksThisMonth = 0;
+        LocalDate firstReadThisYear = null;
 
-        int totalBooksRead = userActivities.size();
-        int booksReadThisYear = 0;
-        AtomicInteger totalPagesReadThisYear = new AtomicInteger(0);
-        LocalDate firstReadDate = null;
+        for (UserActivityEntity activity : latestReadByBook.values()) {
+            BookEntity book = bookMap.get(activity.getBookId());
+            int pages = book != null && book.getPageCount() != null ? book.getPageCount() : 0;
+            LocalDate readDate = activity.getReadDate();
 
-        try {
-            for (UserActivityEntity activity : userActivities) {
-                if (activity.getReadDate() == null) continue;
+            pagesAll += pages;
 
-                if (activity.getReadDate().getYear() == LocalDate.now().getYear()) {
-                    booksReadThisYear++;
-
-                    BookEntity book = bookIdToEntityMap.get(activity.getBookId());
-                    if (book != null) {
-                        totalPagesReadThisYear.addAndGet(book.getPageCount());
-
-                        if (firstReadDate == null || activity.getReadDate().isBefore(firstReadDate)) {
-                            firstReadDate = activity.getReadDate();
-                        }
-                    }
+            if (readDate.getYear() == currentYear) {
+                booksThisYear++;
+                pagesThisYear += pages;
+                if (firstReadThisYear == null || readDate.isBefore(firstReadThisYear)) {
+                    firstReadThisYear = readDate;
                 }
             }
-
-            response.setBookRead(totalBooksRead);
-            response.setBookReadThisYear(booksReadThisYear);
-
-            long daysThisYear = daysSinceStartOfYear();
-            double averagePagesPerDay = (daysThisYear > 0)
-                    ? (double) totalPagesReadThisYear.get() / daysThisYear
-                    : 0;
-
-            BigDecimal rounded = new BigDecimal(averagePagesPerDay)
-                    .setScale(2, RoundingMode.HALF_UP);
-            response.setPagePerDay(rounded.doubleValue());
-
-            // Review'lar
-            List<ReviewWithBookInfoDto> reviews = new ArrayList<>();
-
-            for (UserActivityEntity activity : userActivities) {
-                if (activity.getReadDate() == null ||
-                        activity.getComment() == null ||
-                        activity.getComment().isBlank()) {
-                    continue;
-                }
-
-                BookEntity book = bookIdToEntityMap.get(activity.getBookId());
-                if (book == null) continue;
-
-                ReviewWithBookInfoDto review = new ReviewWithBookInfoDto();
-                review.setBookId(book.getId());
-                review.setTitle(book.getTitle());
-                review.setCoverUrl(book.getCoverUrl());
-                review.setYear(book.getPublicationYear());
-                review.setReadDate(activity.getReadDate());
-                review.setComment(activity.getComment());
-
-                // Author adı authorId üzerinden alınıyor
-                if (book.getAuthorId() != null) {
-                    AuthorEntity author = authorIdToEntityMap.get(book.getAuthorId());
-                    review.setAuthorName(author != null ? author.getName() : "Unknown");
-                } else {
-                    review.setAuthorName("Unknown");
-                }
-
-                reviews.add(review);
+            if (readDate.getYear() == currentYear && readDate.getMonthValue() == currentMonth) {
+                booksThisMonth++;
+                pagesThisMonth += pages;
             }
-
-            response.setReviews(reviews);
-
-        } catch (Exception e) {
-            response.setBookRead(0);
-            response.setBookReadThisYear(0);
         }
 
-        return response;
+        response.setBookRead(totalBooksRead);
+        response.setBookReadThisYear(booksThisYear);
+        response.setBookReadThisMonth(booksThisMonth);
+        response.setTotalPagesRead(pagesAll);
+        response.setTotalPagesReadThisYear(pagesThisYear);
+        response.setTotalPagesReadThisMonth(pagesThisMonth);
+
+        long daysThisYear = ChronoUnit.DAYS.between(LocalDate.of(currentYear, 1, 1), now) + 1;
+        if (firstReadThisYear != null) {
+            long daysSinceFirstRead = ChronoUnit.DAYS.between(firstReadThisYear, now) + 1;
+            daysThisYear = Math.max(daysSinceFirstRead, 1);
+        }
+
+        long daysThisMonth = now.getDayOfMonth();
+
+        response.setPagePerDay(round(pagesThisYear / (double) Math.max(daysThisYear, 1)));
+        response.setPagePerDayThisMonth(round(pagesThisMonth / (double) Math.max(daysThisMonth, 1)));
+    }
+
+    private static boolean isReadStatus(String status) {
+        return BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status);
+    }
+
+    private static double round(double value) {
+        return BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
     }
 
     public ProfileInfoDTO updateProfileByEmail(String email, UpdateProfileRequest request) {
-
         UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
         if (request.getBio() != null) {
             userEntity.setBio(request.getBio());
         }
-
         if (request.getLocation() != null) {
             userEntity.setLocation(request.getLocation());
         }
-
         if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
             userEntity.setPendingAvatarUrl(request.getAvatarUrl());
         }
 
         userRepository.save(userEntity);
-
         return buildProfileInfo(userEntity);
     }
 
-    private ProfileInfoDTO buildProfileInfo(UserEntity userEntity) {
-
-        ProfileInfoDTO response = new ProfileInfoDTO();
-        response.setUsername(userEntity.getUsername());      // profil username
-        response.setProfileName(userEntity.getProfilName()); // gösterilen ad
-        response.setBio(userEntity.getBio());
-        response.setLocation(userEntity.getLocation());
-
-        // 👉 buradan sonrası senin mevcut logic
-        // books, reviews, stats vs.
-
-        return response;
-    }
-
     public void changePassword(String email, ChangePasswordRequest request) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Current password is incorrect");
+            throw new RuntimeException("Mevcut şifre hatalı");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 
-    public List<BookEntity> getBookListByStatus(String username, String status) {
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public List<BookEntity> getBookListByStatus(String identifier, String status) {
+        UserEntity userEntity = resolveUser(identifier);
 
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
 
+        String normalized = status.toUpperCase();
+        if ("COMPLETED".equals(normalized)) {
+            normalized = BookActivityStatus.READ;
+        }
+        if ("FAVORITES".equals(normalized)) {
+            normalized = BookActivityStatus.FAVOURITE;
+        }
+
+        final String filterStatus = normalized;
         List<Long> bookIds = userBookMaps.stream()
-                .filter(ub -> status.equalsIgnoreCase(ub.getStatus()))
+                .filter(ub -> filterStatus.equalsIgnoreCase(ub.getStatus())
+                        || (BookActivityStatus.READ.equals(filterStatus)
+                        && BookActivityStatus.COMPLETED.equalsIgnoreCase(ub.getStatus())))
                 .map(UserBookMapEntity::getBookId)
                 .distinct()
                 .toList();

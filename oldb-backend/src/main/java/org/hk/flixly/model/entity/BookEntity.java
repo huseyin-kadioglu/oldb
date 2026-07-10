@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "books")
+@Table(name = "books", indexes = {
+        @Index(name = "idx_books_ol_key", columnList = "openLibraryKey", unique = true)
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,16 +31,33 @@ public class BookEntity {
     private Integer pageCount;
 
     private String coverUrl;
+
+    @Column(length = 4000)
     private String description;
+
     private int publicationYear;
 
     private boolean isWonNobelPrize;
 
-    // Admin editorial fields
+    /** Open Library work key, e.g. /works/OL45804W */
+    @Column(unique = true)
+    private String openLibraryKey;
+
+    private String isbn;
+
     @Column(length = 500)
     private String adminNotes;
 
-    //private boolean isEditorChoice;
-    //private boolean isWeeklyPick;
-    //private boolean isNewRelease;
+    @Column(nullable = false)
+    private boolean editorChoice = false;
+
+    @Column(nullable = false)
+    private boolean weeklyPick = false;
+
+    @Column(nullable = false)
+    private boolean newRelease = false;
+
+    /** Virgülle ayrılmış türler (ör. Fiction, Mystery) */
+    @Column(length = 1000)
+    private String genres;
 }

@@ -74,7 +74,7 @@ const BookSummaryTitleDescAndLog = ({ book, author }) => {
         <div className="book-byline-row book-byline-written">Yazan</div>
         <div className="book-byline-row">
           <Link to={`/author/${book.authorId}`} state={{ author }} className="book-byline-link">
-            {author?.name}
+            {author?.name || book?.authorName || "—"}
           </Link>
         </div>
       </div>

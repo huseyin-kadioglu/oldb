@@ -22,6 +22,7 @@ import BookContributeForm from "./components/pages/BookContributeForm";
 import SettingsView from "./components/profile/SettingsView";
 import ProfileListPage from "./components/profile/ProfileListPage";
 import SearchView from "./components/pages/SearchView";
+import BadgesPage from "./components/pages/BadgesPage";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
 
@@ -87,11 +88,12 @@ const App = () => {
 
       <div className="app-content">
         <Routes>
-          <Route path="/*" element={<Content books={books} token={token} />} />
-          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/" element={<Content books={books} token={token} />} />
+          <Route path="/profile/:username" element={<ProfilePage books={books} />} />
           <Route path="/profile/:username/list/:listType" element={<ProfileListPage />} />
           <Route path="/books" element={<Books books={books} />} />
           <Route path="/settings" element={<SettingsView />} />
+          <Route path="/badges" element={<BadgesPage />} />
         <Route path="/activities" element={<Activies />} />
         <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
         <Route
@@ -139,10 +141,20 @@ const App = () => {
 
       {successDialogOpen && (
         <GenericMessageDialog
-          open={successDialogOpen}
-          onClose={() => setSuccessDialogOpen(false)}
-          title="Aktivasyon Maili Gönderildi"
-          message="Lütfen e-posta kutunuzu kontrol ederek hesabınızı aktifleştirin."
+          open={!!successDialogOpen}
+          onClose={() => setSuccessDialogOpen(null)}
+          title={
+            typeof successDialogOpen === "object"
+              ? successDialogOpen.title
+              : "Aktivasyon Linki Gönderildi"
+          }
+          message={
+            typeof successDialogOpen === "object"
+              ? successDialogOpen.message
+              : typeof successDialogOpen === "string"
+                ? successDialogOpen
+                : "Aktivasyon linki mail adresinize gönderilmiştir. Lütfen e-posta kutunuzu kontrol ederek hesabınızı aktifleştirin."
+          }
         />
       )}
     </div>

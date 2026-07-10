@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material"; // Kapat butonu için ikon
-import { loginAccount } from "../../service/APIService";
+import { Close as CloseIcon } from "@mui/icons-material";
+import { extractApiErrorMessage, loginAccount } from "../../service/APIService";
 
 const SignInPanel = ({ onClose, handleToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Minimalist TextField Stili
   // Letterboxd'un koyu temasına uygun, minimal, sadece arkaplanla ayrılan bir stil.
@@ -45,16 +47,25 @@ const SignInPanel = ({ onClose, handleToken }) => {
   };
 
   const handleLogin = async () => {
+    setError("");
+    if (!email.trim() || !password) {
+      setError("E-posta ve şifre gerekli.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      let response = await loginAccount({
-        email: email,
-        password: password,
+      const response = await loginAccount({
+        email: email.trim(),
+        password,
       });
 
       handleToken(response.token);
       onClose();
-    } catch (error) {
-      alert(error.message);
+    } catch (err) {
+      setError(extractApiErrorMessage(err, "E-posta veya şifre hatalı."));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,39 +92,60 @@ const SignInPanel = ({ onClose, handleToken }) => {
         size'ı kullanıp padding'i kendim ayarladım.
       */}
       <TextField
-        sx={{ ...inputStyles, width: "160px" }} // Genişliği belirledim
+        sx={{ ...inputStyles, width: "160px" }}
         size="small"
         label="E-posta"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (error) setError("");
+        }}
+        onKeyDown={(e) => e.key === "Enter" && handleLogin()}
       />
       <TextField
-        sx={{ ...inputStyles, width: "120px" }} // Daha küçük genişlik
+        sx={{ ...inputStyles, width: "120px" }}
         size="small"
         label="Şifre"
         type="password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e) => {
+          setPassword(e.target.value);
+          if (error) setError("");
+        }}
+        onKeyDown={(e) => e.key === "Enter" && handleLogin()}
       />
 
-      {/* Minimalist Giriş Butonu */}
+      {error && (
+        <Typography
+          sx={{
+            color: "#e57373",
+            fontSize: "0.75rem",
+            maxWidth: 180,
+            lineHeight: 1.3,
+            whiteSpace: "normal",
+          }}
+        >
+          {error}
+        </Typography>
+      )}
+
       <Button
         variant="contained"
-        // Ana Letterboxd yeşilini kullanmak için 'primary' yerine sx içinde rengi belirledim
+        disabled={loading}
         sx={{
-            bgcolor: "var(--color-primary-button)", // Letterboxd'un yeşiline yakın bir ana renk
-            color: "black", // Koyu buton üzerinde siyah yazı
+            bgcolor: "var(--color-primary-button)",
+            color: "black",
             "&:hover": {
-                bgcolor: "#fbc401", // Hafif bir hover rengi
+                bgcolor: "#fbc401",
             },
-            boxShadow: "none", // Minimalizm için gölgeyi kaldırdım
-            textTransform: "uppercase", // Metni büyük harf yap
+            boxShadow: "none",
+            textTransform: "uppercase",
             fontWeight: "bold",
-            padding: "6px 16px" // Buton boyutunu küçült
+            padding: "6px 16px",
         }}
         onClick={handleLogin}
       >
-        Giriş Yap
+        {loading ? "…" : "Giriş Yap"}
       </Button>
 
       {/* Minimal Kapat Butonu (Sadece İkon) */}

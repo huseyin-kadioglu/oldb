@@ -1,8 +1,8 @@
 import React from "react";
 import "./Avatar.css";
 
-const InitialAvatar = ({ name, navbarImg = false }) => {
-  if (!name) return <div className={navbarImg ? "navbar-avatar" : "avatar"}>?</div>;
+const InitialAvatar = ({ name, navbarImg = false, className = "" }) => {
+  if (!name) return <div className={`${navbarImg ? "navbar-avatar" : "avatar"} ${className}`.trim()}>?</div>;
 
   const initials = name
     .split(" ")
@@ -11,7 +11,7 @@ const InitialAvatar = ({ name, navbarImg = false }) => {
     .join("");
 
   return (
-    <div className={navbarImg ? "navbar-avatar" : "avatar"}>
+    <div className={`${navbarImg ? "navbar-avatar" : "avatar"} ${className}`.trim()}>
       {initials}
     </div>
   );

@@ -285,6 +285,53 @@ export const getAuthors = async () => {
   }
 };
 
+export const getCommunityStats = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}community/stats`);
+    return response.data;
+  } catch (error) {
+    console.error("Topluluk istatistikleri alınamadı:", error);
+    throw error;
+  }
+};
+
+export const getCommunityReviews = async (limit = 10) => {
+  const response = await axios.get(`${BASE_URL}community/reviews`, { params: { limit } });
+  return response.data;
+};
+
+export const getBadges = async (username) => {
+  const token = sessionStorage.getItem("token");
+  const url = username
+    ? `${BASE_URL}gamification/badges/${encodeURIComponent(username)}`
+    : `${BASE_URL}gamification/badges`;
+  const response = await axios.get(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+export const getChallenges = async (username) => {
+  const token = sessionStorage.getItem("token");
+  const url = username
+    ? `${BASE_URL}gamification/challenges/${encodeURIComponent(username)}`
+    : `${BASE_URL}gamification/challenges`;
+  const response = await axios.get(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+export const importOpenLibraryCatalog = async () => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.post(
+    `${BASE_URL}admin/catalog/import-open-library`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
 // PROFILE SERVICE
 export const createUserActivity = async (activityDto) => {
   const token = sessionStorage.getItem("token");
@@ -364,13 +411,12 @@ export const getProfileSummary = async () => {
 export const getProfileSummaryByUsername = async (username) => {
   try {
     const token = sessionStorage.getItem("token");
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
 
     const response = await fetch(`${BASE_URL}profile/${username}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      headers,
       credentials: "include",
     });
 
@@ -383,15 +429,93 @@ export const getProfileSummaryByUsername = async (username) => {
   }
 };
 
+export const getComments = async (targetType, targetId) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BASE_URL}comments`, {
+    params: { targetType, targetId },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+export const createComment = async ({ targetType, targetId, body }) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.post(
+    `${BASE_URL}comments`,
+    { targetType, targetId, body },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const toggleCommentLike = async (commentId) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.post(
+    `${BASE_URL}comments/${commentId}/like`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const getGenrePreferences = async (username) => {
+  const response = await axios.get(
+    `${BASE_URL}genres/preferences/${encodeURIComponent(username)}`
+  );
+  return response.data;
+};
+
+export const getActivityRecent = async (limit = 12) => {
+  const response = await axios.get(`${BASE_URL}activity/recent`, { params: { limit } });
+  return response.data;
+};
+
+export const getActivityFeed = async (scope = "friends", limit = 40) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BASE_URL}activity/feed`, {
+    params: { scope, limit },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+export const followUser = async (username) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.post(
+    `${BASE_URL}activity/follow/${encodeURIComponent(username)}`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const unfollowUser = async (username) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.delete(
+    `${BASE_URL}activity/follow/${encodeURIComponent(username)}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const getFollowStats = async (username) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(
+    `${BASE_URL}activity/follow/${encodeURIComponent(username)}/stats`,
+    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+  );
+  return response.data;
+};
 
 // AUTH
 export const loginAccount = async (param) => {
   try {
     const response = await axios.post(LOGIN_API, param);
     sessionStorage.setItem("token", response.data.token);
-    sessionStorage.setItem("username", response.data.profileName);
+    sessionStorage.setItem("username", response.data.username);
+    sessionStorage.setItem("profileName", response.data.profileName);
     sessionStorage.setItem("userRole", response.data.role);
-    sessionStorage.setItem("emailAddress", response.data.username);
+    sessionStorage.setItem("emailAddress", param.email);
     
     console.log("loginAccount: ", response.data);
     return response.data;
@@ -407,9 +531,25 @@ export const extractApiErrorMessage = (error, fallback = "Bir hata oluştu.") =>
   }
 
   const data = error.response?.data;
-  if (typeof data === "string") return data;
+  if (typeof data === "string" && data.trim()) return data;
   if (data?.message) return data.message;
-  if (typeof data?.error === "string") return data.error;
+  if (typeof data?.error === "string" && data.error.trim()) return data.error;
+
+  const status = error.response?.status;
+  if (status === 401 || status === 403) {
+    return "E-posta veya şifre hatalı.";
+  }
+  if (status === 404) {
+    return "İstenen kaynak bulunamadı.";
+  }
+  if (status >= 500) {
+    return "Sunucu hatası oluştu. Lütfen tekrar deneyin.";
+  }
+
+  // Axios'un "Request failed with status code XXX" mesajını gösterme
+  if (error.message?.startsWith("Request failed with status code")) {
+    return fallback;
+  }
 
   return error.message || fallback;
 };

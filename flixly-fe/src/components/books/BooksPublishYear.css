@@ -1,60 +1,162 @@
 .books-year-page {
   width: 100%;
-  padding: 0;
 }
 
-.books-year-page .frame-block {
-  margin-top: 28px;
+.books-year-header {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.nobel-section {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 16px 20px;
-  border-radius: var(--radius-md);
-  background: var(--color-background-card);
-  border: 1px solid var(--line-color);
-  margin-bottom: 28px;
+.books-year-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0 0 8px;
 }
 
-.nobel-left {
-  flex-shrink: 0;
+.books-year-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 500;
+  color: var(--color-text);
+  margin: 0 0 8px;
+  line-height: 1;
 }
 
-.nobel-left .photo-frame {
-  max-width: 56px;
-}
-
-.nobel-left img {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-}
-
-.nobel-right {
-  flex: 1;
-  min-width: 0;
-}
-
-.nobel-badge {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--color-primary-button);
-  margin-bottom: 4px;
-}
-
-.nobel-text {
-  font-family: var(--font-sans);
+.books-year-sub {
   font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
-.nobel-text strong {
+.nobel-highlight {
+  margin-bottom: 40px;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(22, 22, 31, 0.9) 55%),
+    var(--color-background-card);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.nobel-highlight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-button);
+  margin-bottom: 16px;
+}
+
+.nobel-highlight-body {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  gap: 20px;
+  align-items: start;
+}
+
+.nobel-highlight-cover {
+  width: 100px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-cover);
+  display: block;
+}
+
+.nobel-highlight-book-title {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.nobel-highlight-book-title a {
   color: var(--color-text);
+  text-decoration: none;
+}
+
+.nobel-highlight-book-title a:hover {
+  color: var(--color-primary-button);
+}
+
+.nobel-highlight-author {
+  display: inline-block;
+  font-size: 0.95rem;
+  color: var(--color-primary-button);
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.nobel-highlight-author:hover {
+  text-decoration: underline;
+}
+
+.nobel-highlight-text {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+
+.nobel-highlight-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 520px;
+}
+
+.nobel-highlight-portrait {
+  width: 72px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  opacity: 0.95;
+}
+
+.books-year-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0 0 20px;
+}
+
+.books-year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 20px 16px;
+}
+
+.books-year-grid .photo-frame {
+  max-width: none;
+  width: 100%;
+}
+
+.books-year-empty {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+  .nobel-highlight-body {
+    grid-template-columns: 80px 1fr;
+  }
+
+  .nobel-highlight-cover {
+    width: 80px;
+    height: 120px;
+  }
+
+  .nobel-highlight-portrait {
+    display: none;
+  }
 }

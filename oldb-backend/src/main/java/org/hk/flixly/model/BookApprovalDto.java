@@ -1,5 +1,6 @@
 package org.hk.flixly.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,4 +22,11 @@ public class BookApprovalDto {
     private int year;
     private boolean isWonNobelPrize;
 
+    @JsonProperty("isEditorChoice")
+    private boolean editorChoice;
+    @JsonProperty("isWeeklyPick")
+    private boolean weeklyPick;
+    @JsonProperty("isNewRelease")
+    private boolean newRelease;
+    private String adminNotes;
 }

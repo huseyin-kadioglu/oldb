@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
 import InitialAvatar from "../common/InitialAvatar";
 
-const LoggedUser = ({ onLogout }) => {
+const LoggedUser = ({ onLogout, compact = false }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const role = sessionStorage.getItem("userRole");
@@ -47,7 +47,7 @@ const LoggedUser = ({ onLogout }) => {
 
   return (
     <>
-      <div className="logged-user" onClick={handleOpen}>
+      <div className={`logged-user ${compact ? "compact" : ""}`} onClick={handleOpen}>
         <InitialAvatar name={username} navbarImg={true} />
         <div className="navbar-user-info">
           <span className="username">{username}</span>

@@ -80,7 +80,12 @@ const SearchView = ({ books }) => {
                       />
                       <div className="search-body">
                         <div className="search-title">{book.title}</div>
-                        <div className="search-meta">{authorName || "—"} {book.publishYear ? `• ${book.publishYear}` : ""}</div>
+                        <div className="search-meta">
+                          {authorName || book.authorName || "—"}
+                          {(book.publicationYear || book.publishYear)
+                            ? ` • ${book.publicationYear || book.publishYear}`
+                            : ""}
+                        </div>
                       </div>
                     </li>
                   );

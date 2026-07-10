@@ -64,6 +64,20 @@
   transition: color 0.2s ease;
 }
 
+.frame-year-link {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary-button);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.frame-year-link:hover {
+  text-decoration: underline;
+}
+
 .photo-frame a:hover + .frame-title-wrap .title,
 .photo-frame:hover .frame-title-wrap .title {
   color: var(--color-primary-button);

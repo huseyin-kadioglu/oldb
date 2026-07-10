@@ -19,5 +19,5 @@ public class UserActivityWithBookDTO {
     private String comment;
     private String status;
     private LocalDate updateDate;
-    // getter/setter
+    private String authorName;
 }

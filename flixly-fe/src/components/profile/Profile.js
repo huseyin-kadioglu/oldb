@@ -79,7 +79,14 @@ const Profile = (props) => {
             title="Kütüphanem"
             books={profileSummary?.libraryBooks}
             navigateTo={`/profile/${username}/list/library`}
-            emptyText="Henüz kütüphaneye kitap eklenmemiş."
+            emptyText="Sahip olduğun kitaplar burada görünür."
+          />
+
+          <BookListSection
+            title="Alınacaklar"
+            books={profileSummary?.shoppingBooks}
+            navigateTo={`/profile/${username}/list/shopping`}
+            emptyText="Alınacak kitaplar burada görünür."
           />
 
           <BookListSection

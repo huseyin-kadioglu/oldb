@@ -10,6 +10,8 @@ import org.hk.flixly.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -169,8 +171,14 @@ public class AuthenticationService {
     }
 
     public UserEntity authenticate(LoginUserDto input) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(input.getEmail(), input.getPassword()));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(input.getEmail(), input.getPassword()));
+        } catch (BadCredentialsException ex) {
+            throw new BadCredentialsException("E-posta veya şifre hatalı.");
+        }
 
-        return userRepository.findByEmailAndStatus(input.getEmail(), true).orElseThrow();
+        return userRepository.findByEmailAndStatus(input.getEmail(), true)
+                .orElseThrow(() -> new DisabledException("Hesabınız henüz aktifleştirilmemiş. Lütfen e-postanızı kontrol edin."));
     }
 }

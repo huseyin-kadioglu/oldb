@@ -1,39 +1,72 @@
-import { Box, IconButton, Tooltip } from "@mui/material";
-import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import { Box, IconButton, Tooltip, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
-import FavoriteIcon from "@mui/icons-material/Favorite";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import DoNotDisturbAltIcon from "@mui/icons-material/DoNotDisturbAlt";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 
-const statusOptions = [
+export const ACTIVITY_STATUSES = [
   { value: "READ", icon: <MenuBookIcon />, label: "Okundu" },
   { value: "READLIST", icon: <BookmarkAddedIcon />, label: "Okuma Listesi" },
-  { value: "FAVOURITE", icon: <FavoriteIcon />, label: "Favori" },
+  { value: "LIBRARY", icon: <LibraryBooksIcon />, label: "Kütüphanemde" },
+  { value: "SHOPPING", icon: <ShoppingCartIcon />, label: "Alınacaklar" },
   { value: "DROPPED", icon: <DoNotDisturbAltIcon />, label: "Bırakıldı" },
-  { value: "HATE", icon: <ThumbDownIcon />, label: "Beğenilmedi" },
 ];
-const StatusSelector = ({ value, onChange }) => {
+
+const StatusSelector = ({ value, onChange, libraryFormat, onLibraryFormatChange }) => {
   return (
-    <Box display="flex" gap={2} p={2} borderRadius={2}>
-      {statusOptions.map((option) => (
-        <Tooltip key={option.value} title={option.label} arrow placement="top">
-          <IconButton
-            onClick={() => onChange(option.value)}
+    <Box>
+      <p className="log-field-label">Durum *</p>
+      <Box display="flex" flexWrap="wrap" gap={1.5}>
+        {ACTIVITY_STATUSES.map((option) => (
+          <Tooltip key={option.value} title={option.label} arrow placement="top">
+            <Box className="status-option-wrap">
+              <IconButton
+                onClick={() => onChange(option.value)}
+                className={`status-icon-btn ${value === option.value ? "selected" : ""}`}
+                aria-label={option.label}
+              >
+                {option.icon}
+              </IconButton>
+              <span className="status-option-label">{option.label}</span>
+            </Box>
+          </Tooltip>
+        ))}
+      </Box>
+
+      {value === "LIBRARY" && (
+        <Box mt={2}>
+          <p className="log-field-label">Kütüphane türü — sahip olduğun format</p>
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={libraryFormat || "PHYSICAL"}
+            onChange={(_, v) => v && onLibraryFormatChange(v)}
             sx={{
-              color: value === option.value ? "var(--color-primary-button)" : "var(--color-text-muted)",
-              backgroundColor: value === option.value ? "rgba(245, 197, 24, 0.12)" : "transparent",
-              border: value === option.value ? "1px solid var(--color-primary-button)" : "1px solid transparent",
-              transition: "all 0.2s ease",
-              "&:hover": {
-                color: "var(--color-primary-button)",
-                backgroundColor: "var(--color-background-card)",
+              "& .MuiToggleButton-root": {
+                color: "var(--color-text-muted)",
+                borderColor: "var(--color-border-subtle)",
+                textTransform: "none",
+                fontSize: "0.8rem",
+                "&.Mui-selected": {
+                  color: "var(--color-primary-button)",
+                  backgroundColor: "rgba(212, 175, 55, 0.12)",
+                  borderColor: "rgba(212, 175, 55, 0.4)",
+                },
               },
             }}
           >
-            {option.icon}
-          </IconButton>
-        </Tooltip>
-      ))}
+            <ToggleButton value="PHYSICAL">
+              <MenuBookOutlinedIcon sx={{ fontSize: 16, mr: 0.5 }} /> Fiziksel
+            </ToggleButton>
+            <ToggleButton value="PDF">
+              <PictureAsPdfIcon sx={{ fontSize: 16, mr: 0.5 }} /> PDF / Dijital
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -19,5 +19,9 @@ public class UserBookMapEntity {
 
     private Long userId;
     private Long bookId;
-    private String status; // COMPLETED, DROPPED, LIKED, FAVOURITE, READLIST
+    private String status; // READ, READLIST, LIBRARY, DROPPED, LIKE, FAVOURITE
+    /** LIBRARY durumunda: PHYSICAL veya PDF */
+    private String libraryFormat;
+    /** Okuma ilerlemesi (sayfa) — READLIST / devam eden okumalar */
+    private Integer currentPage;
 }

@@ -82,17 +82,29 @@ public class BookService {
                     dto.setPublicationYear(book.getPublicationYear());
                     dto.setOriginalTitle(book.getOriginalTitle());
                     dto.setWonNobelPrize(book.isWonNobelPrize());
+                    dto.setPageCount(book.getPageCount());
+                    dto.setIsbn(book.getIsbn());
+                    dto.setAdminNotes(book.getAdminNotes());
+                    dto.setEditorChoice(book.isEditorChoice());
+                    dto.setWeeklyPick(book.isWeeklyPick());
+                    dto.setNewRelease(book.isNewRelease());
+                    dto.setGenres(book.getGenres());
 
                     Set<String> statuses = userBookStatusMap.getOrDefault(book.getId(), Collections.emptySet());
                     dto.setLiked(statuses.contains("LIKE"));
                     dto.setFavourite(statuses.contains("FAVOURITE"));
                     dto.setInReadList(statuses.contains("READLIST"));
                     dto.setInLibrary(statuses.contains("LIBRARY"));
+                    dto.setInShopping(statuses.contains("SHOPPING"));
+                    dto.setRead(statuses.contains("READ") || statuses.contains("COMPLETED"));
+                    dto.setDropped(statuses.contains("DROPPED"));
 
                     Map<String, Integer> counts = bookStatusCountsMap.getOrDefault(book.getId(), Collections.emptyMap());
                     dto.setHowManyPplLiked(counts.getOrDefault("LIKE", 0));
                     dto.setHowManyPplFavourited(counts.getOrDefault("FAVOURITE", 0));
                     dto.setHowManyPplAddedToReadList(counts.getOrDefault("READLIST", 0));
+                    dto.setHowManyPplInShopping(counts.getOrDefault("SHOPPING", 0));
+                    dto.setHowManyPplDropped(counts.getOrDefault("DROPPED", 0));
 
                     double[] rating = ratingMap.getOrDefault(book.getId(), new double[]{0.0, 0L});
                     dto.setAverageRating(rating[0]);
@@ -147,11 +159,20 @@ public class BookService {
                     dto.setPublicationYear(book.getPublicationYear());
                     dto.setOriginalTitle(book.getOriginalTitle());
                     dto.setWonNobelPrize(book.isWonNobelPrize());
+                    dto.setPageCount(book.getPageCount());
+                    dto.setIsbn(book.getIsbn());
+                    dto.setAdminNotes(book.getAdminNotes());
+                    dto.setEditorChoice(book.isEditorChoice());
+                    dto.setWeeklyPick(book.isWeeklyPick());
+                    dto.setNewRelease(book.isNewRelease());
+                    dto.setGenres(book.getGenres());
 
                     Map<String, Integer> counts = bookStatusCountsMap.getOrDefault(book.getId(), Collections.emptyMap());
                     dto.setHowManyPplLiked(counts.getOrDefault("LIKE", 0));
                     dto.setHowManyPplFavourited(counts.getOrDefault("FAVOURITE", 0));
                     dto.setHowManyPplAddedToReadList(counts.getOrDefault("READLIST", 0));
+                    dto.setHowManyPplInShopping(counts.getOrDefault("SHOPPING", 0));
+                    dto.setHowManyPplDropped(counts.getOrDefault("DROPPED", 0));
 
                     double[] rating = ratingMap.getOrDefault(book.getId(), new double[]{0.0, 0L});
                     dto.setAverageRating(rating[0]);
@@ -202,6 +223,7 @@ public class BookService {
                     dto.setPublicationYear(book.getPublicationYear());
                     dto.setOriginalTitle(book.getOriginalTitle());
                     dto.setWonNobelPrize(book.isWonNobelPrize());
+                    dto.setPageCount(book.getPageCount());
                     if (book.isWonNobelPrize()) {
                         result.setNobelPrizeWinner(dto);
                     }
@@ -280,13 +302,48 @@ public class BookService {
         Map<Long, double[]> ratingMap = buildRatingMap();
         Map<Long, AuthorEntity> authorMap = buildAuthorMap(List.of(book));
 
-        return mapBookEntityToResponse(
+        BookDto dto = mapBookEntityToResponse(
                 List.of(book),
                 userBookStatusMap,
                 bookStatusCountsMap,
                 ratingMap,
                 authorMap
         ).get(0);
+        dto.setRatingDistribution(getRatingDistributionPercents(bookId));
+        if (userId != null) {
+            bookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, "READLIST")
+                    .ifPresent(m -> dto.setCurrentPage(m.getCurrentPage()));
+            if (dto.getCurrentPage() == null) {
+                bookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, "READ")
+                        .ifPresent(m -> dto.setCurrentPage(m.getCurrentPage()));
+            }
+        }
+        return dto;
+    }
+
+    public List<Integer> getRatingDistributionPercents(Long bookId) {
+        List<Object[]> rows = activityRepository.findRatingDistributionByBookId(bookId);
+        int[] counts = new int[6]; // index 1..5
+        int total = 0;
+        if (rows != null) {
+            for (Object[] row : rows) {
+                int star = ((Number) row[0]).intValue();
+                int cnt = ((Number) row[1]).intValue();
+                if (star >= 1 && star <= 5) {
+                    counts[star] = cnt;
+                    total += cnt;
+                }
+            }
+        }
+        List<Integer> percents = new ArrayList<>();
+        for (int star = 5; star >= 1; star--) {
+            if (total == 0) {
+                percents.add(0);
+            } else {
+                percents.add((int) Math.round(100.0 * counts[star] / total));
+            }
+        }
+        return percents;
     }
 
     public void createApprovedBook(BookApprovalDto dto) {
@@ -298,6 +355,10 @@ public class BookService {
         bookEntity.setAuthorId(dto.getAuthorId());
         bookEntity.setOriginalTitle(dto.getOriginalTitle());
         bookEntity.setPageCount(dto.getPageCount());
+        bookEntity.setEditorChoice(dto.isEditorChoice());
+        bookEntity.setWeeklyPick(dto.isWeeklyPick());
+        bookEntity.setNewRelease(dto.isNewRelease());
+        bookEntity.setAdminNotes(dto.getAdminNotes());
         bookRepository.save(bookEntity);
     }
 }

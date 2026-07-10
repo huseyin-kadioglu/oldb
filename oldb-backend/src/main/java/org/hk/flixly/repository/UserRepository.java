@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface UserRepository extends CrudRepository<UserEntity, Integer> {
     Optional<UserEntity> findByEmail(String email);
+
     Optional<UserEntity> findByEmailAndStatus(String email, boolean status);
 
     Optional<UserEntity> findByUsername(String username);
@@ -16,4 +17,6 @@ public interface UserRepository extends CrudRepository<UserEntity, Integer> {
     boolean existsByUsername(String username);
 
     Optional<UserEntity> findByActivationToken(String token);
+
+    long countByStatusTrue();
 }

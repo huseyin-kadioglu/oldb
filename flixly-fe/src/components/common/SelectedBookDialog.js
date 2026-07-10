@@ -4,16 +4,20 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookLogActivity from "../BookLogActivity";
 import { createUserActivity } from "../../service/APIService";
 
-const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
-  const [payload, setPayload] = useState({});
+const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitCallback }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const createBookActivity = async (value) => {
-    console.trace("createBookActivity çağrıldı");
+  const handleSubmit = async (payload) => {
     try {
       setLoading(true);
-      await createUserActivity(value);
+      setError(null);
+      if (onSubmitCallback) {
+        await onSubmitCallback(payload);
+      } else {
+        await createUserActivity(payload);
+      }
+      selectedBookHandler(null);
     } catch (err) {
       setError("Aktivite yaratılırken bir hata oluştu.");
     } finally {
@@ -29,12 +33,6 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
       fullWidth
       slotProps={{
         paper: {
-          component: "form",
-          onSubmit: (event) => {
-            event.preventDefault();
-            createBookActivity(payload);
-            selectedBookHandler(null);
-          },
           sx: {
             backgroundColor: "var(--color-background-secondary)",
             borderRadius: "var(--radius-md)",
@@ -91,7 +89,12 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler }) => {
           pb: 3,
         }}
       >
-        <BookLogActivity selectedBook={selectedBook} setPayload={setPayload} />
+        <BookLogActivity selectedBook={selectedBook} onSubmit={handleSubmit} />
+        {loading && (
+          <p style={{ color: "var(--color-text-muted)", marginTop: "1rem", fontSize: "0.9rem" }}>
+            Kaydediliyor…
+          </p>
+        )}
         {error && (
           <p style={{ color: "#e57373", marginTop: "1rem", fontSize: "0.9rem" }}>{error}</p>
         )}

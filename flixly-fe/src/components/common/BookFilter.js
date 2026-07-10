@@ -8,6 +8,7 @@ import {
   Autocomplete,
   Paper,
 } from "@mui/material";
+import CoverImage from "../ui/CoverImage";
 
 const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
   const [searchValue, setSearchValue] = useState("");
@@ -68,11 +69,14 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
             options={data ?? []}
             getOptionLabel={(option) => option?.title ?? ""}
             filterOptions={(options, state) =>
-              options.filter((option) =>
-                (option?.title ?? "")
-                  .toLowerCase()
-                  .includes(state.inputValue.toLowerCase())
-              )
+              options.filter((option) => {
+                const q = state.inputValue.toLowerCase();
+                return (
+                  (option?.title ?? "").toLowerCase().includes(q) ||
+                  (option?.authorName ?? "").toLowerCase().includes(q) ||
+                  (option?.originalTitle ?? "").toLowerCase().includes(q)
+                );
+              })
             }
             onChange={(event, newValue) => {
               setSearchValue(newValue ? newValue.title : "");
@@ -104,8 +108,20 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
               },
             }}
             renderOption={(props, option) => (
-              <li {...props} key={option?.id}>
-                {option?.title}
+              <li {...props} key={option?.id} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <CoverImage
+                  src={option?.coverUrl}
+                  alt={option?.title}
+                  style={{ width: 36, height: 54, borderRadius: 4, objectFit: "cover", flexShrink: 0 }}
+                />
+                <div>
+                  <div style={{ fontWeight: 600, color: "var(--color-text)" }}>{option?.title}</div>
+                  {option?.authorName && (
+                    <div style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>
+                      {option.authorName}
+                    </div>
+                  )}
+                </div>
               </li>
             )}
             renderInput={(params) => (

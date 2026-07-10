@@ -22,27 +22,50 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
   const [password, setPassword] = useState("");
   const [privacyPolicy, setPrivacyPolicy] = useState(false);
   const [feedbackDialog, setFeedbackDialog] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const resetForm = () => {
+    setUsername("");
+    setFullname("");
+    setEmail("");
+    setPassword("");
+    setPrivacyPolicy(false);
+  };
 
   const handleCreateAccount = async () => {
+    if (!username.trim() || !email.trim() || !password) {
+      setFeedbackDialog({
+        title: "Eksik Bilgi",
+        message: "Kullanıcı adı, e-posta ve şifre zorunludur.",
+      });
+      return;
+    }
+
+    setLoading(true);
     try {
       const result = await createAccount({
-        email,
+        email: email.trim(),
         password,
-        fullName,
-        username,
+        fullName: fullName.trim(),
+        username: username.trim(),
       });
 
       const isResent = result?.status === "ACTIVATION_RESENT";
+      const title = isResent
+        ? "Aktivasyon Maili Tekrar Gönderildi"
+        : "Aktivasyon Linki Gönderildi";
+      const message =
+        result?.message ||
+        (isResent
+          ? `Aktivasyon linki ${email.trim()} adresine tekrar gönderilmiştir. Lütfen e-posta kutunuzu kontrol edin.`
+          : `Aktivasyon linki ${email.trim()} adresine gönderilmiştir. Lütfen e-posta kutunuzu kontrol ederek hesabınızı aktifleştirin.`);
 
-      setFeedbackDialog({
-        title: isResent ? "Aktivasyon Maili Tekrar Gönderildi" : "Aktivasyon Maili Gönderildi",
-        message:
-          result?.message ||
-          (isResent
-            ? "Bu e-posta ile kayıtlı ancak aktifleştirilmemiş bir hesap bulundu. Yeni aktivasyon maili gönderildi."
-            : "Lütfen e-posta kutunuzu kontrol ederek hesabınızı aktifleştirin."),
-      });
+      // Parent App dialog — modal unmount olsa bile görünür
+      if (typeof setSuccessDialogOpen === "function") {
+        setSuccessDialogOpen({ title, message });
+      }
 
+      resetForm();
       onClose();
     } catch (error) {
       const code = error.response?.data?.code;
@@ -58,6 +81,8 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
         title,
         message: extractApiErrorMessage(error, "Hesap oluşturulamadı."),
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -195,7 +220,7 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
             <Button
               onClick={handleCreateAccount}
               variant="contained"
-              disabled={!privacyPolicy}
+              disabled={!privacyPolicy || loading}
               sx={{
                 backgroundColor: "var(--color-primary-button)",
                 color: "var(--color-background)",
@@ -205,7 +230,7 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
                 textTransform: "none",
               }}
             >
-              Hesap Oluştur
+              {loading ? "Gönderiliyor…" : "Hesap Oluştur"}
             </Button>
           </DialogActions>
         </Box>

@@ -4,6 +4,7 @@ import org.hk.flixly.model.ActivityDto;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.UserActivityEntity;
 import org.hk.flixly.model.entity.UserBookMapEntity;
+import org.hk.flixly.model.enums.BookActivityStatus;
 import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.UserBookMapRepository;
 import org.hk.flixly.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,26 +30,44 @@ public class UserActivityService {
 
     public UserActivityEntity createActivity(ActivityDto activityDto, UserDetails userDetails) {
         UserEntity user = getUserEntity(userDetails);
+        Long userId = user.getId();
+        Long bookId = activityDto.getBookId();
+        String status = activityDto.getStatus();
 
-        UserActivityEntity entity = new UserActivityEntity();
-        entity.setUserId(user.getId());
-        entity.setBookId(activityDto.getBookId());
+        resolveStatusConflicts(userId, bookId, status);
+
+        Optional<UserActivityEntity> existingActivity =
+                activityRepository.findByUserIdAndBookIdAndStatus(userId, bookId, status);
+
+        UserActivityEntity entity = existingActivity.orElseGet(UserActivityEntity::new);
+        entity.setUserId(userId);
+        entity.setBookId(bookId);
         entity.setRating(activityDto.getRating());
         entity.setComment(activityDto.getComment());
         entity.setReadDate(activityDto.getReadDate());
-        entity.setStatus(activityDto.getStatus());
+        entity.setStatus(status);
+        entity.setUpdateDate(LocalDate.now());
         activityRepository.save(entity);
 
-        UserBookMapEntity userBookMapEntity = new UserBookMapEntity();
-        userBookMapEntity.setUserId(user.getId());
-        userBookMapEntity.setBookId(activityDto.getBookId());
-        userBookMapEntity.setStatus(activityDto.getStatus());
-        userBookMapRepository.save(userBookMapEntity);
+        Optional<UserBookMapEntity> existingMap =
+                userBookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, status);
+
+        UserBookMapEntity map = existingMap.orElseGet(UserBookMapEntity::new);
+        map.setUserId(userId);
+        map.setBookId(bookId);
+        map.setStatus(status);
+        if (BookActivityStatus.LIBRARY.equals(status) && activityDto.getLibraryFormat() != null) {
+            map.setLibraryFormat(activityDto.getLibraryFormat());
+        }
+        if (activityDto.getCurrentPage() != null) {
+            map.setCurrentPage(activityDto.getCurrentPage());
+        }
+        userBookMapRepository.save(map);
+
         return entity;
     }
 
     public UserActivityEntity createActivityFromGhostMenu(ActivityDto activityDto, UserDetails userDetails) {
-
         UserEntity user = getUserEntity(userDetails);
         Long userId = user.getId();
         Long bookId = activityDto.getBookId();
@@ -56,12 +76,37 @@ public class UserActivityService {
         Optional<UserBookMapEntity> mapEntity = userBookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, actionType);
         if (mapEntity.isPresent()) {
             return removeActivity(mapEntity.get());
-        } else {
-            return addActivity(userId, bookId, actionType);
+        }
+
+        resolveStatusConflicts(userId, bookId, actionType);
+        return addActivity(userId, bookId, actionType, activityDto.getLibraryFormat());
+    }
+
+    /**
+     * Okuma durumu (READ/READLIST/DROPPED) birbirini dışlar.
+     * Okunan kitap kütüphanede kalabilir; bırakılan kitap okunmuş veya kütüphanede olamaz.
+     */
+    private void resolveStatusConflicts(Long userId, Long bookId, String newStatus) {
+        if (BookActivityStatus.isExclusiveReading(newStatus)) {
+            for (String exclusive : BookActivityStatus.EXCLUSIVE_READING) {
+                if (!exclusive.equals(newStatus)) {
+                    removeStatusIfExists(userId, bookId, exclusive);
+                }
+            }
+            if (BookActivityStatus.DROPPED.equals(newStatus)) {
+                removeStatusIfExists(userId, bookId, BookActivityStatus.LIBRARY);
+            }
+        } else if (BookActivityStatus.LIBRARY.equals(newStatus)) {
+            removeStatusIfExists(userId, bookId, BookActivityStatus.DROPPED);
         }
     }
 
-    private UserActivityEntity addActivity(Long userId, Long bookId, String status) {
+    private void removeStatusIfExists(Long userId, Long bookId, String status) {
+        userBookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, status)
+                .ifPresent(this::removeActivity);
+    }
+
+    private UserActivityEntity addActivity(Long userId, Long bookId, String status, String libraryFormat) {
         UserActivityEntity activity = new UserActivityEntity();
         activity.setUserId(userId);
         activity.setBookId(bookId);
@@ -73,16 +118,19 @@ public class UserActivityService {
         map.setUserId(userId);
         map.setBookId(bookId);
         map.setStatus(status);
+        if (BookActivityStatus.LIBRARY.equals(status) && libraryFormat != null) {
+            map.setLibraryFormat(libraryFormat);
+        }
         userBookMapRepository.save(map);
 
         return activity;
     }
 
     private UserActivityEntity removeActivity(UserBookMapEntity entity) {
-        Optional<UserActivityEntity> existingActivity = activityRepository.findByUserIdAndBookIdAndStatus(entity.getUserId(), entity.getBookId(), entity.getStatus());
+        Optional<UserActivityEntity> existingActivity = activityRepository.findByUserIdAndBookIdAndStatus(
+                entity.getUserId(), entity.getBookId(), entity.getStatus());
 
         existingActivity.ifPresent(activityRepository::delete);
-
         userBookMapRepository.delete(entity);
 
         return existingActivity.orElse(null);

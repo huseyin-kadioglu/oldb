@@ -2,6 +2,7 @@ package org.hk.flixly.controller;
 
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.repository.UserRepository;
+import org.hk.flixly.service.OpenLibraryImportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,12 +18,19 @@ import java.util.stream.StreamSupport;
 public class AdminController {
 
     private final UserRepository userRepository;
+    private final OpenLibraryImportService openLibraryImportService;
 
-    public AdminController(UserRepository userRepository) {
+    public AdminController(UserRepository userRepository, OpenLibraryImportService openLibraryImportService) {
         this.userRepository = userRepository;
+        this.openLibraryImportService = openLibraryImportService;
     }
 
-    /** Bekleyen profil fotoğrafı isteklerini listele */
+    /** Open Library'den katalog import / zenginleştirme */
+    @PostMapping("/catalog/import-open-library")
+    public OpenLibraryImportService.ImportResult importOpenLibrary() {
+        return openLibraryImportService.importCatalog();
+    }
+
     @GetMapping("/pending-avatars")
     public List<Map<String, Object>> getPendingAvatars(@AuthenticationPrincipal UserDetails userDetails) {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)
@@ -36,7 +44,6 @@ public class AdminController {
                 .toList();
     }
 
-    /** Fotoğraf isteğini onayla */
     @PostMapping("/pending-avatars/{userId}/approve")
     public ResponseEntity<Void> approveAvatar(@PathVariable Long userId) {
         userRepository.findById(userId.intValue()).ifPresent(user -> {
@@ -47,7 +54,6 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    /** Fotoğraf isteğini reddet */
     @DeleteMapping("/pending-avatars/{userId}/reject")
     public ResponseEntity<Void> rejectAvatar(@PathVariable Long userId) {
         userRepository.findById(userId.intValue()).ifPresent(user -> {
@@ -57,7 +63,6 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    /** Tüm kullanıcıları listele (admin yönetimi) */
     @GetMapping("/users")
     public List<Map<String, Object>> getAllUsers() {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)

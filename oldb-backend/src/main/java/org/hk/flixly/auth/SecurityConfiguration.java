@@ -34,8 +34,22 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/books/**", "/authors/**", "/api/auth/**", "/send-email").permitAll()
-                        .requestMatchers("/book-approvals/**", "/author-approvals/**", "/profile/**", "/userActivity/**", "/admin/**").authenticated()
+                        .requestMatchers(
+                                "/books/**",
+                                "/authors/**",
+                                "/api/auth/**",
+                                "/send-email",
+                                "/community/**",
+                                "/gamification/badges/**",
+                                "/gamification/challenges/**",
+                                "/genres/**"
+                        ).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/comments", "/comments/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/profile/*", "/profile/*/list/*").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/recent").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/follow/*/stats").permitAll()
+                        .requestMatchers("/activity/**").authenticated()
+                        .requestMatchers("/comments/**", "/book-approvals/**", "/author-approvals/**", "/profile/**", "/userActivity/**", "/admin/**", "/gamification/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

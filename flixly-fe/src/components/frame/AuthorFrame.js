@@ -1,12 +1,16 @@
 import React from "react";
+import CoverImage from "../ui/CoverImage";
 import "./PhotoFrame.css";
 
-const AuthorFrame = ({
-  coverUrl = "https://img.kitapyurdu.com/v1/getImage/fn:5723564/wh:true/wi:800",
-}) => {
+const AuthorFrame = ({ coverUrl, name }) => {
   return (
     <div className="photo-frame">
-      <img src={coverUrl} className={"small-pic"} />
+      <CoverImage
+        src={coverUrl}
+        alt={name || "Yazar"}
+        className="small-pic"
+        variant="avatar"
+      />
     </div>
   );
 };

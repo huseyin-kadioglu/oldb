@@ -14,4 +14,6 @@ public interface UserBookMapRepository extends JpaRepository<UserBookMapEntity, 
     List<Object[]> findBookStatusCounts();
 
     Optional<UserBookMapEntity> findByUserIdAndBookIdAndStatus(Long userId, Long bookId, String status);
+
+    List<UserBookMapEntity> findByUserIdAndBookId(Long userId, Long bookId);
 }

@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 
 const GenericMessageDialog = ({ open, onClose, title, message }) => {
-  console.log("GenericMessageDialog");
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <Box sx={{ backgroundColor: "var(--color-background)", p: 2 }}>
@@ -23,7 +22,7 @@ const GenericMessageDialog = ({ open, onClose, title, message }) => {
           {title}
         </DialogTitle>
         <DialogContent>
-          <Typography sx={{ color: "var(--color-text)", textAlign: "center" }}>
+          <Typography sx={{ color: "var(--color-text)", textAlign: "center", lineHeight: 1.6 }}>
             {message}
           </Typography>
         </DialogContent>

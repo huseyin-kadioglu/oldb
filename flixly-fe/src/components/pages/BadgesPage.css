@@ -1,0 +1,218 @@
+.badges-page {
+  max-width: 100%;
+}
+
+.badges-hero {
+  margin-bottom: 48px;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.15) 0%, rgba(10, 10, 15, 0) 60%);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.badges-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--color-primary-button);
+  margin: 0 0 8px;
+}
+
+.badges-title {
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  font-weight: 500;
+  margin: 0 0 24px;
+  color: var(--color-text);
+}
+
+.badges-hero-row {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.badges-summary {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 28px !important;
+}
+
+.badges-summary-val {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--color-primary-button);
+  line-height: 1;
+}
+
+.badges-summary-val.muted {
+  color: var(--color-text-muted);
+}
+
+.badges-summary-lbl {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.badges-summary-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--color-border-subtle);
+}
+
+.badges-rarity-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rarity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.rarity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.badges-section {
+  margin-bottom: 48px;
+}
+
+.legendary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.legendary-card {
+  position: relative;
+  padding: 24px !important;
+}
+
+.legendary-lock {
+  position: absolute !important;
+  top: 16px;
+  right: 16px;
+  font-size: 16px !important;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.legendary-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.legendary-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  margin: 0 0 6px;
+  color: var(--color-text);
+}
+
+.legendary-card p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0 0 16px;
+}
+
+.legendary-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.legendary-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  margin-bottom: 12px;
+}
+
+.legendary-bar-fill {
+  height: 100%;
+  background: var(--color-primary-button);
+  border-radius: 2px;
+}
+
+.legendary-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary-button);
+}
+
+.earned-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.earned-card {
+  padding: 20px !important;
+}
+
+.earned-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.earned-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--color-text);
+}
+
+.earned-card p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0 0 14px;
+  line-height: 1.4;
+}
+
+.earned-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.65rem;
+}
+
+.earned-rarity {
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.earned-date,
+.earned-tag {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 900px) {
+  .legendary-grid,
+  .earned-grid {
+    grid-template-columns: 1fr;
+  }
+}
