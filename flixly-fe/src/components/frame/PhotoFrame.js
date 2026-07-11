@@ -5,11 +5,11 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CoverImage from "../ui/CoverImage";
+import SelectedBookDialog from "../common/SelectedBookDialog";
 import { createUserActivityFromGhostMenu } from "../../service/APIService";
 
 const PhotoFrame = ({
@@ -20,14 +20,14 @@ const PhotoFrame = ({
   justShowCover = false,
   showGhostMenu = true,
 }) => {
+  const token = sessionStorage.getItem("token");
   const [isLiked, setIsLiked] = useState(!!book?.liked);
-  const [isInShopping, setIsInShopping] = useState(!!book?.inShopping);
   const [isInLibrary, setIsInLibrary] = useState(!!book?.inLibrary);
   const [isRead, setIsRead] = useState(!!book?.read);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   useEffect(() => {
     setIsLiked(!!book?.liked);
-    setIsInShopping(!!book?.inShopping);
     setIsInLibrary(!!book?.inLibrary);
     setIsRead(!!book?.read);
   }, [book]);
@@ -38,61 +38,89 @@ const PhotoFrame = ({
     return <div>Kitap verisi yok</div>;
   }
 
-  const handleAction = (actionType, currentState, setState) => {
-    const newState = !currentState;
-    createUserActivityFromGhostMenu({
-      bookId: book?.id,
-      authorId: book?.authorId,
-      actionType,
-      action: newState ? "ADD" : "REMOVE",
-    });
-    setState(newState);
+  const requireAuth = () => {
+    if (!token) {
+      alert("Bu işlem için giriş yapın.");
+      return false;
+    }
+    return true;
   };
 
-  const ghostButtons = showGhostMenu && (
-    <div className="ghost-menu">
-      <button
-        onClick={(e) => { e.preventDefault(); handleAction("LIBRARY", isInLibrary, setIsInLibrary); }}
-        data-active={isInLibrary}
-        aria-label={isInLibrary ? "Kütüphanemde" : "Kütüphaneme ekle"}
-        title={isInLibrary ? "Kütüphanemde (sahibim)" : "Kütüphaneme ekle — sahip olduğum kitap"}
-      >
-        {isInLibrary
-          ? <LibraryBooksIcon style={{ fontSize: 16 }} />
-          : <LibraryAddIcon style={{ fontSize: 16 }} />}
-      </button>
+  const toggleGhost = (actionType, current, setState) => {
+    if (!requireAuth()) return;
+    const next = !current;
+    createUserActivityFromGhostMenu({
+      bookId: book.id,
+      authorId: book.authorId,
+      actionType,
+      action: next ? "ADD" : "REMOVE",
+    });
+    setState(next);
+  };
 
-      <button
-        onClick={(e) => { e.preventDefault(); handleAction("READ", isRead, setIsRead); }}
-        data-active={isRead}
-        aria-label="Okudum"
-        title="Okudum"
-      >
-        {isRead
-          ? <MenuBookIcon style={{ fontSize: 16 }} />
-          : <MenuBookOutlinedIcon style={{ fontSize: 16 }} />}
-      </button>
+  const stop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
-      <button
-        onClick={(e) => { e.preventDefault(); handleAction("SHOPPING", isInShopping, setIsInShopping); }}
-        data-active={isInShopping}
-        aria-label={isInShopping ? "Alınacaklarda" : "Alışveriş listesine ekle"}
-        title={isInShopping ? "Alınacaklarda" : "Alışveriş listesine ekle — alınacak kitap"}
-      >
-        {isInShopping
-          ? <ShoppingCartIcon style={{ fontSize: 16 }} />
-          : <ShoppingCartOutlinedIcon style={{ fontSize: 16 }} />}
-      </button>
+  const handleDetailLog = (e) => {
+    stop(e);
+    if (!requireAuth()) return;
+    setDetailOpen(true);
+  };
 
+  const quickBar = showGhostMenu && (
+    <div className="qa-bar">
       <button
-        onClick={(e) => { e.preventDefault(); handleAction("LIKE", isLiked, setIsLiked); }}
+        type="button"
+        className="qa-btn"
         data-active={isLiked}
-        aria-label="Beğen"
         title="Beğen"
+        aria-label="Beğen"
+        onClick={(e) => {
+          stop(e);
+          toggleGhost("LIKE", isLiked, setIsLiked);
+        }}
       >
-        {isLiked
-          ? <FavoriteIcon style={{ fontSize: 16 }} />
-          : <FavoriteBorderIcon style={{ fontSize: 16 }} />}
+        {isLiked ? <FavoriteIcon fontSize="inherit" /> : <FavoriteBorderIcon fontSize="inherit" />}
+      </button>
+
+      <button
+        type="button"
+        className="qa-btn"
+        data-active={isInLibrary}
+        title="Kütüphaneye ekle"
+        aria-label="Kütüphaneye ekle"
+        onClick={(e) => {
+          stop(e);
+          toggleGhost("LIBRARY", isInLibrary, setIsInLibrary);
+        }}
+      >
+        {isInLibrary ? <LibraryBooksIcon fontSize="inherit" /> : <LibraryAddIcon fontSize="inherit" />}
+      </button>
+
+      <button
+        type="button"
+        className="qa-btn"
+        data-active={isRead}
+        title="Okundu"
+        aria-label="Okundu"
+        onClick={(e) => {
+          stop(e);
+          toggleGhost("READ", isRead, setIsRead);
+        }}
+      >
+        {isRead ? <CheckCircleIcon fontSize="inherit" /> : <CheckCircleOutlineIcon fontSize="inherit" />}
+      </button>
+
+      <button
+        type="button"
+        className="qa-btn"
+        title="Detaylı log"
+        aria-label="Detaylı log"
+        onClick={handleDetailLog}
+      >
+        <MoreHorizIcon fontSize="inherit" />
       </button>
     </div>
   );
@@ -120,6 +148,7 @@ const PhotoFrame = ({
         </Link>
       )}
       {ratingBlock}
+      {isRead && <span className="frame-logged-chip">Logged</span>}
     </div>
   );
 
@@ -127,19 +156,27 @@ const PhotoFrame = ({
     <CoverImage src={book.coverUrl} alt={book.title} className={imageClass} />
   );
 
-  return justShowCover === true ? (
+  return (
     <div className="photo-frame">
-      {cover}
+      <div className="frame-cover-wrap">
+        {justShowCover === true ? (
+          cover
+        ) : (
+          <Link to={`/book/${book.id}`} state={{ book }} className="frame-cover-link">
+            {cover}
+          </Link>
+        )}
+        {quickBar}
+      </div>
       {titleBlock}
-      {ghostButtons}
-    </div>
-  ) : (
-    <div className="photo-frame">
-      <Link to={`/book/${book.id}`} state={{ book }}>
-        {cover}
-      </Link>
-      {titleBlock}
-      {ghostButtons}
+
+      {detailOpen && (
+        <SelectedBookDialog
+          open
+          selectedBook={book}
+          selectedBookHandler={() => setDetailOpen(false)}
+        />
+      )}
     </div>
   );
 };

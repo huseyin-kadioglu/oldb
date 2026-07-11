@@ -1,7 +1,9 @@
 package org.hk.flixly.controller;
 
 import org.hk.flixly.model.UserEntity;
+import org.hk.flixly.model.enums.UserRole;
 import org.hk.flixly.repository.UserRepository;
+import org.hk.flixly.service.NotificationService;
 import org.hk.flixly.service.OpenLibraryImportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,10 +21,15 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final OpenLibraryImportService openLibraryImportService;
+    private final NotificationService notificationService;
 
-    public AdminController(UserRepository userRepository, OpenLibraryImportService openLibraryImportService) {
+    public AdminController(
+            UserRepository userRepository,
+            OpenLibraryImportService openLibraryImportService,
+            NotificationService notificationService) {
         this.userRepository = userRepository;
         this.openLibraryImportService = openLibraryImportService;
+        this.notificationService = notificationService;
     }
 
     /** Open Library'den katalog import / zenginleştirme */
@@ -50,6 +57,7 @@ public class AdminController {
             user.setAvatarUrl(user.getPendingAvatarUrl());
             user.setPendingAvatarUrl(null);
             userRepository.save(user);
+            notificationService.notifyAvatarDecision(user.getId(), true);
         });
         return ResponseEntity.ok().build();
     }
@@ -59,6 +67,7 @@ public class AdminController {
         userRepository.findById(userId.intValue()).ifPresent(user -> {
             user.setPendingAvatarUrl(null);
             userRepository.save(user);
+            notificationService.notifyAvatarDecision(user.getId(), false);
         });
         return ResponseEntity.ok().build();
     }
@@ -77,5 +86,28 @@ public class AdminController {
                         "pendingAvatarUrl", u.getPendingAvatarUrl() != null ? u.getPendingAvatarUrl() : ""
                 ))
                 .toList();
+    }
+
+    @PatchMapping("/users/{userId}/role")
+    public ResponseEntity<?> updateUserRole(
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (!(userDetails instanceof UserEntity actor) || !UserRole.isAdmin(actor.getRole())) {
+            return ResponseEntity.status(403).body(Map.of("message", "Sadece admin rol değiştirebilir"));
+        }
+        String raw = body.get("role");
+        UserRole next = UserRole.from(raw);
+        return userRepository.findById(userId.intValue())
+                .map(user -> {
+                    user.setRole(next.name());
+                    userRepository.save(user);
+                    return ResponseEntity.ok(Map.of(
+                            "userId", user.getId(),
+                            "role", user.getRole()
+                    ));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -10,4 +10,5 @@ public class UpdateProfileRequest {
     private String location;
     private String bio;
     private String avatarUrl;
+    private Integer yearlyBookGoal;
 }

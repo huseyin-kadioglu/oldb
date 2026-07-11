@@ -14,6 +14,8 @@ public class CommunityReviewDto {
     private Long userId;
     private String username;
     private String profileName;
+    private String avatarUrl;
+    private String role;
     private Long bookId;
     private String title;
     private String coverUrl;

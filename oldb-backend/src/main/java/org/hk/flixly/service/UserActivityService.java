@@ -21,11 +21,17 @@ public class UserActivityService {
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
     private final UserBookMapRepository userBookMapRepository;
+    private final NotificationService notificationService;
 
-    public UserActivityService(ActivityRepository activityRepository, UserRepository userRepository, UserBookMapRepository userBookMapRepository) {
+    public UserActivityService(
+            ActivityRepository activityRepository,
+            UserRepository userRepository,
+            UserBookMapRepository userBookMapRepository,
+            NotificationService notificationService) {
         this.activityRepository = activityRepository;
         this.userRepository = userRepository;
         this.userBookMapRepository = userBookMapRepository;
+        this.notificationService = notificationService;
     }
 
     public UserActivityEntity createActivity(ActivityDto activityDto, UserDetails userDetails) {
@@ -64,6 +70,10 @@ public class UserActivityService {
         }
         userBookMapRepository.save(map);
 
+        if (BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status)) {
+            notificationService.notifySameBookReaders(userId, bookId);
+        }
+
         return entity;
     }
 
@@ -75,11 +85,21 @@ public class UserActivityService {
 
         Optional<UserBookMapEntity> mapEntity = userBookMapRepository.findByUserIdAndBookIdAndStatus(userId, bookId, actionType);
         if (mapEntity.isPresent()) {
-            return removeActivity(mapEntity.get());
+            UserActivityEntity removed = removeActivity(mapEntity.get());
+            return removed != null ? removed : stubActivity(userId, bookId, actionType);
         }
 
         resolveStatusConflicts(userId, bookId, actionType);
         return addActivity(userId, bookId, actionType, activityDto.getLibraryFormat());
+    }
+
+    private static UserActivityEntity stubActivity(Long userId, Long bookId, String status) {
+        UserActivityEntity stub = new UserActivityEntity();
+        stub.setUserId(userId);
+        stub.setBookId(bookId);
+        stub.setStatus(status);
+        stub.setUpdateDate(LocalDate.now());
+        return stub;
     }
 
     /**
@@ -122,6 +142,10 @@ public class UserActivityService {
             map.setLibraryFormat(libraryFormat);
         }
         userBookMapRepository.save(map);
+
+        if (BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status)) {
+            notificationService.notifySameBookReaders(userId, bookId);
+        }
 
         return activity;
     }

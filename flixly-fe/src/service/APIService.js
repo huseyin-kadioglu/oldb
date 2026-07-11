@@ -2,6 +2,20 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8080/"; // Backend URL
 
+/** Relative /uploads/... yollarını absolute URL'e çevirir */
+export const resolveMediaUrl = (url) => {
+  if (!url) return null;
+  const value = String(url).trim();
+  if (!value) return null;
+  if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("data:")) {
+    return value;
+  }
+  if (value.startsWith("/")) {
+    return `${BASE_URL.replace(/\/$/, "")}${value}`;
+  }
+  return value;
+};
+
 const BOOKS_API = BASE_URL + "books/"; // Backend URL
 const BOOKS_BY_YEAR_API = BASE_URL + "books/publishYear/"; // Backend URL
 const AUTHOR_API = BASE_URL + "authors/"; // Backend URL
@@ -516,6 +530,14 @@ export const loginAccount = async (param) => {
     sessionStorage.setItem("profileName", response.data.profileName);
     sessionStorage.setItem("userRole", response.data.role);
     sessionStorage.setItem("emailAddress", param.email);
+    if (response.data.avatarUrl) {
+      sessionStorage.setItem("avatarUrl", response.data.avatarUrl);
+    } else {
+      sessionStorage.removeItem("avatarUrl");
+    }
+    if (response.data.contributionPoint != null) {
+      sessionStorage.setItem("contributionPoint", String(response.data.contributionPoint));
+    }
     
     console.log("loginAccount: ", response.data);
     return response.data;
@@ -616,25 +638,149 @@ export const rateAuthor = async (authorId, rating) => {
 export const updateProfile = async (payload) => {
   const token = sessionStorage.getItem("token");
 
-  try {
-    const response = await fetch(`${BASE_URL}profile/edit`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+  const response = await fetch(`${BASE_URL}profile/edit`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 
-    if (!response.ok) {
-      throw new Error("Profil güncellenemedi");
+  const text = await response.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
     }
+  }
 
-    return await response.json();
-  } catch (error) {
-    console.error("Profil güncellenirken hata:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || "Profil güncellenemedi");
+  }
+  if (data?.avatarUrl) {
+    sessionStorage.setItem("avatarUrl", resolveMediaUrl(data.avatarUrl));
+  }
+  if (data?.contributionPoint != null) {
+    sessionStorage.setItem("contributionPoint", String(data.contributionPoint));
+  }
+  if (data?.role) {
+    sessionStorage.setItem("userRole", data.role);
+  }
+  return data || {};
+};
+
+export const uploadAvatar = async (file) => {
+  const token = sessionStorage.getItem("token");
+  const body = new FormData();
+  body.append("file", file);
+
+  const response = await fetch(`${BASE_URL}profile/avatar`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body,
+  });
+
+  const text = await response.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
+    }
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || "Fotoğraf yüklenemedi");
+  }
+
+  if (data?.avatarUrl) {
+    sessionStorage.setItem("avatarUrl", resolveMediaUrl(data.avatarUrl));
+  }
+  if (data?.role) {
+    sessionStorage.setItem("userRole", data.role);
+  }
+  return data || {};
+};
+
+// NOTIFICATIONS
+export const getNotifications = async (limit = 30) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BASE_URL}notifications`, {
+    params: { limit },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const getUnreadNotificationCount = async () => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BASE_URL}notifications/unread-count`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data?.count ?? 0;
+};
+
+export const markNotificationsRead = async (ids) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.post(
+    `${BASE_URL}notifications/read`,
+    ids?.length ? { ids } : {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const markNotificationRead = async (id) => {
+  const token = sessionStorage.getItem("token");
+  await axios.post(
+    `${BASE_URL}notifications/${id}/read`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
+
+export const formatNotificationText = (n) => {
+  const actor = n.actorUsername || "Birisi";
+  const book = n.bookTitle || "bir kitap";
+  switch (n.type) {
+    case "FOLLOW":
+      return { emphasis: actor, rest: " seni takip etti" };
+    case "COMMENT_LIKE":
+      return { emphasis: actor, rest: " yorumunu beğendi" };
+    case "SAME_BOOK":
+      if ((n.count || 1) <= 1) {
+        return { emphasis: actor, rest: ` ${book} okuyor` };
+      }
+      return { emphasis: `${n.count} kişi`, rest: ` ${book} kitabını da okuyor` };
+    case "WEEKLY_PICK_COMMENT":
+      return { emphasis: null, rest: `Haftanın kitabına yorum geldi: ${book}` };
+    case "AVATAR_APPROVED":
+      return { emphasis: null, rest: "Profil fotoğrafın onaylandı" };
+    case "AVATAR_REJECTED":
+      return { emphasis: null, rest: "Profil fotoğrafın reddedildi — yeni bir foto yükleyebilirsin" };
+    default:
+      return { emphasis: null, rest: "Yeni bildirim" };
   }
 };
 
+export const AVATAR_UPLOAD_MIN_SCORE = 100; // deprecated — avatar artık puana bağlı değil
+
+/** Katkı puanı kapılarını bypass eden roller (ileride başka özellikler için) */
+export const SCORE_BYPASS_ROLES = ["ADMIN", "MODERATOR", "PRO"];
+
+export const isScoreBypassRole = (role) =>
+  SCORE_BYPASS_ROLES.includes(String(role || "").toUpperCase());
+
+export const isStaffRole = (role) => {
+  const r = String(role || "").toUpperCase();
+  return r === "ADMIN" || r === "MODERATOR";
+};
+
+export const isAdminRole = (role) => String(role || "").toUpperCase() === "ADMIN";
 

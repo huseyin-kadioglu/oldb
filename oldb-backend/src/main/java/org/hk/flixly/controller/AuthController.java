@@ -57,6 +57,8 @@ public class AuthController {
         response.setExpiresIn(jwtService.getExpirationTime());
         response.setProfileName(authenticatedUser.getProfilName());
         response.setRole(authenticatedUser.getRole());
+        response.setAvatarUrl(authenticatedUser.getAvatarUrl());
+        response.setContributionPoint(authenticatedUser.getContributionPoint());
 
         return ResponseEntity.ok(response);
     }

@@ -10,6 +10,7 @@ import "./NavigationBar.css";
 import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
 import LoggedUser from "./LoggedUser";
+import NotificationsBell from "./NotificationsBell";
 
 const NAV_ITEMS = [
   { key: "home", label: "Ana Sayfa", path: "/", icon: HomeOutlinedIcon },
@@ -38,11 +39,21 @@ const NavigationBar = ({
     if (location.pathname === "/signup") {
       setShowCreateAccountPanel(true);
     }
+    if (location.pathname === "/signin") {
+      setShowSignInPanel(true);
+    }
   }, [location.pathname]);
 
   const handleCloseCreateAccount = () => {
     setShowCreateAccountPanel(false);
     if (location.pathname === "/signup") {
+      navigate("/");
+    }
+  };
+
+  const handleCloseSignIn = () => {
+    setShowSignInPanel(false);
+    if (location.pathname === "/signin") {
       navigate("/");
     }
   };
@@ -91,7 +102,8 @@ const NavigationBar = ({
               type="button"
               className="navbar-logo"
               onClick={() => navigate("/")}
-              aria-label="OLDB ana sayfa"
+              aria-label="OLDB — Online Library Database"
+              title="Online Library Database"
             >
               <MenuBookOutlinedIcon className="navbar-logo-icon" />
               <span className="navbar-logo-text">OLDB</span>
@@ -165,7 +177,8 @@ const NavigationBar = ({
                     + LOG
                   </button>
                 )}
-                <LoggedUser onLogout={onLogout} compact />
+                <NotificationsBell />
+                <LoggedUser onLogout={onLogout} />
               </div>
             )}
           </div>
@@ -177,7 +190,7 @@ const NavigationBar = ({
       {showSignInPanel && (
         <SignInPanel
           isOpen={showSignInPanel}
-          onClose={() => setShowSignInPanel(false)}
+          onClose={handleCloseSignIn}
           handleToken={handleToken}
         />
       )}

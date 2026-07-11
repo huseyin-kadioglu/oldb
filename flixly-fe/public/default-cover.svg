@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600" role="img" aria-label="Kapak yok">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14141c"/>
+      <stop offset="100%" stop-color="#1e1e2a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#bg)"/>
+  <rect x="28" y="28" width="344" height="544" fill="none" stroke="#d4af37" stroke-opacity="0.35" stroke-width="2"/>
+  <path d="M140 220h120v200H140z" fill="#d4af37" fill-opacity="0.12"/>
+  <path d="M155 245h90M155 275h70M155 305h80" stroke="#d4af37" stroke-opacity="0.55" stroke-width="6" stroke-linecap="round"/>
+  <text x="200" y="470" text-anchor="middle" fill="#d4af37" fill-opacity="0.7" font-family="Georgia, serif" font-size="22">OLDB</text>
+</svg>

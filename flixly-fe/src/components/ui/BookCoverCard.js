@@ -1,46 +1,18 @@
-import { Link } from "react-router-dom";
-
-import CoverImage from "./CoverImage";
-
-import "../ui/folios-ui.css";
-
-
+import PhotoFrame from "../frame/PhotoFrame";
+import "./folios-ui.css";
 
 const BookCoverCard = ({ book, showAuthor = true }) => {
-
   if (!book) return null;
 
-
-
   return (
-
-    <Link to={`/book/${book.id}`} state={{ book }} className="folios-book-card">
-
-      <CoverImage
-
-        src={book.coverUrl}
-
-        alt={book.title}
-
-        className="folios-book-card-cover"
-
-      />
-
+    <div className="folios-book-card">
+      <PhotoFrame book={book} showTitle={false} showGhostMenu />
       <p className="folios-book-card-title">{book.title}</p>
-
       {showAuthor && (
-
         <p className="folios-book-card-author">{book.authorName || "—"}</p>
-
       )}
-
-    </Link>
-
+    </div>
   );
-
 };
 
-
-
 export default BookCoverCard;
-

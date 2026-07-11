@@ -1,216 +1,284 @@
+/* Profile hero — denser Letterboxd-style identity band */
 .profile-hero {
   position: relative;
-  margin: -32px -40px 40px;
+  margin: -32px -40px 12px;
   overflow: hidden;
 }
 
 .profile-hero-bg {
   position: absolute;
   inset: 0;
+  /* Stronger scrim: photo sets mood without competing with type */
   background:
-    linear-gradient(to bottom, rgba(10, 10, 15, 0.35) 0%, rgba(10, 10, 15, 0.96) 100%),
+    linear-gradient(180deg, rgba(10, 10, 15, 0.88) 0%, rgba(10, 10, 15, 0.96) 70%, #0a0a0f 100%),
+    linear-gradient(105deg, rgba(10, 10, 15, 0.9) 0%, rgba(10, 10, 15, 0.55) 55%, rgba(10, 10, 15, 0.85) 100%),
     url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1200&q=80") center / cover;
 }
 
 .profile-hero-content {
   position: relative;
-  padding: 40px 40px 28px;
+  padding: 16px 40px 14px;
   z-index: 1;
 }
 
 .profile-hero-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 40px;
+  gap: 20px;
 }
 
 .profile-hero-identity {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  gap: 14px;
+  align-items: center;
   min-width: 0;
   flex: 1;
 }
 
 .profile-avatar-circle {
-  width: 80px !important;
-  height: 80px !important;
-  min-width: 80px !important;
-  min-height: 80px !important;
+  width: 72px !important;
+  height: 72px !important;
+  min-width: 72px !important;
+  min-height: 72px !important;
   border-radius: 50% !important;
-  border: 2px solid rgba(255, 255, 255, 0.15) !important;
-  font-size: 1.5rem !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  font-size: 1.25rem !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  aspect-ratio: 1 / 1 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .profile-hero-info {
   min-width: 0;
+  flex: 1;
+}
+
+.profile-hero-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 2px;
 }
 
 .profile-display-name {
   font-family: var(--font-sans);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 10px;
+  color: #fff;
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.profile-display-name .user-display-name {
+  gap: 6px;
+}
+
+.profile-streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-streak-chip svg {
+  font-size: 12px !important;
+  color: var(--color-primary-button, #d4af37);
+}
+
+.profile-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.profile-location svg {
+  font-size: 13px !important;
+}
+
+.profile-bio {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.35;
+  margin: 0 0 8px;
+  max-width: 420px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .profile-hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 6px;
 }
 
-.profile-link-btn,
-.profile-edit-btn {
+.profile-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 650;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, filter 0.15s ease;
   white-space: nowrap;
+  border: 1px solid transparent;
 }
 
-.profile-link-btn {
+.profile-btn:focus-visible {
+  outline: 2px solid var(--color-primary-button, #d4af37);
+  outline-offset: 2px;
+}
+
+.profile-btn--primary {
+  background: var(--color-primary-button, #d4af37);
+  border-color: var(--color-primary-button, #d4af37);
+  color: #121218;
+}
+
+.profile-btn--primary:hover {
+  filter: brightness(1.06);
+}
+
+.profile-btn--ghost {
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--color-border-subtle);
-  color: var(--color-text-secondary);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.88);
 }
 
-.profile-link-btn:hover {
+.profile-btn--ghost:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--color-text);
+  border-color: rgba(255, 255, 255, 0.26);
 }
 
-.profile-edit-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--color-text);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.profile-btn--subtle {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.65);
+  padding: 3px 8px;
+  font-size: 0.68rem;
 }
 
-.profile-edit-btn:hover {
-  background: rgba(255, 255, 255, 0.14);
+.profile-btn--subtle:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.26);
 }
 
-.profile-meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 8px;
-}
-
-.profile-meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.profile-meta-item svg {
-  font-size: 14px !important;
-}
-
-.profile-bio {
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin: 0;
-  max-width: 420px;
-}
-
-/* Letterboxd-style inline stats */
-.profile-stats-inline {
+/* Compact stat strip — numbers dominate like LB/Steam */
+.profile-stats-grid {
   display: flex;
   align-items: stretch;
   flex-shrink: 0;
-  padding-top: 4px;
+  gap: 0;
+  padding: 0;
 }
 
-.profile-stat-inline {
-  display: flex;
-  align-items: stretch;
-}
-
-.profile-stat-divider {
-  width: 1px;
-  background: rgba(255, 255, 255, 0.12);
-  margin: 4px 0;
-}
-
-.profile-stat-inline-body {
+.profile-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 22px;
-  min-width: 72px;
   text-align: center;
+  padding: 2px 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 56px;
+}
+
+.profile-stat:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+
+.profile-stat.is-zero .profile-stat-value {
+  color: rgba(255, 255, 255, 0.28);
+  font-weight: 600;
 }
 
 .profile-stat-value {
-  font-family: var(--font-sans);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: var(--color-text);
-  line-height: 1.1;
+  color: #fff;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
 }
 
 .profile-stat-label {
-  font-size: 0.65rem;
-  font-weight: 600;
+  margin-top: 2px;
+  font-size: 0.55rem;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.42);
 }
 
 @media (max-width: 900px) {
   .profile-hero-row {
     flex-direction: column;
-    gap: 24px;
+    align-items: stretch;
+    gap: 12px;
   }
 
-  .profile-stats-inline {
+  .profile-hero-identity {
+    align-items: flex-start;
+  }
+
+  .profile-stats-grid {
     width: 100%;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding-top: 20px;
+    padding-top: 10px;
   }
 
-  .profile-stat-inline-body {
-    padding: 0 12px;
+  .profile-stat {
+    border-left: none;
+    padding: 4px 2px;
     min-width: 0;
-    flex: 1;
   }
 }
 
 @media (max-width: 640px) {
   .profile-hero {
-    margin: -20px -16px 24px;
+    margin: -20px -16px 10px;
   }
 
   .profile-hero-content {
-    padding: 24px 16px 20px;
+    padding: 12px 16px;
   }
 
-  .profile-hero-identity {
-    gap: 14px;
+  .profile-avatar-circle {
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    min-height: 56px !important;
   }
 
-  .profile-stat-value {
-    font-size: 1.2rem;
+  .profile-display-name {
+    font-size: 1.15rem;
   }
 
-  .profile-stat-label {
-    font-size: 0.55rem;
+  .profile-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .profile-btn {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 }

@@ -13,9 +13,8 @@ public class ReviewWithBookInfoDto {
     private String coverUrl;
     private String title;
     private Integer year;
-    private String authorName; // varsayalım tek bir yazar var
+    private String authorName;
     private LocalDate readDate;
     private String comment;
-
-    // getter / setter
+    private double rating;
 }

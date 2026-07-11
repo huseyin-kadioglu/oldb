@@ -15,14 +15,14 @@ const AuthorApproval = () => {
   const [editableId, setEditableId] = useState(null);
   const [dialog, setDialog] = useState({ open: false, title: "", message: "" });
 
-  // Admin role check
+  // Admin / Moderator role check
   useEffect(() => {
     const userRole = sessionStorage.getItem("userRole");
-    if (!userRole || userRole !== "ADMIN") {
+    if (!userRole || (userRole !== "ADMIN" && userRole !== "MODERATOR")) {
       setDialog({
         open: true,
         title: "Erişim Reddedildi",
-        message: "Bu sayfa sadece admin tarafından erişilebilir.",
+        message: "Bu sayfa sadece admin veya moderatör tarafından erişilebilir.",
       });
       setTimeout(() => navigate("/"), 2000);
     }

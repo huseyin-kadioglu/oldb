@@ -8,11 +8,14 @@ import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.UserActivityEntity;
 import org.hk.flixly.model.entity.UserBookMapEntity;
 import org.hk.flixly.model.enums.BookActivityStatus;
+import org.hk.flixly.model.enums.UserRole;
 import org.hk.flixly.repository.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -33,6 +36,7 @@ public class ProfileService {
     private final PasswordEncoder passwordEncoder;
     private final GamificationService gamificationService;
     private final GenrePreferenceService genrePreferenceService;
+    private final AvatarStorageService avatarStorageService;
 
     public ProfileInfoDTO getProfileInfo(UserDetails userDetails) {
         UserEntity user = userRepository.findByEmail(userDetails.getUsername())
@@ -62,6 +66,14 @@ public class ProfileService {
         response.setBio(userEntity.getBio());
         response.setLocation(userEntity.getLocation());
         response.setContributionPoint(userEntity.getContributionPoint());
+        String role = userEntity.getRole() != null ? userEntity.getRole() : UserRole.USER.name();
+        response.setRole(role);
+        response.setScoreBypass(UserRole.bypassesContributionGates(role));
+        response.setAvatarUrl(userEntity.getAvatarUrl());
+        response.setPendingAvatarUrl(userEntity.getPendingAvatarUrl());
+        // Avatar kimlik özelliği — herkes yükleyebilir; admin onayı gerekir
+        response.setCanUploadAvatar(true);
+        response.setYearlyBookGoal(userEntity.getYearlyBookGoal());
 
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
 
@@ -104,8 +116,11 @@ public class ProfileService {
         response.setRecentActivity(buildRecentActivities(userActivities, bookIdToEntityMap, authorIdToEntityMap));
         response.setReviews(buildReviews(userActivities, bookIdToEntityMap, authorIdToEntityMap));
         applyReadingStats(response, userActivities, bookIdToEntityMap, readBooks.size());
+        response.setAverageRating(computeAverageRating(userActivities));
+        response.setReadingStreak(computeReadingStreak(userActivities));
+        response.setMostFrequentRating(computeMostFrequentRating(userActivities));
 
-        response.setContinueReading(buildContinueReading(userBookMaps, bookIdToEntityMap, authorIdToEntityMap));
+        response.setContinueReading(buildContinueReading(userBookMaps, bookIdToEntityMap, authorIdToEntityMap, userActivities));
         try {
             response.setChallenges(gamificationService.getChallengesForUser(userEntity.getId()));
             response.setEarnedBadges(
@@ -140,33 +155,57 @@ public class ProfileService {
     private List<ContinueReadingDto> buildContinueReading(
             List<UserBookMapEntity> maps,
             Map<Long, BookEntity> books,
-            Map<Long, AuthorEntity> authors) {
-        return maps.stream()
+            Map<Long, AuthorEntity> authors,
+            List<UserActivityEntity> activities) {
+        Map<Long, LocalDate> lastActivityByBook = new HashMap<>();
+        for (UserActivityEntity activity : activities) {
+            if (activity.getBookId() == null) continue;
+            LocalDate touch = activity.getUpdateDate() != null ? activity.getUpdateDate() : activity.getReadDate();
+            if (touch == null) continue;
+            LocalDate existing = lastActivityByBook.get(activity.getBookId());
+            if (existing == null || touch.isAfter(existing)) {
+                lastActivityByBook.put(activity.getBookId(), touch);
+            }
+        }
+
+        List<UserBookMapEntity> readlist = maps.stream()
                 .filter(m -> BookActivityStatus.READLIST.equals(m.getStatus()))
-                .filter(m -> m.getCurrentPage() != null && m.getCurrentPage() > 0)
-                .map(m -> {
-                    BookEntity book = books.get(m.getBookId());
-                    if (book == null) return null;
-                    AuthorEntity author = book.getAuthorId() != null ? authors.get(book.getAuthorId()) : null;
-                    Integer total = book.getPageCount();
-                    Integer current = m.getCurrentPage();
-                    Integer pct = (total != null && total > 0)
-                            ? Math.min(100, (int) Math.round(100.0 * current / total))
-                            : null;
-                    return ContinueReadingDto.builder()
-                            .id(book.getId())
-                            .title(book.getTitle())
-                            .coverUrl(book.getCoverUrl())
-                            .authorId(book.getAuthorId())
-                            .authorName(author != null ? author.getName() : null)
-                            .pageCount(total)
-                            .currentPage(current)
-                            .progressPercent(pct)
-                            .build();
-                })
-                .filter(Objects::nonNull)
-                .limit(5)
+                .sorted(Comparator.comparing(
+                        (UserBookMapEntity m) -> m.getCurrentPage() != null && m.getCurrentPage() > 0 ? 0 : 1)
+                        .thenComparing(m -> Optional.ofNullable(m.getCurrentPage()).orElse(0), Comparator.reverseOrder()))
                 .toList();
+
+        List<ContinueReadingDto> result = new ArrayList<>();
+        for (UserBookMapEntity m : readlist) {
+            if (result.size() >= 5) break;
+            BookEntity book = books.get(m.getBookId());
+            if (book == null) continue;
+            AuthorEntity author = book.getAuthorId() != null ? authors.get(book.getAuthorId()) : null;
+            Integer total = book.getPageCount();
+            Integer current = m.getCurrentPage();
+            Integer pct = (total != null && total > 0 && current != null && current > 0)
+                    ? Math.min(100, (int) Math.round(100.0 * current / total))
+                    : null;
+            java.time.LocalDateTime lastUpdated = m.getUpdatedAt();
+            if (lastUpdated == null) {
+                LocalDate fallback = lastActivityByBook.get(m.getBookId());
+                if (fallback != null) {
+                    lastUpdated = fallback.atStartOfDay();
+                }
+            }
+            result.add(ContinueReadingDto.builder()
+                    .id(book.getId())
+                    .title(book.getTitle())
+                    .coverUrl(book.getCoverUrl())
+                    .authorId(book.getAuthorId())
+                    .authorName(author != null ? author.getName() : null)
+                    .pageCount(total)
+                    .currentPage(current)
+                    .progressPercent(pct)
+                    .lastUpdated(lastUpdated)
+                    .build());
+        }
+        return result;
     }
 
     private static List<BookEntity> mergeReadLists(Map<String, List<BookEntity>> statusBookListMap) {
@@ -235,6 +274,7 @@ public class ProfileService {
             review.setYear(book.getPublicationYear());
             review.setReadDate(activity.getReadDate());
             review.setComment(activity.getComment());
+            review.setRating(activity.getRating());
 
             if (book.getAuthorId() != null) {
                 AuthorEntity author = authorMap.get(book.getAuthorId());
@@ -318,6 +358,69 @@ public class ProfileService {
         return BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status);
     }
 
+    private static Double computeMostFrequentRating(List<UserActivityEntity> activities) {
+        Map<Double, Integer> counts = new HashMap<>();
+        for (UserActivityEntity activity : activities) {
+            if (activity.getRating() <= 0) continue;
+            double rounded = Math.round(activity.getRating() * 2) / 2.0;
+            counts.merge(rounded, 1, Integer::sum);
+        }
+        if (counts.isEmpty()) return null;
+        return counts.entrySet().stream()
+                .max(Comparator.comparingInt(Map.Entry::getValue)
+                        .thenComparingDouble(Map.Entry::getKey))
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    private static Double computeAverageRating(List<UserActivityEntity> activities) {
+        Map<Long, Double> latestRatingByBook = new HashMap<>();
+        for (UserActivityEntity activity : activities) {
+            if (activity.getBookId() == null || activity.getRating() <= 0) {
+                continue;
+            }
+            latestRatingByBook.put(activity.getBookId(), activity.getRating());
+        }
+        if (latestRatingByBook.isEmpty()) {
+            return null;
+        }
+        double sum = latestRatingByBook.values().stream().mapToDouble(Double::doubleValue).sum();
+        return round(sum / latestRatingByBook.size());
+    }
+
+    /**
+     * Bugün (veya dün) biten ardışık günlerde aktivite/okuma varsa streak sayar.
+     */
+    private static int computeReadingStreak(List<UserActivityEntity> activities) {
+        Set<LocalDate> activeDays = new HashSet<>();
+        for (UserActivityEntity activity : activities) {
+            if (activity.getReadDate() != null) {
+                activeDays.add(activity.getReadDate());
+            }
+            if (activity.getUpdateDate() != null) {
+                activeDays.add(activity.getUpdateDate());
+            }
+        }
+        if (activeDays.isEmpty()) {
+            return 0;
+        }
+
+        LocalDate cursor = LocalDate.now();
+        if (!activeDays.contains(cursor)) {
+            cursor = cursor.minusDays(1);
+            if (!activeDays.contains(cursor)) {
+                return 0;
+            }
+        }
+
+        int streak = 0;
+        while (activeDays.contains(cursor)) {
+            streak++;
+            cursor = cursor.minusDays(1);
+        }
+        return streak;
+    }
+
     private static double round(double value) {
         return BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
     }
@@ -332,10 +435,29 @@ public class ProfileService {
         if (request.getLocation() != null) {
             userEntity.setLocation(request.getLocation());
         }
+        if (request.getYearlyBookGoal() != null) {
+            int goal = request.getYearlyBookGoal();
+            if (goal < 0) {
+                throw new IllegalArgumentException("Yıllık hedef negatif olamaz");
+            }
+            userEntity.setYearlyBookGoal(goal == 0 ? null : goal);
+        }
         if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
-            userEntity.setPendingAvatarUrl(request.getAvatarUrl());
+            throw new IllegalArgumentException(
+                    "Profil fotoğrafı için dosya yükleme kullanın (URL / base64 desteklenmiyor)");
         }
 
+        userRepository.save(userEntity);
+        return buildProfileInfo(userEntity);
+    }
+
+    public ProfileInfoDTO uploadAvatar(String email, MultipartFile file) throws IOException {
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+
+        String storedPath = avatarStorageService.store(userEntity.getId(), file);
+        // Herkes yükler; görünür olması için admin onayı gerekir
+        userEntity.setPendingAvatarUrl(storedPath);
         userRepository.save(userEntity);
         return buildProfileInfo(userEntity);
     }

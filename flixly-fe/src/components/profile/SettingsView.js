@@ -3,16 +3,19 @@ import { useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 import ErrorDialog from "../common/ErrorDialog";
 import GenericMessageDialog from "../common/GenericMessageDialog";
 import {
   getProfileSummary,
   updateProfile,
+  uploadAvatar,
   changePassword,
   logout,
+  resolveMediaUrl,
 } from "../../service/APIService";
 import "./SettingsView.css";
+
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024; // 2MB
 
 const SettingsView = () => {
   const [message, setMessage] = useState(null);
@@ -20,6 +23,11 @@ const SettingsView = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("profile");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [pendingAvatarUrl, setPendingAvatarUrl] = useState(null);
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewObjectUrl, setPreviewObjectUrl] = useState(null);
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -28,7 +36,6 @@ const SettingsView = () => {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    avatarUrl: "",
   });
 
   const navigate = useNavigate();
@@ -53,6 +60,13 @@ const SettingsView = () => {
           bio: data.bio ?? "",
           location: data.location ?? "",
         }));
+        if (data.role) sessionStorage.setItem("userRole", data.role);
+        setCurrentAvatarUrl(resolveMediaUrl(data.avatarUrl) || null);
+        setPendingAvatarUrl(resolveMediaUrl(data.pendingAvatarUrl) || null);
+        if (data.avatarUrl) sessionStorage.setItem("avatarUrl", resolveMediaUrl(data.avatarUrl));
+        if (data.contributionPoint != null) {
+          sessionStorage.setItem("contributionPoint", String(data.contributionPoint));
+        }
       } catch {
         setError("Profil bilgileri yüklenemedi.");
       }
@@ -108,17 +122,47 @@ const SettingsView = () => {
   };
 
   const handleAvatarSubmit = async () => {
-    if (!form.avatarUrl.trim()) {
-      setError("Lütfen bir fotoğraf URL'si girin.");
+    if (!selectedFile) {
+      setError("Lütfen bir fotoğraf dosyası seçin.");
       return;
     }
+    setUploadingAvatar(true);
     try {
-      await updateProfile({ avatarUrl: form.avatarUrl });
-      setMessage("Profil fotoğrafı güncellendi. Admin onayı bekleniyor.");
-      setTimeout(() => setMessage(null), 3000);
-    } catch {
-      setError("Fotoğraf isteği gönderilemedi.");
+      const data = await uploadAvatar(selectedFile);
+      setPendingAvatarUrl(resolveMediaUrl(data.pendingAvatarUrl) || null);
+      if (data.avatarUrl) {
+        setCurrentAvatarUrl(resolveMediaUrl(data.avatarUrl));
+      }
+      if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+      }
+      setPreviewObjectUrl(null);
+      setSelectedFile(null);
+      setMessage("Fotoğraf onaya gönderildi. Admin onayından sonra profilinde görünür.");
+      setTimeout(() => setMessage(null), 3500);
+    } catch (err) {
+      setError(err.message || "Fotoğraf isteği gönderilemedi.");
+    } finally {
+      setUploadingAvatar(false);
     }
+  };
+
+  const handleFilePick = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Yalnızca görsel dosyaları yükleyebilirsin.");
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      setError("Dosya çok büyük. Lütfen 2MB altı bir görsel seç.");
+      return;
+    }
+    if (previewObjectUrl) {
+      URL.revokeObjectURL(previewObjectUrl);
+    }
+    setSelectedFile(file);
+    setPreviewObjectUrl(URL.createObjectURL(file));
   };
 
   const handleChange = (e) => {
@@ -129,8 +173,9 @@ const SettingsView = () => {
   const tabs = [
     { id: "profile", label: "Profil", icon: PersonOutlineIcon },
     { id: "auth", label: "Şifre", icon: LockOutlinedIcon },
-    { id: "avatar", label: "Avatar", icon: PhotoCameraOutlinedIcon },
   ];
+
+  const previewSrc = previewObjectUrl || pendingAvatarUrl || currentAvatarUrl;
 
   return (
     <>
@@ -176,7 +221,55 @@ const SettingsView = () => {
 
               {activeTab === "profile" && (
                 <form onSubmit={handleSubmit}>
-                  <div className="settings-section-title">Profil Bilgileri</div>
+                  <div className="settings-section-title">Profil Fotoğrafı</div>
+
+                  <p className="settings-hint settings-hint--block">
+                    Herkes fotoğraf yükleyebilir. Değişiklik admin onayından sonra profilinde görünür.
+                  </p>
+
+                  {pendingAvatarUrl && (
+                    <div className="settings-banner settings-banner--info">
+                      Onay bekleyen bir fotoğrafın var.
+                    </div>
+                  )}
+
+                  <div className="settings-avatar-panel">
+                    <div className="settings-avatar-preview">
+                      {previewSrc ? (
+                        <img src={previewSrc} alt="Önizleme" />
+                      ) : (
+                        <div className="settings-avatar-placeholder">Foto yok</div>
+                      )}
+                    </div>
+
+                    <div className="settings-avatar-fields">
+                      <div className="settings-field">
+                        <label htmlFor="settings-avatar-file">Dosya seç (PNG, JPG, WEBP — max 2MB)</label>
+                        <input
+                          id="settings-avatar-file"
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/gif"
+                          disabled={uploadingAvatar}
+                          onChange={handleFilePick}
+                          className="settings-input"
+                        />
+                        {selectedFile && (
+                          <span className="settings-hint">{selectedFile.name} — önizleme hazır.</span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        className="settings-save-btn settings-save-btn--secondary"
+                        onClick={handleAvatarSubmit}
+                        disabled={!selectedFile || uploadingAvatar}
+                      >
+                        {uploadingAvatar ? "Yükleniyor…" : "Fotoğrafı Onaya Gönder"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="settings-section-title settings-section-title--spaced">Profil Bilgileri</div>
 
                   <div className="settings-field">
                     <label htmlFor="settings-username">Kullanıcı adı</label>
@@ -284,43 +377,6 @@ const SettingsView = () => {
                     onClick={handleChangePassword}
                   >
                     Şifreyi Değiştir
-                  </button>
-                </div>
-              )}
-
-              {activeTab === "avatar" && (
-                <div>
-                  <div className="settings-section-title">Profil Fotoğrafı</div>
-                  <p className="settings-hint settings-hint--block">
-                    Profil fotoğrafınızı güncellemek için bir görsel URL&apos;si girin.
-                    Değişiklikler admin onayından sonra aktif olur.
-                  </p>
-
-                  <div className="settings-field">
-                    <label htmlFor="settings-avatar">Fotoğraf URL&apos;si</label>
-                    <input
-                      id="settings-avatar"
-                      type="url"
-                      name="avatarUrl"
-                      value={form.avatarUrl}
-                      onChange={handleChange}
-                      className="settings-input"
-                      placeholder="https://örnek.com/foto.jpg"
-                    />
-                  </div>
-
-                  {form.avatarUrl && (
-                    <div className="settings-avatar-preview">
-                      <img src={form.avatarUrl} alt="Önizleme" />
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    className="settings-save-btn"
-                    onClick={handleAvatarSubmit}
-                  >
-                    Onaya Gönder
                   </button>
                 </div>
               )}

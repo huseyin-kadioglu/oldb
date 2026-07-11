@@ -101,6 +101,8 @@ public class CommunityService {
                     .userId(userId)
                     .username(user != null ? user.getProfilName() : null)
                     .profileName(user != null ? user.getProfilName() : null)
+                    .avatarUrl(user != null ? user.getAvatarUrl() : null)
+                    .role(user != null ? user.getRole() : null)
                     .bookId(bookId)
                     .title(book.getTitle())
                     .coverUrl(book.getCoverUrl())

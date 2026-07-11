@@ -14,6 +14,8 @@ public class CommentDto {
     private Long userId;
     private String username;
     private String profileName;
+    private String avatarUrl;
+    private String role;
     private String targetType;
     private Long targetId;
     private String body;

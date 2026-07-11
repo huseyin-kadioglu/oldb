@@ -24,6 +24,14 @@ public class ProfileInfoDTO {
     private Integer totalPagesReadThisYear;
     private Integer totalPagesReadThisMonth;
     private Double pagePerDayThisMonth;
+    /** Kullanıcının verdiği puanların ortalaması (0–5); puan yoksa null */
+    private Double averageRating;
+    /** Ardışık gün okuma/aktivite serisi */
+    private Integer readingStreak;
+    /** Kullanıcının belirlediği yıllık kitap hedefi; null = yok */
+    private Integer yearlyBookGoal;
+    /** Bu yıl verilen puanlar arasında en sık görülen (0.5 adımlı); yoksa null */
+    private Double mostFrequentRating;
     private List<BookEntity> favoriteBooks;
     private List<BookEntity> readList;
     private List<BookEntity> completedBooks;
@@ -38,5 +46,11 @@ public class ProfileInfoDTO {
     private List<UserActivityWithBookDTO> recentActivity;
     private List<ReviewWithBookInfoDto> reviews;
     private Integer contributionPoint;
+    private String role;
+    private String avatarUrl;
+    private String pendingAvatarUrl;
+    private boolean canUploadAvatar;
+    /** ADMIN / MODERATOR / PRO — katkı puanı kapılarını bypass eder */
+    private boolean scoreBypass;
 
 }

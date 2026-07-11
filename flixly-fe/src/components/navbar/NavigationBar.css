@@ -210,36 +210,53 @@
 }
 
 .logged-user {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 12px 4px 4px;
-  border-radius: var(--radius-pill);
+  padding: 3px 8px 3px 3px;
+  border-radius: 999px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--color-border-subtle);
-  transition: background 0.2s ease, border-color 0.2s ease;
-  max-width: 140px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  transition: background 0.15s ease;
+  max-width: 220px;
 }
 
 .logged-user:hover {
-  background: var(--color-background-elevated);
-  border-color: rgba(212, 175, 55, 0.2);
-}
-
-.logged-user.compact .navbar-user-info {
-  display: none;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .logged-user .navbar-avatar,
 .navbar-img {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid rgba(212, 175, 55, 0.35);
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 11px;
+  object-fit: cover;
+  object-position: center;
+  aspect-ratio: 1 / 1;
+}
+
+.navbar-username {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(220, 230, 240, 0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+.navbar-user-chevron {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 18px !important;
+  flex-shrink: 0;
 }
 
 .navbar-user-info {

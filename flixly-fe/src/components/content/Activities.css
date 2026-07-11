@@ -1,7 +1,7 @@
 .act-page {
-  max-width: 820px;
+  max-width: 560px;
   margin: 0 auto;
-  padding: 24px 20px 72px;
+  padding: 24px 16px 72px;
 }
 
 .act-header {
@@ -58,16 +58,37 @@
 .act-feed {
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 
-.act-row,
-.act-detail {
+/* Compact: gelen bildirimler */
+.act-row {
   display: grid;
   grid-template-columns: 36px 1fr auto;
   gap: 12px;
   align-items: start;
-  padding: 14px 0;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.act-row--btn {
+  width: 100%;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.act-row--btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.act-row.unread {
+  background: rgba(212, 175, 55, 0.05);
 }
 
 .act-avatar {
@@ -75,6 +96,7 @@
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .act-row-text {
@@ -86,7 +108,7 @@
 
 .act-row-text a,
 .act-row-text em,
-.act-action-label a {
+.act-book-title a {
   color: #fff;
   font-weight: 700;
   font-style: normal;
@@ -94,9 +116,14 @@
 }
 
 .act-row-text a:hover,
-.act-action-label a:hover,
-.act-book-title a:hover {
+.act-book-title a:hover,
+.act-card-name:hover {
   color: var(--color-accent, #d4af37);
+}
+
+.act-incoming-quote {
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
 }
 
 .act-time {
@@ -106,77 +133,158 @@
   padding-top: 2px;
 }
 
-.act-detail-main {
-  min-width: 0;
+/* Instagram-style card — kompakt */
+.act-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.act-detail-grid {
-  display: grid;
-  grid-template-columns: 56px 1fr;
+.act-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  padding: 10px 12px;
 }
 
-.act-cover {
-  width: 56px;
-  height: 84px;
-  object-fit: cover;
-  border-radius: 2px;
-  display: block;
+.act-card-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
-.act-action-label {
-  margin: 0 0 4px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.82rem;
-}
-
-.act-book-title {
-  margin: 0 0 6px;
-  font-size: 1.15rem;
-  font-weight: 700;
+.act-card-user-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   line-height: 1.25;
 }
 
-.act-book-title a {
+.act-card-name {
+  font-weight: 700;
+  font-size: 0.88rem;
   color: #fff;
-  text-decoration: none;
+}
+
+.act-card-verb {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.act-card-media {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 14px;
+  padding: 0 12px 14px;
+  align-items: start;
+}
+
+.act-card-poster {
+  display: block;
+  width: 96px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #0a0a0f;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.act-poster-img {
+  width: 96px;
+  height: 144px;
+  object-fit: cover;
+  display: block;
+}
+
+.act-card-body {
+  padding: 0;
+  min-width: 0;
+}
+
+.act-stars {
+  margin: 0 0 6px;
+  color: var(--color-accent, #d4af37);
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.act-book-title {
+  margin: 0 0 8px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .act-year {
   color: rgba(255, 255, 255, 0.4);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  font-family: inherit;
 }
 
-.act-stars {
-  margin: 0 0 8px;
-  color: var(--color-accent, #d4af37);
-  letter-spacing: 1px;
-}
-
-.act-comment {
+.act-quote {
   margin: 0 0 10px;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.5;
-  font-size: 0.92rem;
+  padding: 0;
+  border: none;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.act-like-hint {
+.act-likes {
   margin: 0;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.act-likes--muted {
   color: rgba(255, 255, 255, 0.35);
-  font-size: 0.78rem;
+  font-weight: 500;
 }
 
 @media (max-width: 560px) {
-  .act-detail-grid {
-    grid-template-columns: 48px 1fr;
+  .act-page {
+    padding: 16px 12px 64px;
   }
 
-  .act-cover {
-    width: 48px;
-    height: 72px;
+  .act-card {
+    border-radius: 10px;
+  }
+
+  .act-card-media {
+    grid-template-columns: 80px 1fr;
+    gap: 12px;
+    padding: 0 10px 12px;
+  }
+
+  .act-card-poster,
+  .act-poster-img {
+    width: 80px;
+  }
+
+  .act-poster-img {
+    height: 120px;
+  }
+
+  .act-book-title {
+    font-size: 1.02rem;
   }
 }

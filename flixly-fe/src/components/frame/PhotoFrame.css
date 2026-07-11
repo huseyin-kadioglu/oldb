@@ -5,10 +5,24 @@
   position: relative;
   width: 100%;
   max-width: 110px;
+  z-index: 1;
+}
+
+.frame-cover-wrap {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  line-height: 0;
+}
+
+.frame-cover-link {
+  display: block;
+  line-height: 0;
 }
 
 .photo-frame img.cover,
-.photo-frame img {
+.photo-frame img,
+.frame-cover-wrap img {
   width: 100%;
   height: auto;
   aspect-ratio: 2 / 3;
@@ -19,9 +33,8 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.photo-frame:hover img.cover,
-.photo-frame:hover img {
-  transform: translateY(-4px);
+.photo-frame:hover .frame-cover-wrap img {
+  transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
@@ -44,7 +57,6 @@
   box-shadow: var(--shadow-cover);
 }
 
-/* Başlık: kapaktan net ayrı, ghost menü ile çakışmaz */
 .photo-frame .frame-title-wrap {
   margin-top: 10px;
   padding-top: 0;
@@ -78,12 +90,10 @@
   text-decoration: underline;
 }
 
-.photo-frame a:hover + .frame-title-wrap .title,
 .photo-frame:hover .frame-title-wrap .title {
   color: var(--color-primary-button);
 }
 
-/* Rating display below title */
 .frame-rating {
   display: flex;
   align-items: center;
@@ -108,66 +118,80 @@
   color: var(--color-text-muted);
 }
 
-/* Minimalist ghost menü: kapak üzerinde sağ üst köşe, küçük ikonlar */
-.ghost-menu {
+.frame-logged-chip {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent, #d4af37);
+}
+
+/* Quick Actions bottom bar */
+.qa-bar {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 4px;
-  background: rgba(0, 0, 0, 0.55);
-  border-radius: var(--radius-sm);
+  align-items: center;
+  justify-content: space-around;
+  gap: 0;
+  min-height: 28px;
+  padding: 3px 2px;
+  background: rgba(8, 8, 12, 0.88);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   opacity: 0;
+  transform: translateY(6px);
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  z-index: 2;
 }
 
-.photo-frame:hover .ghost-menu {
+.photo-frame:hover .qa-bar,
+.photo-frame:focus-within .qa-bar {
   opacity: 1;
+  transform: translateY(0);
   visibility: visible;
 }
 
-/* Show ghost-menu when any child receives keyboard focus */
-.photo-frame:focus-within .ghost-menu {
-  opacity: 1;
-  visibility: visible;
-}
-
-.photo-frame .ghost-menu button {
+.qa-btn {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  border: none;
   background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  padding: 4px;
-  border-radius: 2px;
-  transition: background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.photo-frame .ghost-menu button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--color-primary-button);
+.qa-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.photo-frame .ghost-menu button:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.14);
-  outline-offset: 2px;
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--color-primary-button);
+.qa-btn[data-active="true"] {
+  color: var(--color-accent, #d4af37);
 }
 
-.photo-frame .ghost-menu button[data-active="true"] {
-  color: var(--color-primary-button);
-}
-
-/* Slightly larger tap target on touch devices */
 @media (pointer: coarse) {
-  .photo-frame .ghost-menu button {
-    padding: 8px;
-    border-radius: 4px;
+  .qa-bar {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    min-height: 32px;
+  }
+
+  .qa-btn {
+    height: 28px;
+    font-size: 16px;
   }
 }

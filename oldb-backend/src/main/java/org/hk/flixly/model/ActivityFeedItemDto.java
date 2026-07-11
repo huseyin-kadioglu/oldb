@@ -16,6 +16,8 @@ public class ActivityFeedItemDto {
     private String username;
     private String profileName;
     private String avatarUrl;
+    /** USER | PRO | MODERATOR | ADMIN — PRO rozeti için */
+    private String role;
 
     private Long bookId;
     private String bookTitle;
@@ -26,6 +28,9 @@ public class ActivityFeedItemDto {
     private double rating;
     private String comment;
     private boolean hasReview;
+
+    /** Kitabı LIKE eden kullanıcı sayısı */
+    private long likeCount;
 
     private LocalDate readDate;
     private LocalDate updateDate;

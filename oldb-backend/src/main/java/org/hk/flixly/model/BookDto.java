@@ -24,14 +24,15 @@ public class BookDto {
     private int publicationYear;
     private String isbn;
 
-    private boolean isLiked;
-    private boolean isFavourite;
-    private boolean isInReadList;
-    private boolean isInLibrary;
-    private boolean isInShopping;
-    private boolean isRead;
-    private boolean isDropped;
-    private boolean isWonNobelPrize;
+    /** Kullanıcı durumları — is* alanı adı Jackson/Lombok ile bozulmasın diye sade isimler */
+    private boolean liked;
+    private boolean favourite;
+    private boolean inReadList;
+    private boolean inLibrary;
+    private boolean inShopping;
+    private boolean read;
+    private boolean dropped;
+    private boolean wonNobelPrize;
 
     @JsonProperty("isEditorChoice")
     private boolean editorChoice;

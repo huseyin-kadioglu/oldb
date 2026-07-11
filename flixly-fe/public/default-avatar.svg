@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Portre yok">
+  <defs>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#16161f"/>
+      <stop offset="100%" stop-color="#242433"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#a)"/>
+  <circle cx="128" cy="96" r="42" fill="#d4af37" fill-opacity="0.25"/>
+  <path d="M48 220c18-48 54-72 80-72s62 24 80 72" fill="#d4af37" fill-opacity="0.2"/>
+  <circle cx="128" cy="128" r="118" fill="none" stroke="#d4af37" stroke-opacity="0.3" stroke-width="3"/>
+</svg>

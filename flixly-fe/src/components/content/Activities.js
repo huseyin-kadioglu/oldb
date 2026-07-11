@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import CoverImage from "../ui/CoverImage";
-import { formatActivitySentence } from "../../utils/activityCopy";
-import { getActivityFeed } from "../../service/APIService";
+import { formatActivitySentence, formatStatusVerb } from "../../utils/activityCopy";
+import {
+  formatNotificationText,
+  getActivityFeed,
+  getNotifications,
+  markNotificationRead,
+} from "../../service/APIService";
 import "./Activities.css";
 
 const TABS = [
@@ -35,39 +40,43 @@ const stars = (rating) => {
   return "★".repeat(full) + (half ? "½" : "");
 };
 
-const actionLabel = (item, isYou) => {
-  if (item.incomingType === "FOLLOW") {
-    return (
-      <>
-        <Link to={`/profile/${item.username}`}>{item.profileName || item.username}</Link>
-        {" seni takip etmeye başladı"}
-      </>
-    );
-  }
-  if (item.incomingType === "COMMENT_LIKE") {
-    return (
-      <>
-        <Link to={`/profile/${item.username}`}>{item.profileName || item.username}</Link>
-        {" yorumunu beğendi"}
-      </>
-    );
-  }
-  const who = isYou ? "Sen" : item.profileName || item.username || "Bir okur";
-  return formatActivitySentence(item.status, item.bookTitle, isYou ? null : who);
+const truncateQuote = (text, max = 220) => {
+  const t = String(text || "").trim();
+  if (!t) return "";
+  if (t.length <= max) return t;
+  return `${t.slice(0, max).trimEnd()}…`;
+};
+
+const formatLikeCount = (n) => {
+  const count = Number(n) || 0;
+  if (count <= 0) return null;
+  return `${count.toLocaleString("tr-TR")} kişi beğendi`;
 };
 
 const Activities = () => {
+  const navigate = useNavigate();
   const token = sessionStorage.getItem("token");
   const myUsername = sessionStorage.getItem("username");
-  const [tab, setTab] = useState(token ? "friends" : "friends");
+  const [tab, setTab] = useState("friends");
   const [items, setItems] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const scope = !token ? "community" : tab;
+    if (!token) return;
     setLoading(true);
-    getActivityFeed(scope, 50)
+    setError(null);
+
+    if (tab === "incoming") {
+      getNotifications(40)
+        .then((data) => setNotifications(Array.isArray(data) ? data : []))
+        .catch(() => setError("Bildirimler yüklenemedi."))
+        .finally(() => setLoading(false));
+      return;
+    }
+
+    getActivityFeed(tab, 50)
       .then((data) => setItems(Array.isArray(data) ? data : []))
       .catch(() => setError("Aktivite yüklenemedi."))
       .finally(() => setLoading(false));
@@ -82,6 +91,20 @@ const Activities = () => {
       </div>
     );
   }
+
+  const handleNotifClick = async (n) => {
+    if (!n.read) {
+      try {
+        await markNotificationRead(n.id);
+        setNotifications((prev) =>
+          prev.map((x) => (x.id === n.id ? { ...x, read: true } : x))
+        );
+      } catch {
+        /* ignore */
+      }
+    }
+    if (n.linkPath) navigate(n.linkPath);
+  };
 
   return (
     <div className="act-page">
@@ -104,7 +127,11 @@ const Activities = () => {
       {loading && <p className="act-meta">Yükleniyor…</p>}
       {error && <p className="act-error">{error}</p>}
 
-      {!loading && items.length === 0 && (
+      {tab === "incoming" && !loading && notifications.length === 0 && (
+        <p className="act-meta">Henüz gelen bildirim yok.</p>
+      )}
+
+      {tab !== "incoming" && !loading && items.length === 0 && (
         <p className="act-meta">
           {tab === "friends"
             ? "Takip ettiğin kişilerin aktivitesi yok. Profil sayfalarından takip etmeye başla."
@@ -112,82 +139,127 @@ const Activities = () => {
         </p>
       )}
 
-      <div className="act-feed">
-        {items.map((item, idx) => {
-          const isYou = item.username && item.username === myUsername;
-          const isDetailed =
-            item.hasReview ||
-            (item.rating > 0 && item.bookId && item.incomingType == null);
-          const key = item.activityId || `${item.incomingType}-${item.userId}-${idx}`;
-
-          if (!isDetailed || item.incomingType) {
+      {tab === "incoming" ? (
+        <div className="act-feed">
+          {notifications.map((n) => {
+            const text = formatNotificationText(n);
             return (
-              <div className="act-row" key={key}>
+              <button
+                type="button"
+                className={`act-row act-row--btn ${n.read ? "" : "unread"}`}
+                key={n.id}
+                onClick={() => handleNotifClick(n)}
+              >
                 <CoverImage
-                  src={item.avatarUrl}
-                  alt={item.username}
+                  src={n.actorAvatarUrl}
+                  alt={n.actorUsername}
                   className="act-avatar"
                   variant="avatar"
                 />
-                <p className="act-row-text">{actionLabel(item, isYou)}</p>
-                <span className="act-time">{relativeTime(item)}</span>
-              </div>
+                <p className="act-row-text">
+                  {text.emphasis ? <strong>{text.emphasis}</strong> : null}
+                  {text.rest}
+                </p>
+                <span className="act-time">{relativeTime(n)}</span>
+              </button>
             );
-          }
+          })}
+        </div>
+      ) : (
+        <div className="act-feed">
+          {items.map((item, idx) => {
+            const isYou = item.username && item.username === myUsername;
+            const key = item.activityId || `${item.userId}-${idx}`;
+            const hasBookCard = !!item.bookId;
 
-          return (
-            <div className="act-detail" key={key}>
-              <CoverImage
-                src={item.avatarUrl}
-                alt={item.username}
-                className="act-avatar"
-                variant="avatar"
-              />
-              <div className="act-detail-main">
-                <div className="act-detail-grid">
-                  {item.bookId && (
-                    <Link to={`/book/${item.bookId}`}>
-                      <CoverImage
-                        src={item.coverUrl}
-                        alt={item.bookTitle}
-                        className="act-cover"
-                      />
-                    </Link>
-                  )}
-                  <div className="act-detail-body">
-                    <p className="act-action-label">
-                      {isYou ? (
-                        <>Sen {item.status === "LIKE" ? "beğendin" : item.hasReview ? "inceleme yazdın" : "okudun"}</>
-                      ) : (
-                        <>
-                          <Link to={`/profile/${item.username}`}>{item.profileName || item.username}</Link>
-                          {item.status === "LIKE" ? " beğendi" : item.hasReview ? " inceleme yazdı" : " okudu"}
-                        </>
-                      )}
-                    </p>
+            if (!hasBookCard) {
+              return (
+                <div className="act-row" key={key}>
+                  <CoverImage
+                    src={item.avatarUrl}
+                    alt={item.username}
+                    className="act-avatar"
+                    variant="avatar"
+                  />
+                  <p className="act-row-text">
+                    {formatActivitySentence(
+                      item.status,
+                      item.bookTitle,
+                      isYou ? null : item.profileName || item.username
+                    )}
+                  </p>
+                  <span className="act-time">{relativeTime(item)}</span>
+                </div>
+              );
+            }
+
+            const who = isYou ? "Sen" : item.profileName || item.username || "Bir okur";
+            const verb = formatStatusVerb(item.status, isYou);
+            const quote = truncateQuote(item.comment);
+            const likes = formatLikeCount(item.likeCount);
+            const starLine = stars(item.rating);
+
+            return (
+              <article className="act-card" key={key}>
+                <header className="act-card-head">
+                  <Link to={`/profile/${item.username}`} className="act-card-user">
+                    <CoverImage
+                      src={item.avatarUrl}
+                      alt={item.username}
+                      className="act-avatar"
+                      variant="avatar"
+                    />
+                    <div className="act-card-user-meta">
+                      <span className="act-card-name">{who}</span>
+                      <span className="act-card-verb">{verb}</span>
+                    </div>
+                  </Link>
+                  <span className="act-time">{relativeTime(item)}</span>
+                </header>
+
+                <div className="act-card-media">
+                  <Link to={`/book/${item.bookId}`} className="act-card-poster">
+                    <CoverImage
+                      src={item.coverUrl}
+                      alt={item.bookTitle}
+                      className="act-poster-img"
+                    />
+                  </Link>
+
+                  <div className="act-card-body">
+                    {starLine && <p className="act-stars">{starLine}</p>}
+
                     <h2 className="act-book-title">
                       <Link to={`/book/${item.bookId}`}>
                         {item.bookTitle}
                         {item.publicationYear ? (
-                          <span className="act-year"> {item.publicationYear}</span>
+                          <span className="act-year"> ({item.publicationYear})</span>
                         ) : null}
                       </Link>
                     </h2>
-                    {item.rating > 0 && (
-                      <p className="act-stars">{stars(item.rating)}</p>
+
+                    {quote ? (
+                      <blockquote className="act-quote">“{quote}”</blockquote>
+                    ) : null}
+
+                    {likes ? (
+                      <p className="act-likes">
+                        <FavoriteBorderIcon sx={{ fontSize: 15 }} />
+                        {likes}
+                      </p>
+                    ) : (
+                      <p className="act-likes act-likes--muted">
+                        <FavoriteBorderIcon sx={{ fontSize: 15 }} />
+                        İlk beğeniyi sen bırak
+                      </p>
                     )}
-                    {item.comment && <p className="act-comment">{item.comment}</p>}
-                    <p className="act-like-hint">
-                      <FavoriteBorderIcon sx={{ fontSize: 14 }} /> Beğeni yok
-                    </p>
                   </div>
                 </div>
-              </div>
-              <span className="act-time">{relativeTime(item)}</span>
-            </div>
-          );
-        })}
-      </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getPendingAvatars, approveAvatar, rejectAvatar } from "../../service/APIService";
+import { getPendingAvatars, approveAvatar, rejectAvatar, resolveMediaUrl } from "../../service/APIService";
 import "./ProfileApproval.css";
 
 const ProfileApproval = () => {
@@ -67,7 +67,7 @@ const ProfileApproval = () => {
                     <div className="approval-avatar-block">
                       <span className="approval-label">Mevcut</span>
                       {item.currentAvatarUrl ? (
-                        <img src={item.currentAvatarUrl} alt="Mevcut" className="approval-img" />
+                        <img src={resolveMediaUrl(item.currentAvatarUrl)} alt="Mevcut" className="approval-img" />
                       ) : (
                         <div className="approval-img-placeholder">—</div>
                       )}
@@ -75,7 +75,7 @@ const ProfileApproval = () => {
                     <div className="approval-arrow">→</div>
                     <div className="approval-avatar-block">
                       <span className="approval-label">Yeni</span>
-                      <img src={item.pendingAvatarUrl} alt="Yeni" className="approval-img" />
+                      <img src={resolveMediaUrl(item.pendingAvatarUrl)} alt="Yeni" className="approval-img" />
                     </div>
                   </div>
 

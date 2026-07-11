@@ -1,4 +1,4 @@
-/* Ortak avatar stilleri */
+/* Ortak avatar stilleri — hem initials div hem foto img */
 .avatar,
 .navbar-avatar {
   border-radius: 50%;
@@ -10,6 +10,16 @@
   color: white;
   background-color: #444;
   user-select: none;
+  flex-shrink: 0;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+
+img.avatar,
+img.navbar-avatar {
+  display: block;
+  object-fit: cover;
+  object-position: center;
 }
 
 /* Büyük avatar (profile sayfası için) */

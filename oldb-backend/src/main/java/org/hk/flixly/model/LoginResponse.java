@@ -16,4 +16,6 @@ public class LoginResponse {
     private long expiresIn;
     private String profileName;
     private String role;
+    private String avatarUrl;
+    private int contributionPoint;
 }

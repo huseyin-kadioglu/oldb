@@ -41,9 +41,14 @@ public class UserEntity implements UserDetails {
     private String location;
 
 
-    private String role; // "USER", "ADMIN" gibi
+    /** USER | PRO | MODERATOR | ADMIN — bkz. {@link org.hk.flixly.model.enums.UserRole} */
+    private String role;
     private int contributionPoint;
+
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
     private String avatarUrl;
+
+    @Column(name = "pending_avatar_url", columnDefinition = "TEXT")
     private String pendingAvatarUrl;
 
     @CreationTimestamp
@@ -59,6 +64,10 @@ public class UserEntity implements UserDetails {
 
     @Column(name = "page_per_day")
     private double pagePerDay;
+
+    /** Yıllık kitap okuma hedefi (null = belirlenmemiş) */
+    @Column(name = "yearly_book_goal")
+    private Integer yearlyBookGoal;
 
     @Column(name = "status", nullable = false)
     private boolean status = false;

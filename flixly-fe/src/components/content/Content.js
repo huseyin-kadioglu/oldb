@@ -6,6 +6,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SectionHeader from "../ui/SectionHeader";
 import CoverImage from "../ui/CoverImage";
 import BookCoverCard from "../ui/BookCoverCard";
+import { UserDisplayName } from "../common/ProVerifiedBadge";
 import {
   getActivityRecent,
   getCommunityReviews,
@@ -79,25 +80,34 @@ const Content = ({ books, token }) => {
     }
   }, [token, username]);
 
-  const displayName = profile?.profileName || username || "Okur";
+  const displayName = profile?.profileName || username;
 
   return (
     <div className="lb-home">
       <header className="lb-hero">
         <div className="lb-hero-left">
           <p className="lb-hero-date">{formatDate().toUpperCase()}</p>
-          <h1 className="lb-hero-title">
-            {greeting()}, {displayName}.
-          </h1>
-          {token && profile ? (
-            <p className="lb-hero-sub">
-              Bu yıl <strong>{profile.bookReadThisYear ?? 0}</strong> kitap okudun
-              — toplam <strong>{profile.bookRead ?? 0}</strong> kitap.
-            </p>
+          {token ? (
+            <>
+              <h1 className="lb-hero-title">
+                {greeting()}, {displayName || "Okur"}.
+              </h1>
+              {profile ? (
+                <p className="lb-hero-sub">
+                  Bu yıl <strong>{profile.bookReadThisYear ?? 0}</strong> kitap okudun
+                  — toplam <strong>{profile.bookRead ?? 0}</strong> kitap.
+                </p>
+              ) : (
+                <p className="lb-hero-sub">Okuma yolculuğuna devam et.</p>
+              )}
+            </>
           ) : (
-            <p className="lb-hero-sub">
-              Okuduğun kitapları logla, puanla ve listelerini paylaş.
-            </p>
+            <>
+              <h1 className="lb-hero-title">Kitaplarını keşfet ve logla.</h1>
+              <p className="lb-hero-sub">
+                OLDB’de okuduklarını kaydet, puanla ve okurlarla paylaş.
+              </p>
+            </>
           )}
 
           {community && (
@@ -112,9 +122,14 @@ const Content = ({ books, token }) => {
           )}
 
           {!token && (
-            <Link to="/signup" className="lb-hero-cta">
-              Hemen Kaydol
-            </Link>
+            <div className="lb-hero-actions">
+              <Link to="/signup" className="lb-hero-btn lb-hero-btn--primary">
+                Üye ol
+              </Link>
+              <Link to="/signin" className="lb-hero-btn lb-hero-btn--ghost">
+                Giriş yap
+              </Link>
+            </div>
           )}
         </div>
 
@@ -166,7 +181,11 @@ const Content = ({ books, token }) => {
                       className="lb-poster-avatar"
                       variant="avatar"
                     />
-                    <span>{item.username || "okur"}</span>
+                    <UserDisplayName
+                      name={item.username || "okur"}
+                      role={item.role}
+                      badgeSize="xs"
+                    />
                   </div>
                 </div>
                 <div className="lb-poster-meta">
@@ -177,6 +196,11 @@ const Content = ({ books, token }) => {
                   </span>
                   <span className="lb-poster-date">{formatShortDate(item)}</span>
                 </div>
+                {item.comment ? (
+                  <p className="lb-poster-quote">“{String(item.comment).slice(0, 72)}{item.comment.length > 72 ? "…" : ""}”</p>
+                ) : item.bookTitle ? (
+                  <p className="lb-poster-book">{item.bookTitle}</p>
+                ) : null}
               </Link>
             ))}
           </div>
@@ -212,14 +236,18 @@ const Content = ({ books, token }) => {
                 <div className="lb-review-body">
                   <div className="lb-review-head">
                     <CoverImage
-                      src={null}
+                      src={review.avatarUrl}
                       alt={review.username}
                       className="lb-review-avatar"
                       variant="avatar"
                     />
                     {review.username ? (
                       <Link to={`/profile/${review.username}`} className="lb-review-user">
-                        {review.profileName || review.username}
+                        <UserDisplayName
+                          name={review.profileName || review.username}
+                          role={review.role}
+                          badgeSize="xs"
+                        />
                       </Link>
                     ) : (
                       <span className="lb-review-user">okur</span>

@@ -5,6 +5,7 @@ import org.hk.flixly.model.BookApprovalDto;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.BookApprovalEntity;
 import org.hk.flixly.model.entity.BookEntity;
+import org.hk.flixly.model.enums.UserRole;
 import org.hk.flixly.repository.BookApprovalRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,7 +60,7 @@ public class BookApprovalService {
 
     public List<BookApprovalEntity> getApprovals(UserDetails userDetails) {
         String role = ((UserEntity) userDetails).getRole();
-        if (role.equals("admin")) {
+        if (UserRole.isStaff(role)) {
             return bookApprovalRepository.findAll();
         }
 

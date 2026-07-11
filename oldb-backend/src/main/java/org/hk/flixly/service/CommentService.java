@@ -5,6 +5,7 @@ import org.hk.flixly.model.CreateCommentRequest;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.CommentEntity;
 import org.hk.flixly.model.entity.CommentLikeEntity;
+import org.hk.flixly.model.enums.UserRole;
 import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.CommentLikeRepository;
@@ -30,18 +31,21 @@ public class CommentService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
+    private final NotificationService notificationService;
 
     public CommentService(
             CommentRepository commentRepository,
             CommentLikeRepository commentLikeRepository,
             UserRepository userRepository,
             BookRepository bookRepository,
-            AuthorRepository authorRepository) {
+            AuthorRepository authorRepository,
+            NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.commentLikeRepository = commentLikeRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
+        this.notificationService = notificationService;
     }
 
     public List<CommentDto> list(String targetType, Long targetId, Long viewerUserId) {
@@ -76,6 +80,9 @@ public class CommentService {
                 .build();
         entity = commentRepository.save(entity);
         addContribution(user.getId(), POINTS_WRITE);
+        if (BOOK.equals(type)) {
+            notificationService.notifyWeeklyPickComment(user.getId(), request.getTargetId());
+        }
         return toDto(entity, user.getId());
     }
 
@@ -100,6 +107,8 @@ public class CommentService {
                     .build());
             comment.setLikeCount(comment.getLikeCount() + 1);
             addContribution(comment.getUserId(), POINTS_LIKE_RECEIVED);
+            Long bookId = BOOK.equals(comment.getTargetType()) ? comment.getTargetId() : null;
+            notificationService.notifyCommentLike(user.getId(), comment.getUserId(), commentId, bookId);
         }
         commentRepository.save(comment);
         return toDto(comment, user.getId());
@@ -111,7 +120,7 @@ public class CommentService {
         CommentEntity comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Yorum bulunamadı"));
         if (!comment.getUserId().equals(user.getId())
-                && !"ADMIN".equalsIgnoreCase(user.getRole())) {
+                && !UserRole.isStaff(user.getRole())) {
             throw new IllegalArgumentException("Bu yorumu silemezsin");
         }
         commentRepository.delete(comment);
@@ -145,6 +154,8 @@ public class CommentService {
                 .userId(c.getUserId())
                 .username(author != null ? author.getProfilName() : null)
                 .profileName(author != null ? author.getProfilName() : null)
+                .avatarUrl(author != null ? author.getAvatarUrl() : null)
+                .role(author != null ? author.getRole() : null)
                 .targetType(c.getTargetType())
                 .targetId(c.getTargetId())
                 .body(c.getBody())

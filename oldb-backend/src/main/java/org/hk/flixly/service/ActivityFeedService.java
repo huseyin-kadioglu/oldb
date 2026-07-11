@@ -7,10 +7,12 @@ import org.hk.flixly.model.entity.CommentEntity;
 import org.hk.flixly.model.entity.CommentLikeEntity;
 import org.hk.flixly.model.entity.UserActivityEntity;
 import org.hk.flixly.model.entity.UserFollowEntity;
+import org.hk.flixly.model.enums.BookActivityStatus;
 import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.CommentLikeRepository;
 import org.hk.flixly.repository.CommentRepository;
+import org.hk.flixly.repository.UserBookMapRepository;
 import org.hk.flixly.repository.UserFollowRepository;
 import org.hk.flixly.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,8 @@ public class ActivityFeedService {
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final UserBookMapRepository userBookMapRepository;
+    private final NotificationService notificationService;
 
     public ActivityFeedService(
             ActivityRepository activityRepository,
@@ -36,13 +40,17 @@ public class ActivityFeedService {
             UserRepository userRepository,
             BookRepository bookRepository,
             CommentRepository commentRepository,
-            CommentLikeRepository commentLikeRepository) {
+            CommentLikeRepository commentLikeRepository,
+            UserBookMapRepository userBookMapRepository,
+            NotificationService notificationService) {
         this.activityRepository = activityRepository;
         this.followRepository = followRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.commentRepository = commentRepository;
         this.commentLikeRepository = commentLikeRepository;
+        this.userBookMapRepository = userBookMapRepository;
+        this.notificationService = notificationService;
     }
 
     public List<ActivityFeedItemDto> feed(Long viewerId, String scope, int limit) {
@@ -91,6 +99,7 @@ public class ActivityFeedService {
                     .username(follower.getProfilName())
                     .profileName(follower.getProfilName())
                     .avatarUrl(follower.getAvatarUrl())
+                    .role(follower.getRole())
                     .status("FOLLOW")
                     .scope("incoming")
                     .incomingType("FOLLOW")
@@ -116,6 +125,7 @@ public class ActivityFeedService {
                         .username(liker.getProfilName())
                         .profileName(liker.getProfilName())
                         .avatarUrl(liker.getAvatarUrl())
+                        .role(liker.getRole())
                         .bookId("BOOK".equals(comment.getTargetType()) ? comment.getTargetId() : null)
                         .comment(comment.getBody())
                         .status("COMMENT_LIKE")
@@ -141,6 +151,13 @@ public class ActivityFeedService {
         Map<Long, BookEntity> books = bookRepository.findAllById(bookIds).stream()
                 .collect(Collectors.toMap(BookEntity::getId, Function.identity(), (a, b) -> a));
 
+        Map<Long, Long> likeCounts = new HashMap<>();
+        if (!bookIds.isEmpty()) {
+            for (Object[] row : userBookMapRepository.countByBookIdsAndStatus(bookIds, BookActivityStatus.LIKE)) {
+                likeCounts.put(((Number) row[0]).longValue(), ((Number) row[1]).longValue());
+            }
+        }
+
         List<ActivityFeedItemDto> result = new ArrayList<>();
         for (UserActivityEntity a : activities) {
             UserEntity user = users.get(a.getUserId());
@@ -152,6 +169,7 @@ public class ActivityFeedService {
                     .username(user != null ? user.getProfilName() : null)
                     .profileName(user != null ? user.getProfilName() : null)
                     .avatarUrl(user != null ? user.getAvatarUrl() : null)
+                    .role(user != null ? user.getRole() : null)
                     .bookId(a.getBookId())
                     .bookTitle(book != null ? book.getTitle() : null)
                     .coverUrl(book != null ? book.getCoverUrl() : null)
@@ -160,6 +178,7 @@ public class ActivityFeedService {
                     .rating(a.getRating())
                     .comment(a.getComment())
                     .hasReview(hasReview)
+                    .likeCount(a.getBookId() != null ? likeCounts.getOrDefault(a.getBookId(), 0L) : 0L)
                     .readDate(a.getReadDate())
                     .updateDate(a.getUpdateDate())
                     .scope(scope)
@@ -183,6 +202,7 @@ public class ActivityFeedService {
                 .followerId(followerId)
                 .followingId(followingId)
                 .build());
+        notificationService.notifyFollow(followerId, followingId);
     }
 
     @Transactional

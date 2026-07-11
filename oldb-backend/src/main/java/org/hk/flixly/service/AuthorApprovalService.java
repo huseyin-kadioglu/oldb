@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hk.flixly.model.AuthorApprovalDto;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.AuthorApprovalEntity;
+import org.hk.flixly.model.enums.UserRole;
 import org.hk.flixly.repository.AuthorApprovalRepository;
 import org.hk.flixly.repository.AuthorRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,7 +51,7 @@ public class AuthorApprovalService {
 
     public List<AuthorApprovalEntity> getApprovals(UserDetails userDetails) {
         String role = ((UserEntity) userDetails).getRole();
-        if (role.equals("admin")) {
+        if (UserRole.isStaff(role)) {
             return authorApprovalRepository.findAll();
         }
 

@@ -3,16 +3,21 @@ import { Menu, MenuItem, Divider } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import "./NavigationBar.css";
 import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
 import InitialAvatar from "../common/InitialAvatar";
+import { isAdminRole, isStaffRole } from "../../service/APIService";
 
-const LoggedUser = ({ onLogout, compact = false }) => {
+const LoggedUser = ({ onLogout }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const role = sessionStorage.getItem("userRole");
   const username = sessionStorage.getItem("username");
+  const avatarUrl = sessionStorage.getItem("avatarUrl");
+  const showAdminPanel = isAdminRole(role);
+  const showModTools = isStaffRole(role);
 
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -28,32 +33,18 @@ const LoggedUser = ({ onLogout, compact = false }) => {
   };
 
   const adminMenuItems = [
-    {
-      key: "bookApproval",
-      url: "/bookApproval",
-      label: "Kitap Onayla",
-    },
-    {
-      key: "authorApproval",
-      url: "/authorApproval",
-      label: "Yazar Onayla",
-    },
-    {
-      key: "profileApproval",
-      url: "/profileApproval",
-      label: "Kullanıcıları Yönet",
-    },
+    { key: "bookApproval", url: "/bookApproval", label: "Kitap Onayla" },
+    { key: "authorApproval", url: "/authorApproval", label: "Yazar Onayla" },
+    { key: "profileApproval", url: "/profileApproval", label: "Kullanıcıları Yönet" },
   ];
 
   return (
     <>
-      <div className={`logged-user ${compact ? "compact" : ""}`} onClick={handleOpen}>
-        <InitialAvatar name={username} navbarImg={true} />
-        <div className="navbar-user-info">
-          <span className="username">{username}</span>
-          <span className="user-badge">{role}</span>
-        </div>
-      </div>
+      <button type="button" className="logged-user" onClick={handleOpen} aria-haspopup="menu">
+        <InitialAvatar name={username} src={avatarUrl} navbarImg />
+        <span className="navbar-username">{(username || "").toUpperCase()}</span>
+        <KeyboardArrowDownIcon className="navbar-user-chevron" fontSize="small" />
+      </button>
 
       <Menu
         anchorEl={anchorEl}
@@ -91,6 +82,11 @@ const LoggedUser = ({ onLogout, compact = false }) => {
           Aktiviteler
         </MenuItem>
         <LoggedUserMenuItem
+          navigateUrl="/settings"
+          value="Ayarlar"
+          onClose={handleClose}
+        />
+        <LoggedUserMenuItem
           navigateUrl="/bookContribute"
           value="Kitap Ekle/Düzenle"
           onClose={handleClose}
@@ -101,14 +97,16 @@ const LoggedUser = ({ onLogout, compact = false }) => {
           onClose={handleClose}
         />
 
-        {role === "ADMIN" && (
+        {showModTools && (
           <>
             <Divider sx={{ my: 0.5, bgcolor: "rgba(255,255,255,0.1)" }} />
             <MenuItem disabled sx={{ fontSize: "11px", color: "var(--color-text-muted)", py: 0.5 }}>
               <AdminPanelSettingsIcon sx={{ fontSize: 14, mr: 1 }} />
-              Admin Paneli
+              {showAdminPanel ? "Admin Paneli" : "Moderasyon"}
             </MenuItem>
-            {adminMenuItems.map((item) => (
+            {adminMenuItems
+              .filter((item) => showAdminPanel || item.key !== "profileApproval")
+              .map((item) => (
               <LoggedUserMenuItem
                 key={item.key}
                 navigateUrl={item.url}

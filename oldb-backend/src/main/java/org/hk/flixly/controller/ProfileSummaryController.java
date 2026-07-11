@@ -44,6 +44,14 @@ public class ProfileSummaryController {
         );
     }
 
+    @PostMapping(value = "/avatar", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ProfileInfoDTO uploadAvatar(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file
+    ) throws java.io.IOException {
+        return profileService.uploadAvatar(userDetails.getUsername(), file);
+    }
+
     @PutMapping("/change-password")
     public void changePassword(
             @AuthenticationPrincipal UserDetails userDetails,

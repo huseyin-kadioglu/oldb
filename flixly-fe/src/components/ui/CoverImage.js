@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { resolveMediaUrl } from "../../service/APIService";
 import "./CoverImage.css";
 
 const DEFAULT_COVER = "/default-cover.svg";
@@ -9,11 +10,12 @@ export const defaultAvatarUrl = (name) => DEFAULT_AVATAR;
 
 const CoverImage = ({ src, alt, className, style, variant = "cover" }) => {
   const fallback = variant === "avatar" ? DEFAULT_AVATAR : DEFAULT_COVER;
-  const [url, setUrl] = useState(src && String(src).trim() ? src : fallback);
+  const resolved = resolveMediaUrl(src) || (src && String(src).trim() ? String(src).trim() : null);
+  const [url, setUrl] = useState(resolved || fallback);
 
   useEffect(() => {
-    setUrl(src && String(src).trim() ? src : fallback);
-  }, [src, fallback]);
+    setUrl(resolved || fallback);
+  }, [resolved, fallback]);
 
   return (
     <img
