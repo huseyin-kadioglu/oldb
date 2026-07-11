@@ -247,10 +247,17 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   color: rgba(220, 230, 240, 0.92);
+  max-width: 160px;
+}
+
+.navbar-username .user-display-name-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 140px;
+}
+
+.logged-user .pro-verified-badge {
+  font-size: 14px !important;
 }
 
 .navbar-user-chevron {

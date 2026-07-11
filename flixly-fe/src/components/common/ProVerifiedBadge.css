@@ -1,0 +1,31 @@
+.pro-verified-badge {
+  color: var(--color-primary-button, #d4af37) !important;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.pro-verified-badge--sm {
+  font-size: 0.95em !important;
+}
+
+.pro-verified-badge--md {
+  font-size: 1.05rem !important;
+}
+
+.pro-verified-badge--xs {
+  font-size: 0.85em !important;
+}
+
+.user-display-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.user-display-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

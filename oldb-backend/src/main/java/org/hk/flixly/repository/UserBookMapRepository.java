@@ -39,4 +39,16 @@ public interface UserBookMapRepository extends JpaRepository<UserBookMapEntity, 
             @Param("bookId") Long bookId,
             @Param("statuses") Collection<String> statuses
     );
+
+    @Query("""
+            SELECT ub FROM UserBookMapEntity ub
+            WHERE ub.bookId = :bookId
+              AND ub.userId IN :userIds
+              AND ub.status IN :statuses
+            """)
+    List<UserBookMapEntity> findByBookIdAndUserIdInAndStatusIn(
+            @Param("bookId") Long bookId,
+            @Param("userIds") Collection<Long> userIds,
+            @Param("statuses") Collection<String> statuses
+    );
 }

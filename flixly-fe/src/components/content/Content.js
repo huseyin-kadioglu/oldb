@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import LocalFireDepartmentOutlinedIcon from "@mui/icons-material/LocalFireDepartmentOutlined";
 import SectionHeader from "../ui/SectionHeader";
 import CoverImage from "../ui/CoverImage";
 import BookCoverCard from "../ui/BookCoverCard";
@@ -11,7 +12,9 @@ import {
   getActivityRecent,
   getCommunityReviews,
   getCommunityStats,
+  getDailyReadCheckin,
   getProfileSummaryByUsername,
+  setDailyReadCheckin,
 } from "../../service/APIService";
 import "../ui/folios-ui.css";
 import "./Content.css";
@@ -46,12 +49,16 @@ const formatShortDate = (item) => {
   return d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
 };
 
+const flag = (book, ...keys) => keys.some((k) => !!book?.[k]);
+
 const Content = ({ books, token }) => {
   const username = sessionStorage.getItem("username");
   const [profile, setProfile] = useState(null);
   const [community, setCommunity] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [communityReviews, setCommunityReviews] = useState([]);
+  const [checkin, setCheckin] = useState(null);
+  const [checkinBusy, setCheckinBusy] = useState(false);
 
   const popular =
     community?.booksReadThisMonthList?.length > 0
@@ -66,6 +73,16 @@ const Content = ({ books, token }) => {
       ? popular
       : [...(books || [])].sort((a, b) => (b.publicationYear || 0) - (a.publicationYear || 0)).slice(0, 8);
 
+  const editorPicks = (books || [])
+    .filter((b) => flag(b, "isEditorChoice", "editorChoice"))
+    .slice(0, 10);
+  const weeklyPicks = (books || [])
+    .filter((b) => flag(b, "isWeeklyPick", "weeklyPick"))
+    .slice(0, 10);
+  const newReleases = (books || [])
+    .filter((b) => flag(b, "isNewRelease", "newRelease"))
+    .slice(0, 10);
+
   useEffect(() => {
     getCommunityStats().then(setCommunity).catch(() => setCommunity(null));
     getActivityRecent(12).then(setRecentActivity).catch(() => setRecentActivity([]));
@@ -75,12 +92,54 @@ const Content = ({ books, token }) => {
   useEffect(() => {
     if (token && username) {
       getProfileSummaryByUsername(username).then(setProfile).catch(() => setProfile(null));
+      getDailyReadCheckin()
+        .then(setCheckin)
+        .catch(() => setCheckin(null));
     } else {
       setProfile(null);
+      setCheckin(null);
     }
   }, [token, username]);
 
   const displayName = profile?.profileName || username;
+
+  const toggleCheckin = async () => {
+    if (!token || checkinBusy) return;
+    const next = !checkin?.checkedInToday;
+    setCheckinBusy(true);
+    setCheckin((prev) =>
+      prev
+        ? { ...prev, checkedInToday: next }
+        : { checkedInToday: next, readingStreak: next ? 1 : 0, today: "" }
+    );
+    try {
+      const data = await setDailyReadCheckin(next);
+      setCheckin(data);
+      if (profile && data?.readingStreak != null) {
+        setProfile({ ...profile, readingStreak: data.readingStreak });
+      }
+    } catch {
+      setCheckin((prev) => (prev ? { ...prev, checkedInToday: !next } : prev));
+    } finally {
+      setCheckinBusy(false);
+    }
+  };
+
+  const renderBookRail = (title, list, linkLabel = "Daha fazla") => {
+    if (!list || list.length === 0) return null;
+    return (
+      <section className="lb-section">
+        <SectionHeader title={title} to="/books" linkLabel={linkLabel} />
+        <div className="lb-poster-row lb-poster-row--large">
+          {list.map((book) => (
+            <div key={book.id} className="lb-popular-item">
+              <BookCoverCard book={book} showAuthor={false} />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
 
   return (
     <div className="lb-home">
@@ -99,6 +158,30 @@ const Content = ({ books, token }) => {
                 </p>
               ) : (
                 <p className="lb-hero-sub">Okuma yolculuğuna devam et.</p>
+              )}
+
+              {checkin && (
+                <div className="lb-checkin">
+                  <button
+                    type="button"
+                    className={`lb-checkin-btn ${checkin.checkedInToday ? "is-checked" : ""}`}
+                    disabled={checkinBusy}
+                    onClick={toggleCheckin}
+                  >
+                    <span className="lb-checkin-tick" aria-hidden>
+                      {checkin.checkedInToday ? "✓" : ""}
+                    </span>
+                    <span className="lb-checkin-label">
+                      {checkin.checkedInToday ? "Bugün okudun" : "Bugün kitap okudun mu?"}
+                    </span>
+                  </button>
+                  {(checkin.readingStreak > 0 || checkin.checkedInToday) && (
+                    <span className="lb-checkin-streak" title="Okuma serisi">
+                      <LocalFireDepartmentOutlinedIcon sx={{ fontSize: 16 }} />
+                      {checkin.readingStreak ?? 0} gün
+                    </span>
+                  )}
+                </div>
               )}
             </>
           ) : (
@@ -157,6 +240,10 @@ const Content = ({ books, token }) => {
         )}
       </header>
 
+      {renderBookRail("stoa şunları önerdi", editorPicks, "Keşfet")}
+      {renderBookRail("Haftanın kitabı", weeklyPicks)}
+      {renderBookRail("Yeni çıkanlar", newReleases)}
+
       <section className="lb-section">
         <SectionHeader
           title="Yeni aktiviteler"
@@ -197,7 +284,10 @@ const Content = ({ books, token }) => {
                   <span className="lb-poster-date">{formatShortDate(item)}</span>
                 </div>
                 {item.comment ? (
-                  <p className="lb-poster-quote">“{String(item.comment).slice(0, 72)}{item.comment.length > 72 ? "…" : ""}”</p>
+                  <p className="lb-poster-quote">
+                    “{String(item.comment).slice(0, 72)}
+                    {item.comment.length > 72 ? "…" : ""}”
+                  </p>
                 ) : item.bookTitle ? (
                   <p className="lb-poster-book">{item.bookTitle}</p>
                 ) : null}
@@ -210,11 +300,7 @@ const Content = ({ books, token }) => {
       </section>
 
       <section className="lb-section">
-        <SectionHeader
-          title="Popüler"
-          to="/books"
-          linkLabel="Daha fazla"
-        />
+        <SectionHeader title="Popüler" to="/books" linkLabel="Daha fazla" />
         <div className="lb-poster-row lb-poster-row--large">
           {popularFallback.slice(0, 8).map((book) => (
             <div key={book.id} className="lb-popular-item">

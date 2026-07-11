@@ -1,0 +1,107 @@
+.yg-card {
+  background: var(--color-background-card, #16161f);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 11px 12px;
+}
+
+.yg-card--cta {
+  padding: 10px 12px;
+}
+
+.yg-card.is-done {
+  border-color: rgba(212, 175, 55, 0.35);
+}
+
+.yg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.yg-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.yg-edit {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.65rem;
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0;
+}
+
+.yg-edit:hover {
+  color: var(--color-primary-button, #d4af37);
+}
+
+.yg-count {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+.yg-count strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.yg-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.yg-bar-fill {
+  height: 100%;
+  background: var(--color-primary-button, #d4af37);
+  border-radius: 1px;
+}
+
+.yg-meta {
+  margin: 6px 0 0;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.yg-empty {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.48);
+  line-height: 1.35;
+}
+
+.yg-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.yg-form input {
+  padding: 5px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.yg-form-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}

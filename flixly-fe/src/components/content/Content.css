@@ -44,6 +44,76 @@
   font-weight: 600;
 }
 
+.lb-checkin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 6px;
+}
+
+.lb-checkin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.lb-checkin-btn:hover:not(:disabled) {
+  border-color: rgba(212, 175, 55, 0.45);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.lb-checkin-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.lb-checkin-btn.is-checked {
+  border-color: rgba(212, 175, 55, 0.55);
+  background: rgba(212, 175, 55, 0.12);
+  color: #fff;
+}
+
+.lb-checkin-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-accent, #d4af37);
+  flex-shrink: 0;
+}
+
+.lb-checkin-btn.is-checked .lb-checkin-tick {
+  border-color: var(--color-accent, #d4af37);
+  background: rgba(212, 175, 55, 0.2);
+}
+
+.lb-checkin-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lb-checkin-streak svg {
+  color: var(--color-accent, #d4af37);
+}
+
 .lb-hero-cta {
   display: inline-block;
   margin-top: 12px;

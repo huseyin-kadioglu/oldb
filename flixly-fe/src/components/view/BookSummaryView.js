@@ -19,21 +19,34 @@ import SectionHeader from "../ui/SectionHeader";
 import BookCoverCard from "../ui/BookCoverCard";
 import SelectedBookDialog from "../common/SelectedBookDialog";
 import CommentSection from "../common/CommentSection";
+import InitialAvatar from "../common/InitialAvatar";
+import { UserDisplayName } from "../common/ProVerifiedBadge";
 import {
   createUserActivity,
   createUserActivityFromGhostMenu,
   getAuthorById,
   getBookById,
+  getBookSocial,
 } from "../../service/APIService";
 import "../ui/folios-ui.css";
 import "./BookSummaryView.css";
 
 const STATUS_LABELS = {
   READ: "Okundu",
+  COMPLETED: "Okundu",
   READLIST: "Okuma listesinde",
   LIBRARY: "Kütüphanemde",
+  LIKE: "Beğendi",
   SHOPPING: "Alınacaklarda",
   DROPPED: "Bırakıldı",
+};
+
+const reviewStars = (rating) => {
+  const n = Number(rating) || 0;
+  if (n <= 0) return null;
+  const full = Math.floor(n);
+  const half = n - full >= 0.5;
+  return "★".repeat(full) + (half ? "½" : "");
 };
 
 const BookSummaryView = ({ books = [] }) => {
@@ -45,6 +58,12 @@ const BookSummaryView = ({ books = [] }) => {
   const [actionLoading, setActionLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [shareCopied, setShareCopied] = useState(false);
+  const [social, setSocial] = useState({
+    friendsReading: [],
+    topReviews: [],
+    authorOtherBooks: [],
+  });
+  const [friendsOpen, setFriendsOpen] = useState(false);
 
   const [isLiked, setIsLiked] = useState(false);
   const [isRead, setIsRead] = useState(false);
@@ -60,13 +79,53 @@ const BookSummaryView = ({ books = [] }) => {
 
   const syncBookFlags = useCallback((b) => {
     if (!b) return;
-    setIsLiked(!!b.liked);
-    setIsRead(!!b.read);
-    setIsInReadlist(!!b.inReadList);
-    setIsInLibrary(!!b.inLibrary);
-    setIsInShopping(!!b.inShopping);
-    setIsDropped(!!b.dropped);
+    const flag = (...keys) => keys.some((k) => !!b[k]);
+    setIsLiked(flag("liked", "isLiked"));
+    setIsRead(flag("read", "isRead"));
+    setIsInReadlist(flag("inReadList", "isInReadList"));
+    setIsInLibrary(flag("inLibrary", "isInLibrary"));
+    setIsInShopping(flag("inShopping", "isInShopping"));
+    setIsDropped(flag("dropped", "isDropped"));
   }, []);
+
+  const applyLocalFlag = (actionType, next) => {
+    switch (actionType) {
+      case "LIKE":
+        setIsLiked(next);
+        break;
+      case "READ":
+        setIsRead(next);
+        if (next) {
+          setIsInReadlist(false);
+          setIsDropped(false);
+        }
+        break;
+      case "READLIST":
+        setIsInReadlist(next);
+        if (next) {
+          setIsRead(false);
+          setIsDropped(false);
+        }
+        break;
+      case "LIBRARY":
+        setIsInLibrary(next);
+        if (next) setIsDropped(false);
+        break;
+      case "SHOPPING":
+        setIsInShopping(next);
+        break;
+      case "DROPPED":
+        setIsDropped(next);
+        if (next) {
+          setIsRead(false);
+          setIsInReadlist(false);
+          setIsInLibrary(false);
+        }
+        break;
+      default:
+        break;
+    }
+  };
 
   const refreshBook = useCallback(
     async (bookId) => {
@@ -88,6 +147,21 @@ const BookSummaryView = ({ books = [] }) => {
   useEffect(() => {
     fetchBook();
   }, [params.bookId]);
+
+  useEffect(() => {
+    if (!params.bookId) return;
+    getBookSocial(params.bookId)
+      .then((data) =>
+        setSocial({
+          friendsReading: data?.friendsReading || [],
+          topReviews: data?.topReviews || [],
+          authorOtherBooks: data?.authorOtherBooks || [],
+        })
+      )
+      .catch(() =>
+        setSocial({ friendsReading: [], topReviews: [], authorOtherBooks: [] })
+      );
+  }, [params.bookId, isLoggedIn]);
 
   useEffect(() => {
     if (book?.authorId) fetchAuthor();
@@ -128,6 +202,8 @@ const BookSummaryView = ({ books = [] }) => {
 
   const handleGhostAction = async (actionType, current) => {
     if (!requireLogin()) return;
+    const next = !current;
+    applyLocalFlag(actionType, next);
     setActionLoading(true);
     try {
       await createUserActivityFromGhostMenu({
@@ -138,6 +214,7 @@ const BookSummaryView = ({ books = [] }) => {
       });
       await refreshBook(book.id);
     } catch {
+      applyLocalFlag(actionType, current);
       alert("İşlem sırasında bir hata oluştu.");
     } finally {
       setActionLoading(false);
@@ -183,13 +260,19 @@ const BookSummaryView = ({ books = [] }) => {
     }
   };
 
-  const relatedBooks = books
-    .filter((b) => b.id !== book?.id && b.authorId === book?.authorId)
-    .slice(0, 5);
-
   if (loading) return <div className="page-loading">Yükleniyor…</div>;
   if (!book) return <div className="page-error">Kitap bulunamadı.</div>;
   if (error) return <div className="page-error">{error}</div>;
+
+  const friendsReading = social.friendsReading || [];
+  const topReviews = social.topReviews || [];
+  const authorOtherBooks =
+    social.authorOtherBooks?.length > 0
+      ? social.authorOtherBooks
+      : books
+          .filter((b) => b.id !== book?.id && b.authorId === book?.authorId)
+          .slice(0, 12);
+  const hasSocialSignal = friendsReading.length > 0 || topReviews.length > 0;
 
   const ratingDistribution = Array.isArray(book?.ratingDistribution) && book.ratingDistribution.length === 5
     ? book.ratingDistribution
@@ -440,20 +523,92 @@ const BookSummaryView = ({ books = [] }) => {
             </section>
           )}
 
+          {hasSocialSignal ? (
+            <>
+              {friendsReading.length > 0 && (
+                <section className="book-page-section">
+                  <SectionHeader
+                    title="Arkadaşlarından okuyanlar"
+                    linkLabel={`${friendsReading.length} kişi`}
+                    onLinkClick={() => setFriendsOpen(true)}
+                  />
+                  <button
+                    type="button"
+                    className="book-friends-strip"
+                    onClick={() => setFriendsOpen(true)}
+                    aria-label="Arkadaş listesini aç"
+                  >
+                    {friendsReading.slice(0, 10).map((f) => (
+                      <span key={f.userId} className="book-friends-avatar" title={f.profileName || f.username}>
+                        <InitialAvatar name={f.profileName || f.username} src={f.avatarUrl} />
+                      </span>
+                    ))}
+                    {friendsReading.length > 10 && (
+                      <span className="book-friends-more">+{friendsReading.length - 10}</span>
+                    )}
+                  </button>
+                </section>
+              )}
+
+              {topReviews.length > 0 && (
+                <section className="book-page-section">
+                  <SectionHeader title="En iyi incelemeler" />
+                  <div className="book-hub-reviews">
+                    {topReviews.map((r) => (
+                      <article className="book-hub-review" key={r.activityId}>
+                        <div className="book-hub-review-head">
+                          {r.username ? (
+                            <Link to={`/profile/${r.username}`} className="book-hub-review-user">
+                              <InitialAvatar name={r.profileName || r.username} src={r.avatarUrl} />
+                              <UserDisplayName
+                                name={r.profileName || r.username}
+                                role={r.role}
+                                badgeSize="xs"
+                              />
+                            </Link>
+                          ) : (
+                            <span className="book-hub-review-user">
+                              <InitialAvatar name="okur" />
+                              <span>okur</span>
+                            </span>
+                          )}
+                          {r.rating > 0 && (
+                            <span className="book-hub-review-stars">{reviewStars(r.rating)}</span>
+                          )}
+                        </div>
+                        {r.comment && <p className="book-hub-review-text">{r.comment}</p>}
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
+          ) : (
+            <p className="book-hub-empty-compact">
+              Henüz arkadaş aktivitesi veya inceleme yok.
+            </p>
+          )}
+
           <section className="book-page-section">
             <CommentSection targetType="BOOK" targetId={book.id} title="Yorumlar" />
           </section>
 
           <section className="book-page-section">
-            <SectionHeader title="Benzer kitaplar" />
-            {relatedBooks.length > 0 ? (
-              <div className="folios-book-grid">
-                {relatedBooks.map((b) => (
-                  <BookCoverCard key={b.id} book={b} />
+            <SectionHeader
+              title={authorData.name ? `${authorData.name} — diğer kitaplar` : "Yazarın diğer kitapları"}
+              to={book.authorId ? `/author/${book.authorId}` : undefined}
+              linkLabel={book.authorId ? "Yazar" : undefined}
+            />
+            {authorOtherBooks.length > 0 ? (
+              <div className="lb-poster-row lb-poster-row--large book-author-shelf">
+                {authorOtherBooks.map((b) => (
+                  <div key={b.id} className="lb-popular-item">
+                    <BookCoverCard book={b} showAuthor={false} />
+                  </div>
                 ))}
               </div>
             ) : (
-              <p className="book-page-empty">Henüz benzer kitap önerisi yok.</p>
+              <p className="book-page-empty">Katalogda başka kitap yok.</p>
             )}
           </section>
         </main>
@@ -520,6 +675,48 @@ const BookSummaryView = ({ books = [] }) => {
           selectedBookHandler={() => setLogOpen(false)}
           onSubmitCallback={handleLogSubmit}
         />
+      )}
+
+      {friendsOpen && (
+        <div
+          className="book-friends-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Arkadaşlarından okuyanlar"
+          onClick={() => setFriendsOpen(false)}
+        >
+          <div className="book-friends-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="book-friends-sheet-head">
+              <h2>Arkadaşlarından okuyanlar</h2>
+              <button type="button" onClick={() => setFriendsOpen(false)} aria-label="Kapat">
+                ×
+              </button>
+            </div>
+            <ul className="book-friends-list">
+              {friendsReading.map((f) => (
+                <li key={f.userId}>
+                  <Link
+                    to={`/profile/${f.username}`}
+                    className="book-friends-row"
+                    onClick={() => setFriendsOpen(false)}
+                  >
+                    <InitialAvatar name={f.profileName || f.username} src={f.avatarUrl} />
+                    <span className="book-friends-row-meta">
+                      <UserDisplayName
+                        name={f.profileName || f.username}
+                        role={f.role}
+                        badgeSize="xs"
+                      />
+                      <span className="book-friends-status">
+                        {STATUS_LABELS[f.status] || f.status}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       )}
     </div>
   );

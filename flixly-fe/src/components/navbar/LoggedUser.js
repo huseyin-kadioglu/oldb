@@ -8,6 +8,7 @@ import "./NavigationBar.css";
 import { useNavigate } from "react-router-dom";
 import LoggedUserMenuItem from "./LoggedUserItem";
 import InitialAvatar from "../common/InitialAvatar";
+import { UserDisplayName } from "../common/ProVerifiedBadge";
 import { isAdminRole, isStaffRole } from "../../service/APIService";
 
 const LoggedUser = ({ onLogout }) => {
@@ -42,7 +43,12 @@ const LoggedUser = ({ onLogout }) => {
     <>
       <button type="button" className="logged-user" onClick={handleOpen} aria-haspopup="menu">
         <InitialAvatar name={username} src={avatarUrl} navbarImg />
-        <span className="navbar-username">{(username || "").toUpperCase()}</span>
+        <UserDisplayName
+          name={(username || "").toUpperCase()}
+          role={role}
+          badgeSize="sm"
+          className="navbar-username"
+        />
         <KeyboardArrowDownIcon className="navbar-user-chevron" fontSize="small" />
       </button>
 

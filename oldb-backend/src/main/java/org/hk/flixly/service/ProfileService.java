@@ -37,6 +37,7 @@ public class ProfileService {
     private final GamificationService gamificationService;
     private final GenrePreferenceService genrePreferenceService;
     private final AvatarStorageService avatarStorageService;
+    private final DailyReadCheckinService dailyReadCheckinService;
 
     public ProfileInfoDTO getProfileInfo(UserDetails userDetails) {
         UserEntity user = userRepository.findByEmail(userDetails.getUsername())
@@ -117,7 +118,7 @@ public class ProfileService {
         response.setReviews(buildReviews(userActivities, bookIdToEntityMap, authorIdToEntityMap));
         applyReadingStats(response, userActivities, bookIdToEntityMap, readBooks.size());
         response.setAverageRating(computeAverageRating(userActivities));
-        response.setReadingStreak(computeReadingStreak(userActivities));
+        response.setReadingStreak(dailyReadCheckinService.streakForUser(userEntity.getId()));
         response.setMostFrequentRating(computeMostFrequentRating(userActivities));
 
         response.setContinueReading(buildContinueReading(userBookMaps, bookIdToEntityMap, authorIdToEntityMap, userActivities));
@@ -367,7 +368,8 @@ public class ProfileService {
         }
         if (counts.isEmpty()) return null;
         return counts.entrySet().stream()
-                .max(Comparator.comparingInt(Map.Entry::getValue)
+                .max(Comparator
+                        .<Map.Entry<Double, Integer>>comparingInt(Map.Entry::getValue)
                         .thenComparingDouble(Map.Entry::getKey))
                 .map(Map.Entry::getKey)
                 .orElse(null);

@@ -1,0 +1,121 @@
+/* Dense poster wall — fills width like Backloggd / LB filmography */
+.pcs-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 6px;
+}
+
+.pcs-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #14141c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.pcs-item:hover,
+.pcs-item:focus-visible {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  outline: none;
+  z-index: 1;
+}
+
+.pcs-item:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-primary-button, #d4af37), 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.pcs-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pcs-hover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 6px;
+  background: linear-gradient(transparent 25%, rgba(6, 6, 10, 0.94));
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+
+.pcs-item:hover .pcs-hover,
+.pcs-item:focus-visible .pcs-hover {
+  opacity: 1;
+}
+
+.pcs-hover-title {
+  font-size: 0.62rem;
+  font-weight: 650;
+  color: #fff;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pcs-hover-author {
+  margin-top: 1px;
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pcs-skeleton {
+  background: linear-gradient(90deg, #14141c 25%, #1e1e28 50%, #14141c 75%);
+  background-size: 200% 100%;
+  animation: pcs-shimmer 1.2s ease-in-out infinite;
+  aspect-ratio: 2 / 3;
+  border-radius: 2px;
+}
+
+@keyframes pcs-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Mobile: horizontal poster rail (thumb-scroll) */
+  .pcs-strip {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pcs-item {
+    flex: 0 0 68px;
+    width: 68px;
+    scroll-snap-align: start;
+  }
+
+  .pcs-skeleton {
+    flex: 0 0 68px;
+    width: 68px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .pcs-strip {
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 7px;
+  }
+}

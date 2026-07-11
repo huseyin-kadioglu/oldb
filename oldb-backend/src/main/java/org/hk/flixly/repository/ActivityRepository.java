@@ -95,4 +95,19 @@ public interface ActivityRepository extends JpaRepository<UserActivityEntity, Lo
             LIMIT :limit
             """, nativeQuery = true)
     List<UserActivityEntity> findRecentAll(@Param("limit") int limit);
+
+    @Query(value = """
+            SELECT * FROM user_activity
+            WHERE book_id = :bookId
+              AND comment IS NOT NULL AND TRIM(comment) <> ''
+            ORDER BY rating DESC NULLS LAST,
+                     LENGTH(comment) DESC,
+                     COALESCE(update_date, read_date) DESC NULLS LAST,
+                     id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<UserActivityEntity> findTopReviewsByBookId(
+            @Param("bookId") Long bookId,
+            @Param("limit") int limit
+    );
 }

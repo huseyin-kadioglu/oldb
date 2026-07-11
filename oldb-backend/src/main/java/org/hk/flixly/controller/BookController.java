@@ -2,9 +2,11 @@ package org.hk.flixly.controller;
 
 import org.hk.flixly.model.BookDto;
 import org.hk.flixly.model.BookResponse;
+import org.hk.flixly.model.BookSocialDto;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.repository.UserRepository;
 import org.hk.flixly.service.BookService;
+import org.hk.flixly.service.BookSocialService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +17,15 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
 
     private final BookService bookService;
+    private final BookSocialService bookSocialService;
     private final UserRepository userRepository;
 
-    public BookController(BookService bookService, UserRepository userRepository) {
+    public BookController(
+            BookService bookService,
+            BookSocialService bookSocialService,
+            UserRepository userRepository) {
         this.bookService = bookService;
+        this.bookSocialService = bookSocialService;
         this.userRepository = userRepository;
     }
 
@@ -67,5 +74,17 @@ public class BookController {
                     .map(UserEntity::getId).orElse(null);
         }
         return bookService.findById(bookId, userId);
+    }
+
+    @GetMapping("/{bookId}/social")
+    public BookSocialDto getSocial(
+            @PathVariable Long bookId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = null;
+        if (userDetails != null) {
+            userId = userRepository.findByEmail(userDetails.getUsername())
+                    .map(UserEntity::getId).orElse(null);
+        }
+        return bookSocialService.getSocial(bookId, userId);
     }
 }

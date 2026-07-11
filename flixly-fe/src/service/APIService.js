@@ -256,12 +256,58 @@ export const getBooks = async () => {
 
 export const getBookById = async (id) => {
   try {
-    const response = await axios.get(`${BOOKS_API}${id}`);
+    const token = sessionStorage.getItem("token");
+    const response = await axios.get(`${BOOKS_API}${id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     return response.data;
   } catch (error) {
     console.error("Kitap alınırken hata oluştu:", error);
     throw error;
   }
+};
+
+/** Kitap sosyal hub: friendsReading, topReviews, authorOtherBooks */
+export const getBookSocial = async (bookId) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BOOKS_API}${bookId}/social`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+const localDateIso = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+/** Günlük okuma check-in durumu */
+export const getDailyReadCheckin = async (date = localDateIso()) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BASE_URL}profile/me/read-today`, {
+    params: { date },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+/** Bugün okudum tik’i — checkedIn: true/false */
+export const setDailyReadCheckin = async (checkedIn, date = localDateIso()) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.put(
+    `${BASE_URL}profile/me/read-today`,
+    { checkedIn, date },
+    {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
 };
 
 export const getBooksByPublishYear = async (publishYear) => {
@@ -374,8 +420,6 @@ export const createUserActivity = async (activityDto) => {
 
 export const createUserActivityFromGhostMenu = async (activityDto) => {
   const token = sessionStorage.getItem("token");
-  console.log("token", token);
-  console.log("createUserActivityFromGhostMenu params:", activityDto);
 
   try {
     const response = await fetch(
@@ -395,7 +439,13 @@ export const createUserActivityFromGhostMenu = async (activityDto) => {
       throw new Error("Hata oluştu: " + response.statusText);
     }
 
-    return response.json();
+    const text = await response.text();
+    if (!text) return { ok: true };
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { ok: true };
+    }
   } catch (error) {
     console.error("Hata:", error);
     throw error;
@@ -784,3 +834,8 @@ export const isStaffRole = (role) => {
 
 export const isAdminRole = (role) => String(role || "").toUpperCase() === "ADMIN";
 
+/** PRO plan (ve üzeri staff) — doğrulanmış rozet */
+export const isProPlanRole = (role) => {
+  const r = String(role || "").toUpperCase();
+  return r === "PRO" || r === "ADMIN" || r === "MODERATOR";
+};

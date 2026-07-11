@@ -431,6 +431,197 @@
   font-size: 0.9rem;
 }
 
+.book-hub-empty-compact {
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.book-friends-strip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.book-friends-avatar {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  margin-right: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg, #1a1a1a);
+  overflow: hidden;
+}
+
+.book-friends-avatar .avatar,
+.book-friends-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  font-size: 0.7rem;
+}
+
+.book-friends-more {
+  margin-left: 12px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.book-hub-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.book-hub-review {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.book-hub-review:last-child {
+  border-bottom: none;
+}
+
+.book-hub-review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.book-hub-review-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.book-hub-review-user .avatar,
+.book-hub-review-user img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  font-size: 0.65rem;
+}
+
+.book-hub-review-stars {
+  color: var(--color-accent, #d4af37);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.book-hub-review-text {
+  margin: 0;
+  color: var(--color-text-secondary, #c8c8c8);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.book-author-shelf {
+  margin-top: 4px;
+}
+
+.book-friends-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+}
+
+.book-friends-sheet {
+  width: min(420px, 100%);
+  max-height: min(70vh, 520px);
+  overflow: auto;
+  background: var(--color-surface, #222);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px 12px 8px 8px;
+  padding: 16px 18px 20px;
+}
+
+.book-friends-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.book-friends-sheet-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.book-friends-sheet-head button {
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.book-friends-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.book-friends-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-friends-row .avatar,
+.book-friends-row img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.book-friends-row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.book-friends-status {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 641px) {
+  .book-friends-overlay {
+    align-items: center;
+  }
+
+  .book-friends-sheet {
+    border-radius: 12px;
+  }
+}
+
 .book-details-list {
   margin: 0;
   display: grid;

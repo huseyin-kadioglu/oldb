@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import CoverImage from "../ui/CoverImage";
+import { UserDisplayName } from "../common/ProVerifiedBadge";
 import { formatActivitySentence, formatStatusVerb } from "../../utils/activityCopy";
 import {
   formatNotificationText,
@@ -210,7 +211,12 @@ const Activities = () => {
                       variant="avatar"
                     />
                     <div className="act-card-user-meta">
-                      <span className="act-card-name">{who}</span>
+                      <UserDisplayName
+                        name={who}
+                        role={isYou ? sessionStorage.getItem("userRole") : item.role}
+                        badgeSize="xs"
+                        className="act-card-name"
+                      />
                       <span className="act-card-verb">{verb}</span>
                     </div>
                   </Link>

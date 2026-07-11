@@ -9,6 +9,7 @@ import {
 } from "../../service/APIService";
 import CoverImage from "../ui/CoverImage";
 import InitialAvatar from "./InitialAvatar";
+import { UserDisplayName } from "./ProVerifiedBadge";
 import "./CommentSection.css";
 
 const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
@@ -126,7 +127,11 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
                 <div className="comment-card-head">
                   {c.username ? (
                     <Link to={`/profile/${c.username}`} className="comment-author">
-                      {c.profileName || c.username}
+                      <UserDisplayName
+                        name={c.profileName || c.username}
+                        role={c.role}
+                        badgeSize="xs"
+                      />
                     </Link>
                   ) : (
                     <span className="comment-author">Anonim</span>
