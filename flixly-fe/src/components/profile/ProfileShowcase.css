@@ -1,0 +1,299 @@
+.profile-showcase {
+  margin-bottom: 8px;
+}
+
+.ps-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.ps-header-actions .folios-see-all {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.ps-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ps-empty p {
+  margin: 0;
+  color: var(--color-text-secondary, #a0a8b8);
+  font-size: 0.9rem;
+}
+
+.ps-limit-hint {
+  margin: 8px 0 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ps-card {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-background-card, #16161f);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+}
+
+.ps-card--quote-only {
+  display: block;
+  padding: 28px 24px 20px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.06), transparent 55%),
+    var(--color-background-card, #16161f);
+}
+
+.ps-quote-only {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.ps-handwriting {
+  margin: 0;
+  padding: 0;
+  border: none;
+  max-width: 34rem;
+  font-family: "Caveat", "Segoe Script", "Comic Sans MS", cursive;
+  font-size: clamp(1.55rem, 3.2vw, 2rem);
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--color-text, #f5f5f7);
+  white-space: pre-wrap;
+  text-wrap: balance;
+}
+
+.ps-actions--center {
+  justify-content: center;
+}
+
+.ps-cover-link {
+  line-height: 0;
+  display: block;
+}
+
+.ps-cover,
+.ps-cover-link img,
+.ps-pick-cover {
+  width: 72px !important;
+  height: auto !important;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 6px);
+  box-shadow: var(--shadow-cover, 0 8px 24px rgba(0, 0, 0, 0.45));
+  display: block;
+}
+
+.ps-title {
+  display: inline-block;
+  margin: 0 0 2px;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text, #f5f5f7);
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.ps-title:hover {
+  color: var(--color-primary-button, #d4af37);
+}
+
+.ps-author {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ps-quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #a0a8b8);
+  white-space: pre-wrap;
+}
+
+.ps-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.ps-action {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #6b7280);
+  cursor: pointer;
+}
+
+.ps-action:hover:not(:disabled) {
+  color: var(--color-primary-button, #d4af37);
+}
+
+.ps-action--danger:hover:not(:disabled) {
+  color: var(--color-like, #c75c6f);
+}
+
+.ps-action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ps-composer {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: rgba(212, 175, 55, 0.04);
+}
+
+.ps-composer-title {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary, #a0a8b8);
+}
+
+.ps-composer-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.ps-pick-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ps-clear-book {
+  align-self: flex-start;
+}
+
+.ps-quote-input--hand {
+  font-family: "Caveat", "Segoe Script", "Comic Sans MS", cursive;
+  font-size: 1.35rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.ps-pick-book {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 96px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ps-pick-book:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.ps-pick-cover {
+  width: 44px !important;
+  flex-shrink: 0;
+}
+
+.ps-pick-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ps-pick-meta strong {
+  font-size: 0.85rem;
+  color: var(--color-text, #f5f5f7);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ps-pick-meta span {
+  font-size: 0.72rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ps-pick-placeholder {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ps-quote-input {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  color: #eee;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.ps-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.ps-char-count {
+  margin-right: auto;
+  font-size: 0.72rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+@media (max-width: 640px) {
+  .ps-composer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ps-card {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+}

@@ -648,6 +648,34 @@ export const getProfileBookList = async (username, listType) => {
   return response.json();
 };
 
+export const createShowcase = async ({ bookId, quote }) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.post(
+    `${BASE_URL}profile/showcases`,
+    { bookId, quote },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const updateShowcase = async (id, { bookId, quote }) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.put(
+    `${BASE_URL}profile/showcases/${id}`,
+    { bookId, quote },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const deleteShowcase = async (id) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.delete(`${BASE_URL}profile/showcases/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 export const getPendingAvatars = async () => {
   const token = sessionStorage.getItem("token");
   const response = await fetch(`${BASE_URL}admin/pending-avatars`, {

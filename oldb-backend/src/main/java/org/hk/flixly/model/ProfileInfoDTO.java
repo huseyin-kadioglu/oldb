@@ -52,5 +52,8 @@ public class ProfileInfoDTO {
     private boolean canUploadAvatar;
     /** ADMIN / MODERATOR / PRO — katkı puanı kapılarını bypass eder */
     private boolean scoreBypass;
-
+    /** Profile showcase slots (book + personal quote). */
+    private List<ProfileShowcaseDto> showcases;
+    /** Max showcase slots for this profile's role (1 free / 3 pro). */
+    private int showcaseLimit;
 }
