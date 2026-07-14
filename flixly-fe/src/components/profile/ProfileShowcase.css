@@ -41,6 +41,42 @@
   border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
 }
 
+.ps-card--quote-only {
+  display: block;
+  padding: 28px 24px 20px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.06), transparent 55%),
+    var(--color-background-card, #16161f);
+}
+
+.ps-quote-only {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.ps-handwriting {
+  margin: 0;
+  padding: 0;
+  border: none;
+  max-width: 34rem;
+  font-family: "Caveat", "Segoe Script", "Comic Sans MS", cursive;
+  font-size: clamp(1.55rem, 3.2vw, 2rem);
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--color-text, #f5f5f7);
+  white-space: pre-wrap;
+  text-wrap: balance;
+}
+
+.ps-actions--center {
+  justify-content: center;
+}
+
 .ps-cover-link {
   line-height: 0;
   display: block;
@@ -141,6 +177,24 @@
   display: grid;
   grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
   gap: 12px;
+}
+
+.ps-pick-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ps-clear-book {
+  align-self: flex-start;
+}
+
+.ps-quote-input--hand {
+  font-family: "Caveat", "Segoe Script", "Comic Sans MS", cursive;
+  font-size: 1.35rem;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .ps-pick-book {

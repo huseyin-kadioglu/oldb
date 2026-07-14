@@ -58,7 +58,7 @@ public class ProfileShowcaseService {
     public ProfileShowcaseDto create(ShowcaseRequest request, UserDetails userDetails) {
         UserEntity user = requireUser(userDetails);
         String quote = normalizeQuote(request.getQuote());
-        BookEntity book = requireBook(request.getBookId());
+        BookEntity book = resolveOptionalBook(request.getBookId());
 
         int limit = showcaseLimitForRole(user.getRole());
         long count = showcaseRepository.countByUserId(user.getId());
@@ -69,13 +69,13 @@ public class ProfileShowcaseService {
             }
             throw new IllegalArgumentException("En fazla " + limit + " showcase ekleyebilirsin.");
         }
-        if (showcaseRepository.existsByUserIdAndBookId(user.getId(), book.getId())) {
+        if (book != null && showcaseRepository.existsByUserIdAndBookId(user.getId(), book.getId())) {
             throw new IllegalArgumentException("Bu kitap zaten showcase’inde.");
         }
 
         ProfileShowcaseEntity entity = ProfileShowcaseEntity.builder()
                 .userId(user.getId())
-                .bookId(book.getId())
+                .bookId(book != null ? book.getId() : null)
                 .quote(quote)
                 .position((int) count)
                 .build();
@@ -92,16 +92,28 @@ public class ProfileShowcaseService {
         if (request.getQuote() != null) {
             entity.setQuote(normalizeQuote(request.getQuote()));
         }
-        if (request.getBookId() != null && !request.getBookId().equals(entity.getBookId())) {
-            BookEntity book = requireBook(request.getBookId());
-            if (showcaseRepository.existsByUserIdAndBookIdAndIdNot(user.getId(), book.getId(), id)) {
-                throw new IllegalArgumentException("Bu kitap zaten showcase’inde.");
+
+        // Always accept bookId from client: null clears the linked book
+        Long requestedBookId = request.getBookId();
+        Long currentBookId = entity.getBookId();
+        if (!Objects.equals(requestedBookId, currentBookId)) {
+            if (requestedBookId == null) {
+                entity.setBookId(null);
+            } else {
+                BookEntity book = resolveOptionalBook(requestedBookId);
+                if (book != null
+                        && showcaseRepository.existsByUserIdAndBookIdAndIdNot(
+                        user.getId(), book.getId(), id)) {
+                    throw new IllegalArgumentException("Bu kitap zaten showcase’inde.");
+                }
+                entity.setBookId(book != null ? book.getId() : null);
             }
-            entity.setBookId(book.getId());
         }
 
         entity = showcaseRepository.save(entity);
-        BookEntity book = requireBook(entity.getBookId());
+        BookEntity book = entity.getBookId() != null
+                ? bookRepository.findById(entity.getBookId()).orElse(null)
+                : null;
         return toDto(entity, book, resolveAuthorName(book));
     }
 
@@ -129,18 +141,23 @@ public class ProfileShowcaseService {
         }
         Set<Long> bookIds = entities.stream()
                 .map(ProfileShowcaseEntity::getBookId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        Map<Long, BookEntity> books = bookRepository.findAllById(bookIds).stream()
+        Map<Long, BookEntity> books = bookIds.isEmpty()
+                ? Map.of()
+                : bookRepository.findAllById(bookIds).stream()
                 .collect(Collectors.toMap(BookEntity::getId, b -> b));
         Set<Long> authorIds = books.values().stream()
                 .map(BookEntity::getAuthorId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        Map<Long, AuthorEntity> authors = authorRepository.findAllById(authorIds).stream()
+        Map<Long, AuthorEntity> authors = authorIds.isEmpty()
+                ? Map.of()
+                : authorRepository.findAllById(authorIds).stream()
                 .collect(Collectors.toMap(AuthorEntity::getId, a -> a));
 
         return entities.stream().map(e -> {
-            BookEntity book = books.get(e.getBookId());
+            BookEntity book = e.getBookId() != null ? books.get(e.getBookId()) : null;
             String authorName = null;
             if (book != null && book.getAuthorId() != null) {
                 AuthorEntity author = authors.get(book.getAuthorId());
@@ -175,9 +192,10 @@ public class ProfileShowcaseService {
                 .orElse(null);
     }
 
-    private BookEntity requireBook(Long bookId) {
+    /** Null bookId → quote-only showcase. */
+    private BookEntity resolveOptionalBook(Long bookId) {
         if (bookId == null) {
-            throw new IllegalArgumentException("Kitap gerekli");
+            return null;
         }
         return bookRepository.findById(bookId)
                 .orElseThrow(() -> new IllegalArgumentException("Kitap bulunamadı"));

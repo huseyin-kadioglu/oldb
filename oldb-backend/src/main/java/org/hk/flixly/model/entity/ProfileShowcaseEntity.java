@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "profile_showcases", indexes = {
         @Index(name = "idx_showcase_user", columnList = "userId")
 }, uniqueConstraints = {
+        // Only enforced when bookId is non-null (Postgres allows multiple NULLs)
         @UniqueConstraint(name = "uk_showcase_user_book", columnNames = {"userId", "bookId"})
 })
 @Getter
@@ -25,10 +26,10 @@ public class ProfileShowcaseEntity {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    /** Optional — quote-only showcase when null. */
     private Long bookId;
 
-    /** Personal quote / memory shown next to the book. */
+    /** Personal quote / memory (with or without a book). */
     @Column(nullable = false, length = 500)
     private String quote;
 

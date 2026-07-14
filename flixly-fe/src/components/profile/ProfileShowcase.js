@@ -49,12 +49,16 @@ const ProfileShowcase = ({
 
   const openEdit = (item) => {
     setEditingId(item.id);
-    setSelectedBook({
-      id: item.bookId,
-      title: item.bookTitle,
-      coverUrl: item.coverUrl,
-      authorName: item.authorName,
-    });
+    setSelectedBook(
+      item.bookId
+        ? {
+            id: item.bookId,
+            title: item.bookTitle,
+            coverUrl: item.coverUrl,
+            authorName: item.authorName,
+          }
+        : null
+    );
     setQuote(item.quote || "");
     setComposerOpen(true);
   };
@@ -66,19 +70,17 @@ const ProfileShowcase = ({
   };
 
   const handleSave = async () => {
-    if (!selectedBook?.id || !quote.trim()) return;
+    if (!quote.trim()) return;
     setBusy(true);
     try {
+      const payload = {
+        bookId: selectedBook?.id ?? null,
+        quote: quote.trim(),
+      };
       if (editingId) {
-        await updateShowcase(editingId, {
-          bookId: selectedBook.id,
-          quote: quote.trim(),
-        });
+        await updateShowcase(editingId, payload);
       } else {
-        await createShowcase({
-          bookId: selectedBook.id,
-          quote: quote.trim(),
-        });
+        await createShowcase(payload);
       }
       setComposerOpen(false);
       onChanged?.();
@@ -116,7 +118,7 @@ const ProfileShowcase = ({
 
       {items.length === 0 && isOwnProfile && !composerOpen && (
         <div className="ps-empty">
-          <p>Profiline bir kitap ve kısa bir alıntı/anı ekle.</p>
+          <p>Bir söz paylaş veya bir kitapla anını ekle.</p>
           <button type="button" className="profile-btn profile-btn--subtle" onClick={openAdd}>
             + Showcase ekle
           </button>
@@ -129,30 +131,64 @@ const ProfileShowcase = ({
       )}
 
       <div className="ps-list">
-        {items.map((item) => (
-          <article className="ps-card" key={item.id}>
-            <Link to={`/book/${item.bookId}`} className="ps-cover-link" title={item.bookTitle}>
-              <CoverImage src={item.coverUrl} alt={item.bookTitle || ""} className="ps-cover" />
-            </Link>
-            <div className="ps-body">
-              <Link to={`/book/${item.bookId}`} className="ps-title">
-                {item.bookTitle}
-              </Link>
-              {item.authorName && <p className="ps-author">{item.authorName}</p>}
-              <blockquote className="ps-quote">“{item.quote}”</blockquote>
-              {isOwnProfile && (
-                <div className="ps-actions">
-                  <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
-                    Düzenle
-                  </button>
-                  <button type="button" className="ps-action ps-action--danger" onClick={() => handleDelete(item.id)} disabled={busy}>
-                    Sil
-                  </button>
+        {items.map((item) => {
+          const hasBook = !!item.bookId;
+          return (
+            <article
+              className={`ps-card ${hasBook ? "" : "ps-card--quote-only"}`}
+              key={item.id}
+            >
+              {hasBook ? (
+                <>
+                  <Link to={`/book/${item.bookId}`} className="ps-cover-link" title={item.bookTitle}>
+                    <CoverImage src={item.coverUrl} alt={item.bookTitle || ""} className="ps-cover" />
+                  </Link>
+                  <div className="ps-body">
+                    <Link to={`/book/${item.bookId}`} className="ps-title">
+                      {item.bookTitle}
+                    </Link>
+                    {item.authorName && <p className="ps-author">{item.authorName}</p>}
+                    <blockquote className="ps-quote">“{item.quote}”</blockquote>
+                    {isOwnProfile && (
+                      <div className="ps-actions">
+                        <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
+                          Düzenle
+                        </button>
+                        <button
+                          type="button"
+                          className="ps-action ps-action--danger"
+                          onClick={() => handleDelete(item.id)}
+                          disabled={busy}
+                        >
+                          Sil
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="ps-quote-only">
+                  <blockquote className="ps-handwriting">“{item.quote}”</blockquote>
+                  {isOwnProfile && (
+                    <div className="ps-actions ps-actions--center">
+                      <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
+                        Düzenle
+                      </button>
+                      <button
+                        type="button"
+                        className="ps-action ps-action--danger"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={busy}
+                      >
+                        Sil
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
 
       {isOwnProfile && items.length > 0 && (
@@ -166,32 +202,47 @@ const ProfileShowcase = ({
         <div className="ps-composer">
           <h4 className="ps-composer-title">{editingId ? "Showcase düzenle" : "Showcase ekle"}</h4>
           <div className="ps-composer-row">
-            <button
-              type="button"
-              className="ps-pick-book"
-              onClick={() => setPickerOpen(true)}
-            >
-              {selectedBook ? (
-                <>
-                  <CoverImage
-                    src={selectedBook.coverUrl}
-                    alt={selectedBook.title || ""}
-                    className="ps-pick-cover"
-                  />
-                  <span className="ps-pick-meta">
-                    <strong>{selectedBook.title}</strong>
-                    <span>{selectedBook.authorName || "Kitap seçildi"}</span>
-                  </span>
-                </>
-              ) : (
-                <span className="ps-pick-placeholder">Kitap seç</span>
+            <div className="ps-pick-col">
+              <button
+                type="button"
+                className="ps-pick-book"
+                onClick={() => setPickerOpen(true)}
+              >
+                {selectedBook ? (
+                  <>
+                    <CoverImage
+                      src={selectedBook.coverUrl}
+                      alt={selectedBook.title || ""}
+                      className="ps-pick-cover"
+                    />
+                    <span className="ps-pick-meta">
+                      <strong>{selectedBook.title}</strong>
+                      <span>{selectedBook.authorName || "Kitap seçildi"}</span>
+                    </span>
+                  </>
+                ) : (
+                  <span className="ps-pick-placeholder">Kitap seç (opsiyonel)</span>
+                )}
+              </button>
+              {selectedBook && (
+                <button
+                  type="button"
+                  className="ps-action ps-clear-book"
+                  onClick={() => setSelectedBook(null)}
+                >
+                  Kitabı kaldır
+                </button>
               )}
-            </button>
+            </div>
             <textarea
-              className="ps-quote-input"
+              className={`ps-quote-input ${selectedBook ? "" : "ps-quote-input--hand"}`}
               value={quote}
               onChange={(e) => setQuote(e.target.value.slice(0, QUOTE_MAX))}
-              placeholder="Bu kitapla ilgili fikrin, alıntın veya anın…"
+              placeholder={
+                selectedBook
+                  ? "Bu kitapla ilgili fikrin, alıntın veya anın…"
+                  : "Paylaşmak istediğin sözü yaz…"
+              }
               rows={4}
               maxLength={QUOTE_MAX}
             />
@@ -207,7 +258,7 @@ const ProfileShowcase = ({
               type="button"
               className="profile-btn profile-btn--subtle"
               onClick={handleSave}
-              disabled={busy || !selectedBook?.id || quote.trim().length < 2}
+              disabled={busy || quote.trim().length < 2}
             >
               {busy ? "Kaydediliyor…" : editingId ? "Güncelle" : "Ekle"}
             </button>
