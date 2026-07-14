@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CoverImage from "../ui/CoverImage";
 import BookFilter from "../common/BookFilter";
-import SectionHeader from "../ui/SectionHeader";
 import {
   createShowcase,
   updateShowcase,
@@ -25,6 +24,7 @@ const ProfileShowcase = ({
   const items = Array.isArray(showcases) ? showcases : [];
   const canAdd = isOwnProfile && items.length < limit;
 
+  const [managing, setManaging] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
@@ -40,11 +40,26 @@ const ProfileShowcase = ({
     }
   }, [composerOpen]);
 
+  const closeComposer = () => {
+    setComposerOpen(false);
+  };
+
   const openAdd = () => {
+    setManaging(false);
     setEditingId(null);
     setSelectedBook(null);
     setQuote("");
     setComposerOpen(true);
+  };
+
+  const startManaging = () => {
+    setComposerOpen(false);
+    setManaging(true);
+  };
+
+  const finishManaging = () => {
+    setManaging(false);
+    setComposerOpen(false);
   };
 
   const openEdit = (item) => {
@@ -83,6 +98,7 @@ const ProfileShowcase = ({
         await createShowcase(payload);
       }
       setComposerOpen(false);
+      setManaging(false);
       onChanged?.();
     } catch (err) {
       alert(err?.response?.data?.message || err?.message || "Showcase kaydedilemedi.");
@@ -96,6 +112,9 @@ const ProfileShowcase = ({
     setBusy(true);
     try {
       await deleteShowcase(id);
+      if (editingId === id) {
+        setComposerOpen(false);
+      }
       onChanged?.();
     } catch (err) {
       alert(err?.response?.data?.message || err?.message || "Silinemedi.");
@@ -108,13 +127,35 @@ const ProfileShowcase = ({
     return null;
   }
 
+  const showActions = isOwnProfile && managing && !composerOpen;
+
   return (
-    <section className="profile-section profile-showcase">
-      <SectionHeader
-        title="Showcase"
-        linkLabel={canAdd ? "Showcase ekle" : undefined}
-        onLinkClick={canAdd ? openAdd : undefined}
-      />
+    <section className={`profile-section profile-showcase ${managing ? "is-managing" : ""}`}>
+      <div className="folios-section-header">
+        <h2 className="folios-section-title">Showcase</h2>
+        {isOwnProfile && (
+          <div className="ps-header-actions">
+            {managing ? (
+              <button type="button" className="folios-see-all" onClick={finishManaging}>
+                Bitir
+              </button>
+            ) : (
+              <>
+                {items.length > 0 && !composerOpen && (
+                  <button type="button" className="folios-see-all" onClick={startManaging}>
+                    Düzenle
+                  </button>
+                )}
+                {canAdd && !composerOpen && (
+                  <button type="button" className="folios-see-all" onClick={openAdd}>
+                    Showcase ekle
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
       {items.length === 0 && isOwnProfile && !composerOpen && (
         <div className="ps-empty">
@@ -130,27 +171,48 @@ const ProfileShowcase = ({
         </div>
       )}
 
-      <div className="ps-list">
-        {items.map((item) => {
-          const hasBook = !!item.bookId;
-          return (
-            <article
-              className={`ps-card ${hasBook ? "" : "ps-card--quote-only"}`}
-              key={item.id}
-            >
-              {hasBook ? (
-                <>
-                  <Link to={`/book/${item.bookId}`} className="ps-cover-link" title={item.bookTitle}>
-                    <CoverImage src={item.coverUrl} alt={item.bookTitle || ""} className="ps-cover" />
-                  </Link>
-                  <div className="ps-body">
-                    <Link to={`/book/${item.bookId}`} className="ps-title">
-                      {item.bookTitle}
+      {!composerOpen && (
+        <div className="ps-list">
+          {items.map((item) => {
+            const hasBook = !!item.bookId;
+            return (
+              <article
+                className={`ps-card ${hasBook ? "" : "ps-card--quote-only"}`}
+                key={item.id}
+              >
+                {hasBook ? (
+                  <>
+                    <Link to={`/book/${item.bookId}`} className="ps-cover-link" title={item.bookTitle}>
+                      <CoverImage src={item.coverUrl} alt={item.bookTitle || ""} className="ps-cover" />
                     </Link>
-                    {item.authorName && <p className="ps-author">{item.authorName}</p>}
-                    <blockquote className="ps-quote">“{item.quote}”</blockquote>
-                    {isOwnProfile && (
-                      <div className="ps-actions">
+                    <div className="ps-body">
+                      <Link to={`/book/${item.bookId}`} className="ps-title">
+                        {item.bookTitle}
+                      </Link>
+                      {item.authorName && <p className="ps-author">{item.authorName}</p>}
+                      <blockquote className="ps-quote">“{item.quote}”</blockquote>
+                      {showActions && (
+                        <div className="ps-actions">
+                          <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
+                            Düzenle
+                          </button>
+                          <button
+                            type="button"
+                            className="ps-action ps-action--danger"
+                            onClick={() => handleDelete(item.id)}
+                            disabled={busy}
+                          >
+                            Sil
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="ps-quote-only">
+                    <blockquote className="ps-handwriting">“{item.quote}”</blockquote>
+                    {showActions && (
+                      <div className="ps-actions ps-actions--center">
                         <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
                           Düzenle
                         </button>
@@ -165,35 +227,22 @@ const ProfileShowcase = ({
                       </div>
                     )}
                   </div>
-                </>
-              ) : (
-                <div className="ps-quote-only">
-                  <blockquote className="ps-handwriting">“{item.quote}”</blockquote>
-                  {isOwnProfile && (
-                    <div className="ps-actions ps-actions--center">
-                      <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
-                        Düzenle
-                      </button>
-                      <button
-                        type="button"
-                        className="ps-action ps-action--danger"
-                        onClick={() => handleDelete(item.id)}
-                        disabled={busy}
-                      >
-                        Sil
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </article>
-          );
-        })}
-      </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
 
-      {isOwnProfile && items.length > 0 && (
+      {showActions && items.length > 0 && (
         <p className="ps-limit-hint">
           {items.length}/{limit} showcase
+          {canAdd ? " · " : ""}
+          {canAdd && (
+            <button type="button" className="ps-action" onClick={openAdd}>
+              Yeni ekle
+            </button>
+          )}
           {!isProPlanRole(role) && limit === 1 ? " · PRO ile 3 slot" : ""}
         </p>
       )}
@@ -251,7 +300,7 @@ const ProfileShowcase = ({
             <span className="ps-char-count">
               {quote.length}/{QUOTE_MAX}
             </span>
-            <button type="button" className="ps-action" onClick={() => setComposerOpen(false)} disabled={busy}>
+            <button type="button" className="ps-action" onClick={closeComposer} disabled={busy}>
               Vazgeç
             </button>
             <button

@@ -2,6 +2,19 @@
   margin-bottom: 8px;
 }
 
+.ps-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.ps-header-actions .folios-see-all {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
 .ps-empty {
   display: flex;
   flex-direction: column;
