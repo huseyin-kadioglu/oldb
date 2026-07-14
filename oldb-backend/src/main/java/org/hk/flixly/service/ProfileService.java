@@ -39,6 +39,7 @@ public class ProfileService {
     private final AvatarStorageService avatarStorageService;
     private final DailyReadCheckinService dailyReadCheckinService;
     private final ProfileShowcaseService profileShowcaseService;
+    private final QuoteEntryService quoteEntryService;
 
     public ProfileInfoDTO getProfileInfo(UserDetails userDetails) {
         UserEntity user = userRepository.findByEmail(userDetails.getUsername())
@@ -78,6 +79,8 @@ public class ProfileService {
         response.setYearlyBookGoal(userEntity.getYearlyBookGoal());
         response.setShowcases(profileShowcaseService.listForUser(userEntity.getId()));
         response.setShowcaseLimit(profileShowcaseService.showcaseLimitForRole(role));
+        List<QuoteEntryDto> allQuotes = quoteEntryService.listForUser(userEntity.getId());
+        response.setQuotes(allQuotes.size() > 6 ? allQuotes.subList(0, 6) : allQuotes);
 
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
 

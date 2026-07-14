@@ -42,18 +42,21 @@ public class SecurityConfiguration {
                                 "/community/**",
                                 "/home",
                                 "/home/**",
+                                "/botm",
+                                "/botm/**",
                                 "/gamification/badges/**",
                                 "/gamification/challenges/**",
                                 "/genres/**"
                         ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/comments", "/comments/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/quotes/user/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/profile/*", "/profile/*/list/*").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/recent").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/follow/*/stats").permitAll()
                         .requestMatchers("/activity/**").authenticated()
                         .requestMatchers("/notifications/**").authenticated()
-                        .requestMatchers("/comments/**", "/book-approvals/**", "/author-approvals/**", "/profile/**", "/userActivity/**", "/admin/**", "/gamification/**").authenticated()
+                        .requestMatchers("/quotes/**", "/comments/**", "/book-approvals/**", "/author-approvals/**", "/profile/**", "/userActivity/**", "/admin/**", "/gamification/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

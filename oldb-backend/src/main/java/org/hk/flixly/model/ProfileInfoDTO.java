@@ -56,4 +56,6 @@ public class ProfileInfoDTO {
     private List<ProfileShowcaseDto> showcases;
     /** Max showcase slots for this profile's role (1 free / 3 pro). */
     private int showcaseLimit;
+    /** Recent quote notebook entries (preview on profile). */
+    private List<QuoteEntryDto> quotes;
 }

@@ -80,6 +80,11 @@ const LoggedUser = ({ onLogout }) => {
           value="Profilim"
           onClose={handleClose}
         />
+        <LoggedUserMenuItem
+          navigateUrl={`/profile/${username}/quotes`}
+          value="Alıntılarım"
+          onClose={handleClose}
+        />
         <MenuItem
           onClick={() => { handleClose(); navigate("/activities"); }}
           sx={{ fontSize: "13px", "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" } }}
@@ -87,6 +92,11 @@ const LoggedUser = ({ onLogout }) => {
           <TimelineIcon sx={{ fontSize: 18, mr: 1, color: "var(--color-text-muted)" }} />
           Aktiviteler
         </MenuItem>
+        <LoggedUserMenuItem
+          navigateUrl="/book-of-the-month"
+          value="Ayın kitabı"
+          onClose={handleClose}
+        />
         <LoggedUserMenuItem
           navigateUrl="/settings"
           value="Ayarlar"

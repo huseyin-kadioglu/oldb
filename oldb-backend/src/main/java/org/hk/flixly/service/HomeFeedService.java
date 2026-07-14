@@ -10,6 +10,7 @@ import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.CommentRepository;
+import org.hk.flixly.repository.UserBookMapRepository;
 import org.hk.flixly.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class HomeFeedService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final CommunityService communityService;
+    private final UserBookMapRepository userBookMapRepository;
 
     public HomeFeedService(
             BookRepository bookRepository,
@@ -42,13 +44,15 @@ public class HomeFeedService {
             ActivityRepository activityRepository,
             CommentRepository commentRepository,
             UserRepository userRepository,
-            CommunityService communityService) {
+            CommunityService communityService,
+            UserBookMapRepository userBookMapRepository) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.activityRepository = activityRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.communityService = communityService;
+        this.userBookMapRepository = userBookMapRepository;
     }
 
     public HomeFeedDto getFeed() {
@@ -67,6 +71,7 @@ public class HomeFeedService {
                 activityRepository.findMostReadBookIdsAllTime(RAIL_BOOKS)
         );
         List<CommunityReviewDto> popularReviews = loadPopularReviews(monthStart, monthStartTs);
+        List<CommunityBookDto> likedAuthorBooks = loadLikedAuthorBooks(RAIL_BOOKS);
 
         return HomeFeedDto.builder()
                 .stoaPicks(stoa)
@@ -74,8 +79,60 @@ public class HomeFeedService {
                 .discussed(discussed)
                 .allTimeMostRead(allTime)
                 .popularReviews(popularReviews)
+                .likedAuthorBooks(likedAuthorBooks)
                 .communityStats(communityService.getStats())
                 .build();
+    }
+
+    /**
+     * Pick the most-liked book per top authors (by LIKE count), uniqueness by author.
+     */
+    private List<CommunityBookDto> loadLikedAuthorBooks(int limit) {
+        List<Object[]> rows = userBookMapRepository.findLikedBooksGroupedByAuthor();
+        if (rows == null || rows.isEmpty()) {
+            return List.of();
+        }
+        LinkedHashMap<Long, Long> authorToBook = new LinkedHashMap<>();
+        LinkedHashMap<Long, Long> bookToLikes = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Long authorId = ((Number) row[0]).longValue();
+            Long bookId = ((Number) row[1]).longValue();
+            Long likes = ((Number) row[2]).longValue();
+            if (authorToBook.containsKey(authorId)) {
+                continue;
+            }
+            authorToBook.put(authorId, bookId);
+            bookToLikes.put(bookId, likes);
+            if (authorToBook.size() >= limit) {
+                break;
+            }
+        }
+        if (authorToBook.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, BookEntity> books = bookRepository.findAllById(bookToLikes.keySet()).stream()
+                .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
+        Map<Long, AuthorEntity> authors = loadAuthors(books);
+        List<CommunityBookDto> result = new ArrayList<>();
+        for (Long bookId : authorToBook.values()) {
+            BookEntity book = books.get(bookId);
+            if (book == null) {
+                continue;
+            }
+            AuthorEntity author = book.getAuthorId() != null ? authors.get(book.getAuthorId()) : null;
+            result.add(CommunityBookDto.builder()
+                    .id(book.getId())
+                    .title(book.getTitle())
+                    .originalTitle(book.getOriginalTitle())
+                    .coverUrl(book.getCoverUrl())
+                    .authorId(book.getAuthorId())
+                    .authorName(author != null ? author.getName() : null)
+                    .publicationYear(book.getPublicationYear())
+                    .pageCount(book.getPageCount())
+                    .readCount(bookToLikes.getOrDefault(bookId, 0L))
+                    .build());
+        }
+        return result;
     }
 
     private List<CommunityReviewDto> loadPopularReviews(LocalDate monthStart, LocalDateTime monthStartTs) {
