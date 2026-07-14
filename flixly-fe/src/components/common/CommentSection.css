@@ -176,6 +176,16 @@ img.comment-avatar,
   cursor: default;
 }
 
+.comment-form-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.comment-card.is-mine {
+  border-color: rgba(212, 175, 55, 0.28);
+}
+
 .comment-login-hint,
 .comment-meta,
 .comment-error {

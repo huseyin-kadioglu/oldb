@@ -23,4 +23,5 @@ public class CommentDto {
     private int likeCount;
     private boolean likedByMe;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

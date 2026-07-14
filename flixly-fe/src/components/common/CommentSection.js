@@ -12,6 +12,15 @@ import InitialAvatar from "./InitialAvatar";
 import { UserDisplayName } from "./ProVerifiedBadge";
 import "./CommentSection.css";
 
+const formatCommentDate = (c) => {
+  const raw = c.updatedAt || c.createdAt;
+  if (!raw) return "";
+  const updated =
+    c.updatedAt && c.createdAt && new Date(c.updatedAt).getTime() > new Date(c.createdAt).getTime() + 1000;
+  const label = new Date(raw).toLocaleDateString("tr-TR");
+  return updated ? `Güncellendi · ${label}` : label;
+};
+
 const SpoilerBody = ({ body }) => {
   const [revealed, setRevealed] = useState(false);
 
@@ -53,16 +62,36 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
   const [comments, setComments] = useState([]);
   const [body, setBody] = useState("");
   const [spoiler, setSpoiler] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  const applyOwnCommentToForm = (list) => {
+    if (!myUsername) {
+      setEditingId(null);
+      return;
+    }
+    const mine = list.find((c) => c.username === myUsername);
+    if (mine) {
+      setEditingId(mine.id);
+      setBody(mine.body || "");
+      setSpoiler(!!mine.spoiler);
+    } else {
+      setEditingId(null);
+      setBody("");
+      setSpoiler(false);
+    }
+  };
 
   const load = async () => {
     if (!targetId) return;
     setLoading(true);
     try {
       const data = await getComments(targetType, targetId);
-      setComments(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setComments(list);
+      applyOwnCommentToForm(list);
       setError(null);
     } catch {
       setError("Yorumlar yüklenemedi.");
@@ -72,6 +101,9 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
   };
 
   useEffect(() => {
+    setEditingId(null);
+    setBody("");
+    setSpoiler(false);
     load();
   }, [targetType, targetId]);
 
@@ -84,15 +116,19 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
     if (!body.trim()) return;
     setSubmitting(true);
     try {
-      const created = await createComment({
+      const saved = await createComment({
         targetType,
         targetId,
         body: body.trim(),
         spoiler,
       });
-      setComments((prev) => [created, ...prev]);
-      setBody("");
-      setSpoiler(false);
+      setComments((prev) => {
+        const without = prev.filter((c) => c.id !== saved.id);
+        return [saved, ...without];
+      });
+      setEditingId(saved.id);
+      setBody(saved.body || "");
+      setSpoiler(!!saved.spoiler);
     } catch (err) {
       alert(err?.response?.data?.message || err?.message || "Yorum kaydedilemedi.");
     } finally {
@@ -124,7 +160,11 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Düşüncelerini yaz…"
+              placeholder={
+                editingId
+                  ? "Yorumunu güncelle…"
+                  : "Düşüncelerini yaz…"
+              }
               rows={3}
               maxLength={2000}
             />
@@ -139,9 +179,16 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
               <span>Spoiler içerir</span>
             </label>
             <button type="submit" disabled={submitting || !body.trim()}>
-              {submitting ? "Gönderiliyor…" : "Yorum yap"}
+              {submitting
+                ? "Kaydediliyor…"
+                : editingId
+                  ? "Yorumu güncelle"
+                  : "Yorum yap"}
             </button>
           </div>
+          {editingId && (
+            <p className="comment-form-hint">Bu kitap/yazar için tek yorumun güncellenir.</p>
+          )}
         </form>
       ) : (
         <p className="comment-login-hint">Yorum yazmak için giriş yapın.</p>
@@ -152,7 +199,7 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
 
       <div className="comment-list">
         {comments.map((c) => (
-          <article className="comment-card" key={c.id}>
+          <article className={`comment-card ${c.id === editingId ? "is-mine" : ""}`} key={c.id}>
             <div className="comment-card-main">
               {c.username ? (
                 <Link to={`/profile/${c.username}`} className="comment-avatar-link">
@@ -183,11 +230,7 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
                   ) : (
                     <span className="comment-author">Anonim</span>
                   )}
-                  <span className="comment-date">
-                    {c.createdAt
-                      ? new Date(c.createdAt).toLocaleDateString("tr-TR")
-                      : ""}
-                  </span>
+                  <span className="comment-date">{formatCommentDate(c)}</span>
                 </div>
                 {c.spoiler ? (
                   <SpoilerBody body={c.body} />

@@ -50,11 +50,14 @@ public class CommentService {
 
     public List<CommentDto> list(String targetType, Long targetId, Long viewerUserId) {
         String type = normalizeType(targetType);
-        return commentRepository.findByTargetTypeAndTargetIdOrderByCreatedAtDesc(type, targetId).stream()
+        return commentRepository.findByTargetTypeAndTargetIdOrderByUpdatedAtDesc(type, targetId).stream()
                 .map(c -> toDto(c, viewerUserId))
                 .toList();
     }
 
+    /**
+     * One comment per user per target. Creating again updates the existing comment body/spoiler.
+     */
     @Transactional
     public CommentDto create(CreateCommentRequest request, UserDetails userDetails) {
         UserEntity user = requireUser(userDetails);
@@ -70,6 +73,16 @@ public class CommentService {
             throw new IllegalArgumentException("Yorum çok uzun");
         }
         validateTarget(type, request.getTargetId());
+
+        var existing = commentRepository.findByUserIdAndTargetTypeAndTargetId(
+                user.getId(), type, request.getTargetId());
+        if (existing.isPresent()) {
+            CommentEntity entity = existing.get();
+            entity.setBody(body);
+            entity.setSpoiler(request.isSpoiler());
+            entity = commentRepository.save(entity);
+            return toDto(entity, user.getId());
+        }
 
         CommentEntity entity = CommentEntity.builder()
                 .userId(user.getId())
@@ -164,6 +177,7 @@ public class CommentService {
                 .likeCount(c.getLikeCount())
                 .likedByMe(liked)
                 .createdAt(c.getCreatedAt())
+                .updatedAt(c.getUpdatedAt())
                 .build();
     }
 
