@@ -81,9 +81,109 @@ img.comment-avatar,
   cursor: pointer;
 }
 
+.comment-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.comment-form-actions > button {
+  align-self: auto;
+  margin-left: auto;
+}
+
+.comment-spoiler-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #a0a8b8);
+  cursor: pointer;
+  user-select: none;
+}
+
+.comment-spoiler-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary-button, #d4af37);
+  cursor: pointer;
+}
+
+.comment-spoiler-wrap {
+  margin: 0 0 10px;
+}
+
+.comment-spoiler-badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--color-primary-button, #d4af37);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.comment-spoiler-curtain {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.28);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.comment-spoiler-curtain:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.06);
+}
+
+.comment-spoiler-curtain .comment-spoiler-badge {
+  margin-bottom: 0;
+}
+
+.comment-spoiler-hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.comment-spoiler-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted, #6b7280);
+  cursor: pointer;
+}
+
+.comment-spoiler-toggle:hover {
+  color: var(--color-primary-button, #d4af37);
+}
+
 .comment-form button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.comment-form-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.comment-card.is-mine {
+  border-color: rgba(212, 175, 55, 0.28);
 }
 
 .comment-login-hint,

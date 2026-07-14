@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "comments", indexes = {
         @Index(name = "idx_comments_target", columnList = "targetType,targetId")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uk_comments_user_target", columnNames = {"userId", "targetType", "targetId"})
 })
 @Getter
 @Setter
@@ -32,6 +34,11 @@ public class CommentEntity {
 
     @Column(nullable = false, length = 2000)
     private String body;
+
+    /** True when the whole comment body should be hidden until revealed. */
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean spoiler = false;
 
     @Column(nullable = false)
     private int likeCount = 0;
