@@ -76,6 +76,7 @@ public class CommentService {
                 .targetType(type)
                 .targetId(request.getTargetId())
                 .body(body)
+                .spoiler(request.isSpoiler())
                 .likeCount(0)
                 .build();
         entity = commentRepository.save(entity);
@@ -159,6 +160,7 @@ public class CommentService {
                 .targetType(c.getTargetType())
                 .targetId(c.getTargetId())
                 .body(c.getBody())
+                .spoiler(c.isSpoiler())
                 .likeCount(c.getLikeCount())
                 .likedByMe(liked)
                 .createdAt(c.getCreatedAt())

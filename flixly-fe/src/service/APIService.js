@@ -502,11 +502,11 @@ export const getComments = async (targetType, targetId) => {
   return response.data;
 };
 
-export const createComment = async ({ targetType, targetId, body }) => {
+export const createComment = async ({ targetType, targetId, body, spoiler = false }) => {
   const token = sessionStorage.getItem("token");
   const response = await axios.post(
     `${BASE_URL}comments`,
-    { targetType, targetId, body },
+    { targetType, targetId, body, spoiler: !!spoiler },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return response.data;

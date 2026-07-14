@@ -19,6 +19,7 @@ public class CommentDto {
     private String targetType;
     private Long targetId;
     private String body;
+    private boolean spoiler;
     private int likeCount;
     private boolean likedByMe;
     private LocalDateTime createdAt;

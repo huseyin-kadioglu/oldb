@@ -12,12 +12,47 @@ import InitialAvatar from "./InitialAvatar";
 import { UserDisplayName } from "./ProVerifiedBadge";
 import "./CommentSection.css";
 
+const SpoilerBody = ({ body }) => {
+  const [revealed, setRevealed] = useState(false);
+
+  if (revealed) {
+    return (
+      <div className="comment-spoiler-wrap">
+        <span className="comment-spoiler-badge">Spoiler</span>
+        <p className="comment-body">{body}</p>
+        <button
+          type="button"
+          className="comment-spoiler-toggle"
+          onClick={() => setRevealed(false)}
+        >
+          Gizle
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="comment-spoiler-wrap">
+      <button
+        type="button"
+        className="comment-spoiler-curtain"
+        onClick={() => setRevealed(true)}
+        aria-expanded="false"
+      >
+        <span className="comment-spoiler-badge">Spoiler içerir</span>
+        <span className="comment-spoiler-hint">Görmek için tıkla</span>
+      </button>
+    </div>
+  );
+};
+
 const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
   const token = sessionStorage.getItem("token");
   const myAvatar = sessionStorage.getItem("avatarUrl");
   const myUsername = sessionStorage.getItem("username");
   const [comments, setComments] = useState([]);
   const [body, setBody] = useState("");
+  const [spoiler, setSpoiler] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -53,9 +88,11 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
         targetType,
         targetId,
         body: body.trim(),
+        spoiler,
       });
       setComments((prev) => [created, ...prev]);
       setBody("");
+      setSpoiler(false);
     } catch (err) {
       alert(err?.response?.data?.message || err?.message || "Yorum kaydedilemedi.");
     } finally {
@@ -92,9 +129,19 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
               maxLength={2000}
             />
           </div>
-          <button type="submit" disabled={submitting || !body.trim()}>
-            {submitting ? "Gönderiliyor…" : "Yorum yap"}
-          </button>
+          <div className="comment-form-actions">
+            <label className="comment-spoiler-option">
+              <input
+                type="checkbox"
+                checked={spoiler}
+                onChange={(e) => setSpoiler(e.target.checked)}
+              />
+              <span>Spoiler içerir</span>
+            </label>
+            <button type="submit" disabled={submitting || !body.trim()}>
+              {submitting ? "Gönderiliyor…" : "Yorum yap"}
+            </button>
+          </div>
         </form>
       ) : (
         <p className="comment-login-hint">Yorum yazmak için giriş yapın.</p>
@@ -142,7 +189,11 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
                       : ""}
                   </span>
                 </div>
-                <p className="comment-body">{c.body}</p>
+                {c.spoiler ? (
+                  <SpoilerBody body={c.body} />
+                ) : (
+                  <p className="comment-body">{c.body}</p>
+                )}
                 <button
                   type="button"
                   className={`comment-like ${c.likedByMe ? "active" : ""}`}
