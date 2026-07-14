@@ -5,6 +5,7 @@ import ProfileTabs from "./ProfileTabs";
 import CurrentlyReadingSection from "./CurrentlyReadingSection";
 import ProfileShelf, { ProfileEmpty } from "./ProfileShelf";
 import ProfileActivityFeed from "./ProfileActivityFeed";
+import ProfileShowcase from "./ProfileShowcase";
 import YearlyGoalCard from "./YearlyGoalCard";
 import ReadingIdentityCard from "./ReadingIdentityCard";
 import Review from "./Review";
@@ -28,6 +29,7 @@ import "./ReadingIdentityCard.css";
 import "./CurrentlyReadingSection.css";
 import "./ProfileActivityFeed.css";
 import "./ProfileTabs.css";
+import "./ProfileShowcase.css";
 
 const MiniCoverGrid = ({ books, to, emptyText, limit = 8 }) => {
   const items = (books || []).slice(0, limit);
@@ -189,6 +191,15 @@ const ProfilePage = ({ books = [] }) => {
           onUpdated={loadProfile}
         />
       </section>
+
+      <ProfileShowcase
+        showcases={profileSummary.showcases}
+        showcaseLimit={profileSummary.showcaseLimit}
+        role={profileSummary.role}
+        isOwnProfile={isOwnProfile}
+        books={books}
+        onChanged={loadProfile}
+      />
 
       <ProfileShelf
         title="Son Okunanlar"

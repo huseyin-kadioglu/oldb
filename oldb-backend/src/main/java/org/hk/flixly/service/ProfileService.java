@@ -38,6 +38,7 @@ public class ProfileService {
     private final GenrePreferenceService genrePreferenceService;
     private final AvatarStorageService avatarStorageService;
     private final DailyReadCheckinService dailyReadCheckinService;
+    private final ProfileShowcaseService profileShowcaseService;
 
     public ProfileInfoDTO getProfileInfo(UserDetails userDetails) {
         UserEntity user = userRepository.findByEmail(userDetails.getUsername())
@@ -75,6 +76,8 @@ public class ProfileService {
         // Avatar kimlik özelliği — herkes yükleyebilir; admin onayı gerekir
         response.setCanUploadAvatar(true);
         response.setYearlyBookGoal(userEntity.getYearlyBookGoal());
+        response.setShowcases(profileShowcaseService.listForUser(userEntity.getId()));
+        response.setShowcaseLimit(profileShowcaseService.showcaseLimitForRole(role));
 
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userEntity.getId());
 

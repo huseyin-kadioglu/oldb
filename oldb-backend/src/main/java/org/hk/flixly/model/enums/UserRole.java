@@ -20,6 +20,7 @@ public enum UserRole {
 
     private static final Set<UserRole> SCORE_BYPASS = Set.of(PRO, MODERATOR, ADMIN);
     private static final Set<UserRole> STAFF = Set.of(MODERATOR, ADMIN);
+    private static final Set<UserRole> PRO_PLAN = Set.of(PRO, MODERATOR, ADMIN);
 
     public static UserRole from(String raw) {
         if (raw == null || raw.isBlank()) {
@@ -48,6 +49,11 @@ public enum UserRole {
         return this == ADMIN;
     }
 
+    /** PRO plan ve üzeri (staff dahil) — ek showcase slotları vb. */
+    public boolean isProPlan() {
+        return PRO_PLAN.contains(this);
+    }
+
     public static boolean bypassesContributionGates(String raw) {
         return from(raw).bypassesContributionGates();
     }
@@ -58,5 +64,9 @@ public enum UserRole {
 
     public static boolean isAdmin(String raw) {
         return from(raw).isAdmin();
+    }
+
+    public static boolean isProPlan(String raw) {
+        return from(raw).isProPlan();
     }
 }
