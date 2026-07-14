@@ -65,12 +65,12 @@ public class ProfileShowcaseService {
         if (count >= limit) {
             if (limit == LIMIT_FREE) {
                 throw new IllegalArgumentException(
-                        "Ücretsiz üyelikte 1 showcase hakkın var. PRO ile 3’e çıkar.");
+                        "Ücretsiz üyelikte 1 alıntı hakkın var. PRO ile 3’e çıkar.");
             }
-            throw new IllegalArgumentException("En fazla " + limit + " showcase ekleyebilirsin.");
+            throw new IllegalArgumentException("En fazla " + limit + " alıntı ekleyebilirsin.");
         }
         if (book != null && showcaseRepository.existsByUserIdAndBookId(user.getId(), book.getId())) {
-            throw new IllegalArgumentException("Bu kitap zaten showcase’inde.");
+            throw new IllegalArgumentException("Bu kitap zaten alıntı defterinde.");
         }
 
         ProfileShowcaseEntity entity = ProfileShowcaseEntity.builder()
@@ -87,7 +87,7 @@ public class ProfileShowcaseService {
     public ProfileShowcaseDto update(Long id, ShowcaseRequest request, UserDetails userDetails) {
         UserEntity user = requireUser(userDetails);
         ProfileShowcaseEntity entity = showcaseRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Showcase bulunamadı"));
+                .orElseThrow(() -> new IllegalArgumentException("Alıntı bulunamadı"));
 
         if (request.getQuote() != null) {
             entity.setQuote(normalizeQuote(request.getQuote()));
@@ -104,7 +104,7 @@ public class ProfileShowcaseService {
                 if (book != null
                         && showcaseRepository.existsByUserIdAndBookIdAndIdNot(
                         user.getId(), book.getId(), id)) {
-                    throw new IllegalArgumentException("Bu kitap zaten showcase’inde.");
+                    throw new IllegalArgumentException("Bu kitap zaten alıntı defterinde.");
                 }
                 entity.setBookId(book != null ? book.getId() : null);
             }
@@ -121,7 +121,7 @@ public class ProfileShowcaseService {
     public void delete(Long id, UserDetails userDetails) {
         UserEntity user = requireUser(userDetails);
         ProfileShowcaseEntity entity = showcaseRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Showcase bulunamadı"));
+                .orElseThrow(() -> new IllegalArgumentException("Alıntı bulunamadı"));
         showcaseRepository.delete(entity);
         reindexPositions(user.getId());
     }

@@ -64,6 +64,7 @@ const Content = ({ token }) => {
   const discussed = feed?.discussed || [];
   const allTimeMostRead = feed?.allTimeMostRead || [];
   const popularReviews = feed?.popularReviews || [];
+  const likedAuthorBooks = feed?.likedAuthorBooks || [];
 
   useEffect(() => {
     setFeedLoading(true);
@@ -229,8 +230,17 @@ const Content = ({ token }) => {
 
       {renderBookRail("stoa önerdi", stoaPicks, "Keşfet")}
       {renderBookRail("Yeni çıkanlar", newReleases)}
+      {renderBookRail("Beğenilen yazarların kitapları", likedAuthorBooks)}
       {renderBookRail("Konuşulanlar", discussed)}
       {renderBookRail("Tüm zamanların en çok okunanları", allTimeMostRead)}
+
+      <section className="lb-section lb-section--botm">
+        <Link to="/book-of-the-month" className="lb-botm-banner">
+          <span className="lb-botm-banner-kicker">Okuma kulübü</span>
+          <span className="lb-botm-banner-title">Ayın kitabı</span>
+          <span className="lb-botm-banner-cta">Anket & oda →</span>
+        </Link>
+      </section>
 
       <section className="lb-section">
         <SectionHeader

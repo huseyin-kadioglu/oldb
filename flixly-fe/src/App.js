@@ -22,6 +22,7 @@ import SettingsView from "./components/profile/SettingsView";
 import ProfileListPage from "./components/profile/ProfileListPage";
 import SearchView from "./components/pages/SearchView";
 import BadgesPage from "./components/pages/BadgesPage";
+import BookOfTheMonth from "./components/pages/BookOfTheMonth";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
 
@@ -103,6 +104,7 @@ const App = () => {
           <Route path="/" element={<Content token={token} />} />
           <Route path="/profile/:username" element={<ProfilePage books={books} />} />
           <Route path="/profile/:username/list/:listType" element={<ProfileListPage />} />
+          <Route path="/book-of-the-month" element={<BookOfTheMonth />} />
           <Route path="/books" element={<Books books={books} />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/badges" element={<BadgesPage />} />

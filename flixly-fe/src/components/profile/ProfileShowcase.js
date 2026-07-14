@@ -101,14 +101,14 @@ const ProfileShowcase = ({
       setManaging(false);
       onChanged?.();
     } catch (err) {
-      alert(err?.response?.data?.message || err?.message || "Showcase kaydedilemedi.");
+      alert(err?.response?.data?.message || err?.message || "Alıntı kaydedilemedi.");
     } finally {
       setBusy(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bu showcase silinsin mi?")) return;
+    if (!window.confirm("Bu alıntı silinsin mi?")) return;
     setBusy(true);
     try {
       await deleteShowcase(id);
@@ -132,7 +132,7 @@ const ProfileShowcase = ({
   return (
     <section className={`profile-section profile-showcase ${managing ? "is-managing" : ""}`}>
       <div className="folios-section-header">
-        <h2 className="folios-section-title">Showcase</h2>
+        <h2 className="folios-section-title">Alıntı defteri</h2>
         {isOwnProfile && (
           <div className="ps-header-actions">
             {managing ? (
@@ -148,7 +148,7 @@ const ProfileShowcase = ({
                 )}
                 {canAdd && !composerOpen && (
                   <button type="button" className="folios-see-all" onClick={openAdd}>
-                    Showcase ekle
+                    Alıntı ekle
                   </button>
                 )}
               </>
@@ -159,14 +159,14 @@ const ProfileShowcase = ({
 
       {items.length === 0 && isOwnProfile && !composerOpen && (
         <div className="ps-empty">
-          <p>Bir söz paylaş veya bir kitapla anını ekle.</p>
+          <p>Okurken yakaladığın satırı veya bir sözü buraya bırak.</p>
           <button type="button" className="profile-btn profile-btn--subtle" onClick={openAdd}>
-            + Showcase ekle
+            + Alıntı ekle
           </button>
           <p className="ps-limit-hint">
             {isProPlanRole(role)
-              ? "PRO: 3 showcase hakkın var."
-              : "1 showcase hakkın var · PRO ile 3’e çıkar."}
+              ? "PRO: 3 alıntı hakkın var."
+              : "1 alıntı hakkın var · PRO ile 3’e çıkar."}
           </p>
         </div>
       )}
@@ -236,20 +236,20 @@ const ProfileShowcase = ({
 
       {showActions && items.length > 0 && (
         <p className="ps-limit-hint">
-          {items.length}/{limit} showcase
+          {items.length}/{limit} alıntı
           {canAdd ? " · " : ""}
           {canAdd && (
             <button type="button" className="ps-action" onClick={openAdd}>
               Yeni ekle
             </button>
           )}
-          {!isProPlanRole(role) && limit === 1 ? " · PRO ile 3 slot" : ""}
+          {!isProPlanRole(role) && limit === 1 ? " · PRO ile 3 alan" : ""}
         </p>
       )}
 
       {composerOpen && (
         <div className="ps-composer">
-          <h4 className="ps-composer-title">{editingId ? "Showcase düzenle" : "Showcase ekle"}</h4>
+          <h4 className="ps-composer-title">{editingId ? "Alıntıyı düzenle" : "Alıntı ekle"}</h4>
           <div className="ps-composer-row">
             <div className="ps-pick-col">
               <button

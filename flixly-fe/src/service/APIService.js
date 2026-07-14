@@ -681,6 +681,24 @@ export const deleteShowcase = async (id) => {
   return response.data;
 };
 
+export const getBotm = async () => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BASE_URL}botm`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+export const voteBotm = async (bookId) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.post(
+    `${BASE_URL}botm/vote`,
+    { bookId },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
 export const getPendingAvatars = async () => {
   const token = sessionStorage.getItem("token");
   const response = await fetch(`${BASE_URL}admin/pending-avatars`, {

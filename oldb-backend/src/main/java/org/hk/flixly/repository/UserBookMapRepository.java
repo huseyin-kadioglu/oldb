@@ -51,4 +51,21 @@ public interface UserBookMapRepository extends JpaRepository<UserBookMapEntity, 
             @Param("userIds") Collection<Long> userIds,
             @Param("statuses") Collection<String> statuses
     );
+
+    /**
+     * Top authors by LIKE count, and for each author the most-liked book id + like count.
+     * Returns: authorId, bookId, likeCount
+     */
+    @Query(value = """
+            SELECT b.author_id AS author_id,
+                   b.id AS book_id,
+                   COUNT(*) AS like_count
+            FROM user_book_map ub
+            JOIN books b ON b.id = ub.book_id
+            WHERE ub.status = 'LIKE'
+              AND b.author_id IS NOT NULL
+            GROUP BY b.author_id, b.id
+            ORDER BY like_count DESC, b.id ASC
+            """, nativeQuery = true)
+    List<Object[]> findLikedBooksGroupedByAuthor();
 }

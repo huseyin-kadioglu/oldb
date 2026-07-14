@@ -29,5 +29,9 @@ public class HomeFeedDto {
     @Builder.Default
     private List<CommunityReviewDto> popularReviews = new ArrayList<>();
 
+    /** Books from community's most-liked authors. */
+    @Builder.Default
+    private List<CommunityBookDto> likedAuthorBooks = new ArrayList<>();
+
     private CommunityStatsDto communityStats;
 }

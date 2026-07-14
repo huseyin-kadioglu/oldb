@@ -42,6 +42,8 @@ public class SecurityConfiguration {
                                 "/community/**",
                                 "/home",
                                 "/home/**",
+                                "/botm",
+                                "/botm/**",
                                 "/gamification/badges/**",
                                 "/gamification/challenges/**",
                                 "/genres/**"
