@@ -681,41 +681,6 @@ export const deleteShowcase = async (id) => {
   return response.data;
 };
 
-export const getUserQuotes = async (username) => {
-  const response = await axios.get(
-    `${BASE_URL}quotes/user/${encodeURIComponent(username)}`
-  );
-  return response.data;
-};
-
-export const createQuote = async ({ bookId, body, pageNote }) => {
-  const token = sessionStorage.getItem("token");
-  const response = await axios.post(
-    `${BASE_URL}quotes`,
-    { bookId: bookId ?? null, body, pageNote: pageNote || null },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return response.data;
-};
-
-export const updateQuote = async (id, { bookId, body, pageNote }) => {
-  const token = sessionStorage.getItem("token");
-  const response = await axios.put(
-    `${BASE_URL}quotes/${id}`,
-    { bookId: bookId ?? null, body, pageNote: pageNote || null },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return response.data;
-};
-
-export const deleteQuote = async (id) => {
-  const token = sessionStorage.getItem("token");
-  const response = await axios.delete(`${BASE_URL}quotes/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data;
-};
-
 export const getBotm = async () => {
   const token = sessionStorage.getItem("token");
   const response = await axios.get(`${BASE_URL}botm`, {

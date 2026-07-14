@@ -81,7 +81,7 @@ const LoggedUser = ({ onLogout }) => {
           onClose={handleClose}
         />
         <LoggedUserMenuItem
-          navigateUrl={`/profile/${username}/quotes`}
+          navigateUrl={`/profile/${username}`}
           value="Alıntılarım"
           onClose={handleClose}
         />

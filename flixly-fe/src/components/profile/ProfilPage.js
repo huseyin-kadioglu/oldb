@@ -6,7 +6,6 @@ import CurrentlyReadingSection from "./CurrentlyReadingSection";
 import ProfileShelf, { ProfileEmpty } from "./ProfileShelf";
 import ProfileActivityFeed from "./ProfileActivityFeed";
 import ProfileShowcase from "./ProfileShowcase";
-import ProfileQuotes from "./ProfileQuotes";
 import YearlyGoalCard from "./YearlyGoalCard";
 import ReadingIdentityCard from "./ReadingIdentityCard";
 import Review from "./Review";
@@ -31,7 +30,6 @@ import "./CurrentlyReadingSection.css";
 import "./ProfileActivityFeed.css";
 import "./ProfileTabs.css";
 import "./ProfileShowcase.css";
-import "./ProfileQuotes.css";
 
 const MiniCoverGrid = ({ books, to, emptyText, limit = 8 }) => {
   const items = (books || []).slice(0, limit);
@@ -201,12 +199,6 @@ const ProfilePage = ({ books = [] }) => {
         isOwnProfile={isOwnProfile}
         books={books}
         onChanged={loadProfile}
-      />
-
-      <ProfileQuotes
-        quotes={profileSummary.quotes}
-        username={username}
-        isOwnProfile={isOwnProfile}
       />
 
       <ProfileShelf
