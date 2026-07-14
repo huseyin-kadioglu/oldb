@@ -352,6 +352,15 @@
   margin-bottom: 4px;
 }
 
+.lb-review-likes {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
 .lb-review-avatar {
   width: 22px;
   height: 22px;

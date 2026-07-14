@@ -40,6 +40,8 @@ public class SecurityConfiguration {
                                 "/api/auth/**",
                                 "/send-email",
                                 "/community/**",
+                                "/home",
+                                "/home/**",
                                 "/gamification/badges/**",
                                 "/gamification/challenges/**",
                                 "/genres/**"

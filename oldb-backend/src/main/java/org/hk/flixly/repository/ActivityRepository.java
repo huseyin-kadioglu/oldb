@@ -82,6 +82,57 @@ public interface ActivityRepository extends JpaRepository<UserActivityEntity, Lo
     List<Object[]> findMostReadBookIdsSince(@Param("fromDate") LocalDate fromDate, @Param("limit") int limit);
 
     @Query(value = """
+            SELECT book_id, COUNT(*) AS read_count
+            FROM (
+                SELECT DISTINCT user_id, book_id
+                FROM user_activity
+                WHERE status IN ('READ', 'COMPLETED')
+            ) t
+            GROUP BY book_id
+            ORDER BY read_count DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findMostReadBookIdsAllTime(@Param("limit") int limit);
+
+    @Query(value = """
+            SELECT book_id, SUM(cnt)::bigint AS talk_count
+            FROM (
+                SELECT target_id AS book_id, COUNT(*) AS cnt
+                FROM comments
+                WHERE target_type = 'BOOK'
+                  AND created_at >= :fromTs
+                GROUP BY target_id
+                UNION ALL
+                SELECT book_id, COUNT(*) AS cnt
+                FROM user_activity
+                WHERE comment IS NOT NULL AND TRIM(comment) <> ''
+                  AND COALESCE(update_date, read_date) >= :fromDate
+                GROUP BY book_id
+            ) t
+            GROUP BY book_id
+            ORDER BY talk_count DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findMostDiscussedBookIdsSince(
+            @Param("fromTs") java.time.LocalDateTime fromTs,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("limit") int limit
+    );
+
+    @Query(value = """
+            SELECT ua.id, ua.user_id, ua.book_id, ua.rating, ua.comment, ua.read_date, ua.status
+            FROM user_activity ua
+            WHERE ua.comment IS NOT NULL AND TRIM(ua.comment) <> ''
+              AND COALESCE(ua.update_date, ua.read_date) >= :fromDate
+            ORDER BY ua.rating DESC NULLS LAST,
+                     LENGTH(ua.comment) DESC,
+                     COALESCE(ua.update_date, ua.read_date) DESC NULLS LAST,
+                     ua.id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findTopReviewsSince(@Param("fromDate") LocalDate fromDate, @Param("limit") int limit);
+
+    @Query(value = """
             SELECT * FROM user_activity
             WHERE user_id IN (:userIds)
             ORDER BY COALESCE(update_date, read_date) DESC NULLS LAST, id DESC

@@ -360,6 +360,11 @@ export const getCommunityReviews = async (limit = 10) => {
   return response.data;
 };
 
+export const getHomeFeed = async () => {
+  const response = await axios.get(`${BASE_URL}home`);
+  return response.data;
+};
+
 export const getBadges = async (username) => {
   const token = sessionStorage.getItem("token");
   const url = username
