@@ -1,4 +1,5 @@
 import { formatStars } from "./profileUtils";
+import COPY from "../../copy";
 import "./ReadingIdentityCard.css";
 
 const ReadingIdentityCard = ({ identity }) => {
@@ -7,7 +8,7 @@ const ReadingIdentityCard = ({ identity }) => {
       <div className="ri-card">
         <h3 className="ri-title">Okuma profili</h3>
         <p className="ri-empty">
-          Daha fazla kitap loglandıkça okuma kimliği burada şekillenir.
+          {COPY.empty.readingIdentity}
         </p>
       </div>
     );

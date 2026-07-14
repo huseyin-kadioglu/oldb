@@ -9,6 +9,7 @@ import {
   Paper,
 } from "@mui/material";
 import CoverImage from "../ui/CoverImage";
+import COPY from "../../copy";
 
 const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
   const [searchValue, setSearchValue] = useState("");
@@ -51,7 +52,7 @@ const BookFilter = ({ open, handleDialog, selectedBookHandler, data }) => {
             fontSize: "1rem",
           }}
         >
-          Kitap ara ve seç
+          {COPY.save.dialogSelectTitle}
           <Button
             onClick={() => handleDialog(false)}
             size="small"

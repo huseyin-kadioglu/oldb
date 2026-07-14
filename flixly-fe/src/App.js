@@ -24,6 +24,7 @@ import SearchView from "./components/pages/SearchView";
 import BadgesPage from "./components/pages/BadgesPage";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
+import AppToast from "./components/common/AppToast";
 
 const needsCatalogPath = (path) =>
   path.startsWith("/books") ||
@@ -163,6 +164,8 @@ const App = () => {
           }
         />
       )}
+
+      <AppToast />
     </div>
   );
 };

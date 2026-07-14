@@ -11,10 +11,11 @@ import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
 import LoggedUser from "./LoggedUser";
 import NotificationsBell from "./NotificationsBell";
+import COPY from "../../copy";
 
 const NAV_ITEMS = [
   { key: "home", label: "Ana Sayfa", path: "/", icon: HomeOutlinedIcon },
-  { key: "activity", label: "Aktivite", path: "/activities", icon: BoltOutlinedIcon },
+  { key: "activity", label: COPY.nav.activity, path: "/activities", icon: BoltOutlinedIcon },
   { key: "profile", label: "Profil", path: null, icon: PersonOutlineIcon },
   { key: "badges", label: "Rozetler", path: "/badges", icon: EmojiEventsOutlinedIcon },
 ];
@@ -173,8 +174,9 @@ const NavigationBar = ({
                     type="button"
                     className="navbar-log-btn"
                     onClick={() => handleDialog(true)}
+                    aria-label={COPY.nav.saveBookAria}
                   >
-                    + LOG
+                    {COPY.nav.saveBook}
                   </button>
                 )}
                 <NotificationsBell />

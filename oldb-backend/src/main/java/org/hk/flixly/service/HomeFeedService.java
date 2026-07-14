@@ -28,6 +28,10 @@ public class HomeFeedService {
 
     private static final int RAIL_BOOKS = 8;
     private static final int POPULAR_REVIEWS = 4;
+    /** Short / one-word blurbs stay in activity feed; not "popular reviews". */
+    private static final int MIN_POPULAR_REVIEW_CHARS = 80;
+    private static final int MIN_POPULAR_REVIEW_LIKES = 1;
+    private static final int POPULAR_LOOKBACK_DAYS = 90;
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
@@ -66,7 +70,7 @@ public class HomeFeedService {
         List<CommunityBookDto> allTime = mapTopRows(
                 activityRepository.findMostReadBookIdsAllTime(RAIL_BOOKS)
         );
-        List<CommunityReviewDto> popularReviews = loadPopularReviews(monthStart, monthStartTs);
+        List<CommunityReviewDto> popularReviews = loadPopularReviews(monthStart, monthStartTs, today);
 
         return HomeFeedDto.builder()
                 .stoaPicks(stoa)
@@ -78,20 +82,50 @@ public class HomeFeedService {
                 .build();
     }
 
-    private List<CommunityReviewDto> loadPopularReviews(LocalDate monthStart, LocalDateTime monthStartTs) {
-        List<Object[]> likedComments = commentRepository.findTopLikedBookCommentsSince(
-                monthStartTs, POPULAR_REVIEWS);
-        if (likedComments != null && !likedComments.isEmpty()) {
-            List<CommunityReviewDto> fromComments = mapLikedComments(likedComments);
-            if (!fromComments.isEmpty()) {
-                return fromComments;
-            }
+    private List<CommunityReviewDto> loadPopularReviews(
+            LocalDate monthStart, LocalDateTime monthStartTs, LocalDate today) {
+        LocalDateTime lookbackTs = today.minusDays(POPULAR_LOOKBACK_DAYS).atStartOfDay();
+        LocalDate lookbackDate = today.minusDays(POPULAR_LOOKBACK_DAYS);
+
+        // Prefer liked quality comments this month, then 90-day lookback.
+        // Soften min-likes only after length/multi-word gates already applied.
+        List<CommunityReviewDto> fromComments = mapLikedComments(
+                commentRepository.findQualityPopularBookCommentsSince(
+                        monthStartTs, MIN_POPULAR_REVIEW_CHARS, MIN_POPULAR_REVIEW_LIKES, POPULAR_REVIEWS));
+        if (!fromComments.isEmpty()) {
+            return fromComments;
         }
+
+        fromComments = mapLikedComments(
+                commentRepository.findQualityPopularBookCommentsSince(
+                        lookbackTs, MIN_POPULAR_REVIEW_CHARS, MIN_POPULAR_REVIEW_LIKES, POPULAR_REVIEWS));
+        if (!fromComments.isEmpty()) {
+            return fromComments;
+        }
+
+        fromComments = mapLikedComments(
+                commentRepository.findQualityPopularBookCommentsSince(
+                        lookbackTs, MIN_POPULAR_REVIEW_CHARS, 0, POPULAR_REVIEWS));
+        if (!fromComments.isEmpty()) {
+            return fromComments;
+        }
+
+        List<CommunityReviewDto> fromActivities = mapActivityReviews(
+                activityRepository.findQualityTopReviewsSince(
+                        monthStart, MIN_POPULAR_REVIEW_CHARS, POPULAR_REVIEWS));
+        if (!fromActivities.isEmpty()) {
+            return fromActivities;
+        }
+
         return mapActivityReviews(
-                activityRepository.findTopReviewsSince(monthStart, POPULAR_REVIEWS));
+                activityRepository.findQualityTopReviewsSince(
+                        lookbackDate, MIN_POPULAR_REVIEW_CHARS, POPULAR_REVIEWS));
     }
 
     private List<CommunityReviewDto> mapLikedComments(List<Object[]> rows) {
+        if (rows == null || rows.isEmpty()) {
+            return List.of();
+        }
         List<Long> userIds = new ArrayList<>();
         List<Long> bookIds = new ArrayList<>();
         for (Object[] row : rows) {
@@ -111,7 +145,13 @@ public class HomeFeedService {
             if (book == null) {
                 continue;
             }
+            String comment = row[3] != null ? row[3].toString() : null;
+            if (!isQualityReviewText(comment)) {
+                continue;
+            }
             UserEntity user = users.get(userId);
+            double rating = row.length > 7 && row[7] != null ? ((Number) row[7]).doubleValue() : 0;
+            boolean spoiler = row.length > 6 && row[6] != null && toBoolean(row[6]);
             result.add(CommunityReviewDto.builder()
                     .activityId(((Number) row[0]).longValue())
                     .userId(userId)
@@ -122,14 +162,11 @@ public class HomeFeedService {
                     .bookId(bookId)
                     .title(book.getTitle())
                     .coverUrl(book.getCoverUrl())
-                    .rating(0)
-                    .comment(row[3] != null ? row[3].toString() : null)
+                    .rating(rating)
+                    .comment(comment)
                     .likeCount(row[4] != null ? ((Number) row[4]).longValue() : 0L)
-                    .readDate(row[5] != null
-                            ? (row[5] instanceof java.sql.Timestamp ts
-                            ? ts.toLocalDateTime().toLocalDate()
-                            : LocalDate.parse(row[5].toString().substring(0, 10)))
-                            : null)
+                    .readDate(parseRowDate(row[5]))
+                    .spoiler(spoiler)
                     .build());
         }
         return result;
@@ -157,11 +194,12 @@ public class HomeFeedService {
             if (book == null) {
                 continue;
             }
-            UserEntity user = users.get(userId);
-            LocalDate readDate = null;
-            if (row[5] != null) {
-                readDate = row[5] instanceof LocalDate ld ? ld : LocalDate.parse(row[5].toString());
+            String comment = row[4] != null ? row[4].toString() : null;
+            if (!isQualityReviewText(comment)) {
+                continue;
             }
+            UserEntity user = users.get(userId);
+            LocalDate readDate = parseRowDate(row[5]);
             result.add(CommunityReviewDto.builder()
                     .activityId(((Number) row[0]).longValue())
                     .userId(userId)
@@ -173,12 +211,55 @@ public class HomeFeedService {
                     .title(book.getTitle())
                     .coverUrl(book.getCoverUrl())
                     .rating(row[3] != null ? ((Number) row[3]).doubleValue() : 0)
-                    .comment(row[4] != null ? row[4].toString() : null)
+                    .comment(comment)
                     .likeCount(0)
                     .readDate(readDate)
+                    .spoiler(false)
                     .build());
         }
         return result;
+    }
+
+    private static boolean isQualityReviewText(String comment) {
+        if (comment == null) {
+            return false;
+        }
+        String trimmed = comment.trim().replaceAll("\\s+", " ");
+        if (trimmed.length() < MIN_POPULAR_REVIEW_CHARS) {
+            return false;
+        }
+        // Exclude one-word blurbs ("güzel", "incelemeeee")
+        return trimmed.contains(" ");
+    }
+
+    private static boolean toBoolean(Object value) {
+        if (value instanceof Boolean b) {
+            return b;
+        }
+        if (value instanceof Number n) {
+            return n.intValue() != 0;
+        }
+        return Boolean.parseBoolean(value.toString());
+    }
+
+    private static LocalDate parseRowDate(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDate ld) {
+            return ld;
+        }
+        if (value instanceof java.sql.Date sd) {
+            return sd.toLocalDate();
+        }
+        if (value instanceof java.sql.Timestamp ts) {
+            return ts.toLocalDateTime().toLocalDate();
+        }
+        if (value instanceof LocalDateTime ldt) {
+            return ldt.toLocalDate();
+        }
+        String s = value.toString();
+        return LocalDate.parse(s.length() >= 10 ? s.substring(0, 10) : s);
     }
 
     private Map<Long, UserEntity> loadUsers(List<Long> userIds) {

@@ -3,6 +3,7 @@ import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import SectionHeader from "../ui/SectionHeader";
 import { getBadges } from "../../service/APIService";
+import COPY from "../../copy";
 import "../ui/folios-ui.css";
 import "./BadgesPage.css";
 
@@ -105,7 +106,7 @@ const BadgesPage = () => {
           icon={<EmojiEventsOutlinedIcon fontSize="small" />}
         />
         {earned.length === 0 ? (
-          <p className="badges-empty">Henüz rozet kazanılmadı — kitap loglayarak başla.</p>
+          <p className="badges-empty">{COPY.empty.badgesStart}</p>
         ) : (
           <div className="earned-grid">
             {earned.map((badge) => (

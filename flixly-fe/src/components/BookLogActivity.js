@@ -5,6 +5,7 @@ import { useState } from "react";
 import RatingUtil from "./common/Rating";
 import MinimalDatePicker from "./common/MinimalDatePicker";
 import StatusSelector from "./common/StatusSelector";
+import COPY from "../copy";
 
 const BookLogActivity = ({ selectedBook, onSubmit }) => {
   const [activityStatus, setActivityStatus] = useState(null);
@@ -16,7 +17,7 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!activityStatus) {
-      alert("Lütfen bir durum seçiniz.");
+      alert(COPY.save.needStatus);
       return;
     }
 
@@ -88,7 +89,7 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
 
       <div className="log-footer">
         <Button type="submit" fullWidth variant="contained" className="log-submit-btn">
-          Aktiviteyi Kaydet
+          {COPY.save.submit}
         </Button>
       </div>
     </form>

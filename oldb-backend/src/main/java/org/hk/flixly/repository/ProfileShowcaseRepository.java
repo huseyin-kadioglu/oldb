@@ -17,4 +17,8 @@ public interface ProfileShowcaseRepository extends JpaRepository<ProfileShowcase
     boolean existsByUserIdAndBookId(Long userId, Long bookId);
 
     boolean existsByUserIdAndBookIdAndIdNot(Long userId, Long bookId, Long id);
+
+    boolean existsByUserIdAndType(Long userId, String type);
+
+    boolean existsByUserIdAndTypeAndIdNot(Long userId, String type, Long id);
 }

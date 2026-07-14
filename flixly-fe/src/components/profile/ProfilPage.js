@@ -23,6 +23,7 @@ import {
 import "../ui/folios-ui.css";
 import "./ProfilePage.css";
 import "./Profile.css";
+import COPY from "../../copy";
 import "./ProfileCoverStrip.css";
 import "./YearlyGoalCard.css";
 import "./ReadingIdentityCard.css";
@@ -198,6 +199,7 @@ const ProfilePage = ({ books = [] }) => {
         role={profileSummary.role}
         isOwnProfile={isOwnProfile}
         books={books}
+        favoriteBooks={favorites}
         onChanged={loadProfile}
       />
 
@@ -208,39 +210,8 @@ const ProfilePage = ({ books = [] }) => {
         limit={16}
         empty={
           isOwnProfile
-            ? emptyOwn("Henüz okunan kitap yok. İlk logunu bırak.")
+            ? emptyOwn(COPY.empty.noReadsOwn)
             : emptyGuest("Henüz okunan kitap yok.")
-        }
-      />
-
-      <ProfileShelf
-        title="Favori Kitaplar"
-        to={`/profile/${username}/list/favorites`}
-        books={favorites}
-        limit={16}
-        action={
-          isOwnProfile ? (
-            <button
-              type="button"
-              className="profile-btn profile-btn--subtle"
-              onClick={() => setFavoritePickerOpen(true)}
-            >
-              + Favori ekle
-            </button>
-          ) : null
-        }
-        empty={
-          isOwnProfile
-            ? emptyOwn("Favori listen boş.", (
-                <button
-                  type="button"
-                  className="profile-btn profile-btn--subtle"
-                  onClick={() => setFavoritePickerOpen(true)}
-                >
-                  Favori ekle
-                </button>
-              ))
-            : emptyGuest("Favori kitap yok.")
         }
       />
 
@@ -256,8 +227,8 @@ const ProfilePage = ({ books = [] }) => {
           limit={8}
           empty={
             isOwnProfile
-              ? emptyOwn("Henüz aktivite yok — bir kitap logla.")
-              : emptyGuest("Henüz aktivite yok.")
+              ? emptyOwn(COPY.empty.noActivityOwn)
+              : emptyGuest(COPY.empty.noActivityGuest)
           }
         />
       </section>

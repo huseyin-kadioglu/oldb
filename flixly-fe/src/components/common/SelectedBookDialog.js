@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, DialogContent, Button, Box } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookLogActivity from "../BookLogActivity";
 import { createUserActivity } from "../../service/APIService";
+import COPY from "../../copy";
 
 const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitCallback }) => {
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitC
       }
       selectedBookHandler(null);
     } catch (err) {
-      setError("Aktivite yaratılırken bir hata oluştu.");
+      setError(COPY.save.errorGeneric);
     } finally {
       setLoading(false);
     }
@@ -67,7 +68,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitC
         >
           Geri
         </Button>
-        <Box sx={{ flex: 1, textAlign: "center" }}>Kitap için aktivite ekle</Box>
+        <Box sx={{ flex: 1, textAlign: "center" }}>{COPY.save.dialogRootTitle}</Box>
         <Button
           size="small"
           onClick={() => selectedBookHandler(null)}
@@ -92,7 +93,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitC
         <BookLogActivity selectedBook={selectedBook} onSubmit={handleSubmit} />
         {loading && (
           <p style={{ color: "var(--color-text-muted)", marginTop: "1rem", fontSize: "0.9rem" }}>
-            Kaydediliyor…
+            {COPY.save.submitting}
           </p>
         )}
         {error && (

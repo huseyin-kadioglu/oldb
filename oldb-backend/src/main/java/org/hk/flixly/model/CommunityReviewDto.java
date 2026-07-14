@@ -23,4 +23,5 @@ public class CommunityReviewDto {
     private String comment;
     private LocalDate readDate;
     private long likeCount;
+    private boolean spoiler;
 }

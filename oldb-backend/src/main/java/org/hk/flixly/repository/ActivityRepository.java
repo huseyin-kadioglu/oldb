@@ -132,6 +132,31 @@ public interface ActivityRepository extends JpaRepository<UserActivityEntity, Lo
             """, nativeQuery = true)
     List<Object[]> findTopReviewsSince(@Param("fromDate") LocalDate fromDate, @Param("limit") int limit);
 
+    /**
+     * Quality popular activity reviews: multi-word, min length, preferably rated.
+     * Columns: id, user_id, book_id, rating, comment, read_date, status
+     */
+    @Query(value = """
+            SELECT ua.id, ua.user_id, ua.book_id, ua.rating, ua.comment, ua.read_date, ua.status
+            FROM user_activity ua
+            WHERE ua.comment IS NOT NULL
+              AND CHAR_LENGTH(TRIM(ua.comment)) >= :minChars
+              AND TRIM(ua.comment) LIKE '% %'
+              AND COALESCE(ua.update_date, ua.read_date) >= :fromDate
+              AND ua.rating IS NOT NULL
+              AND ua.rating > 0
+            ORDER BY ua.rating DESC NULLS LAST,
+                     CHAR_LENGTH(TRIM(ua.comment)) DESC,
+                     COALESCE(ua.update_date, ua.read_date) DESC NULLS LAST,
+                     ua.id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findQualityTopReviewsSince(
+            @Param("fromDate") LocalDate fromDate,
+            @Param("minChars") int minChars,
+            @Param("limit") int limit
+    );
+
     @Query(value = """
             SELECT * FROM user_activity
             WHERE user_id IN (:userIds)

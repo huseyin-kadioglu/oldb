@@ -28,6 +28,7 @@ import {
   getBookById,
   getBookSocial,
 } from "../../service/APIService";
+import COPY from "../../copy";
 import "../ui/folios-ui.css";
 import "./BookSummaryView.css";
 
@@ -477,7 +478,7 @@ const BookSummaryView = ({ books = [] }) => {
                 onClick={() => setLogOpen(true)}
               >
                 <EditNoteIcon fontSize="small" />
-                Aktivite / inceleme
+                {COPY.book.saveReview}
               </button>
             )}
             <button type="button" className="book-panel-link" onClick={handleShare}>

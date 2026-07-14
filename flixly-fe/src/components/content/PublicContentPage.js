@@ -6,12 +6,13 @@ import ListIcon from "@mui/icons-material/List";
 import FlagIcon from "@mui/icons-material/Flag";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { Link } from "react-router-dom";
+import COPY from "../../copy";
 
 const PublicContentPage = () => {
   return (
     <div className="public-content-wrapper">
       <h2>Kitaplarınızı takip edin</h2>
-      <p className="tagline">Okuduğunuz kitapları loglayın, puanlayın ve listelerinizi paylaşın.</p>
+      <p className="tagline">{COPY.public.tagline}</p>
 
       <div className="feature-row">
         <div className="feature-card">

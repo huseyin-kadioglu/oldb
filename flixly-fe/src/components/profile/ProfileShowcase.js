@@ -1,16 +1,23 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import CoverImage from "../ui/CoverImage";
+import { useEffect, useMemo, useState } from "react";
 import BookFilter from "../common/BookFilter";
 import {
   createShowcase,
   updateShowcase,
   deleteShowcase,
+  reorderShowcases,
+  createUserActivityFromGhostMenu,
   isProPlanRole,
+  extractApiErrorMessage,
 } from "../../service/APIService";
+import ProfileShowcaseRenderer from "./showcase/ProfileShowcaseRenderer";
+import ShowcaseEditor from "./showcase/ShowcaseEditor";
+import {
+  SHOWCASE_TYPE,
+  VITRINE_COPY,
+} from "./showcase/showcaseConstants";
 import "./ProfileShowcase.css";
 
-const QUOTE_MAX = 500;
+const favoriteBookLimit = (role) => (isProPlanRole(role) ? 6 : 3);
 
 const ProfileShowcase = ({
   showcases = [],
@@ -18,41 +25,124 @@ const ProfileShowcase = ({
   role,
   isOwnProfile,
   books = [],
+  favoriteBooks = [],
   onChanged,
 }) => {
   const limit = showcaseLimit || (isProPlanRole(role) ? 3 : 1);
-  const items = Array.isArray(showcases) ? showcases : [];
-  const canAdd = isOwnProfile && items.length < limit;
+  const favLimit = favoriteBookLimit(role);
+  const items = useMemo(
+    () => (Array.isArray(showcases) ? showcases : []),
+    [showcases]
+  );
+  const visibleItems = useMemo(() => {
+    if (isOwnProfile) return items;
+    return items.filter((item) => {
+      if ((item.type || SHOWCASE_TYPE.QUOTE) !== SHOWCASE_TYPE.FAVORITE_BOOKS) {
+        return true;
+      }
+      return Array.isArray(item.books) && item.books.length > 0;
+    });
+  }, [items, isOwnProfile]);
+
+  const favoritesForPicker = useMemo(() => {
+    const byId = new Map((books || []).map((b) => [b.id, b]));
+    return (favoriteBooks || []).map((book) => {
+      const fromCatalog = byId.get(book.id);
+      return {
+        ...book,
+        authorName: book.authorName || fromCatalog?.authorName || "",
+        coverUrl: book.coverUrl || fromCatalog?.coverUrl,
+      };
+    });
+  }, [favoriteBooks, books]);
+
+  const usedTypes = useMemo(
+    () => new Set(items.map((i) => i.type || SHOWCASE_TYPE.QUOTE)),
+    [items]
+  );
+
+  const availableTypes = useMemo(() => {
+    const types = [];
+    if (!usedTypes.has(SHOWCASE_TYPE.QUOTE)) types.push(SHOWCASE_TYPE.QUOTE);
+    if (!usedTypes.has(SHOWCASE_TYPE.FAVORITE_BOOKS)) types.push(SHOWCASE_TYPE.FAVORITE_BOOKS);
+    return types;
+  }, [usedTypes]);
+
+  const canAdd = isOwnProfile && items.length < limit && availableTypes.length > 0;
 
   const [managing, setManaging] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [quote, setQuote] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState(SHOWCASE_TYPE.QUOTE);
+  const [selectedFavoriteIds, setSelectedFavoriteIds] = useState([]);
+  const [localPickedBooks, setLocalPickedBooks] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [inlineError, setInlineError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [limitShow, setLimitShow] = useState(false);
 
   useEffect(() => {
     if (!composerOpen) {
       setSelectedBook(null);
       setQuote("");
+      setTitle("");
+      setDescription("");
       setEditingId(null);
+      setSelectedFavoriteIds([]);
+      setLocalPickedBooks([]);
+      setInlineError("");
+      setType(availableTypes[0] || SHOWCASE_TYPE.QUOTE);
     }
-  }, [composerOpen]);
+  }, [composerOpen, availableTypes]);
 
-  const closeComposer = () => {
-    setComposerOpen(false);
-  };
+  const selectedFavoriteBooks = useMemo(() => {
+    const byId = new Map();
+    for (const book of favoritesForPicker) byId.set(book.id, book);
+    for (const book of localPickedBooks) byId.set(book.id, book);
+    for (const book of books || []) {
+      if (!byId.has(book.id)) byId.set(book.id, book);
+    }
+    return selectedFavoriteIds
+      .map((id) => byId.get(id))
+      .filter(Boolean)
+      .map((book) => ({
+        id: book.id,
+        bookId: book.id,
+        title: book.title,
+        authorName: book.authorName,
+        coverUrl: book.coverUrl,
+      }));
+  }, [selectedFavoriteIds, favoritesForPicker, localPickedBooks, books]);
+
+  const closeComposer = () => setComposerOpen(false);
 
   const openAdd = () => {
+    setMenuOpen(false);
+    if (items.length >= limit || availableTypes.length === 0) {
+      setLimitShow(true);
+      return;
+    }
+    setLimitShow(false);
     setManaging(false);
     setEditingId(null);
+    setType(availableTypes[0] || SHOWCASE_TYPE.QUOTE);
     setSelectedBook(null);
     setQuote("");
+    setTitle("");
+    setDescription("");
+    setSelectedFavoriteIds([]);
+    setLocalPickedBooks([]);
     setComposerOpen(true);
   };
 
   const startManaging = () => {
+    setMenuOpen(false);
     setComposerOpen(false);
     setManaging(true);
   };
@@ -60,10 +150,12 @@ const ProfileShowcase = ({
   const finishManaging = () => {
     setManaging(false);
     setComposerOpen(false);
+    setMenuOpen(false);
   };
 
   const openEdit = (item) => {
     setEditingId(item.id);
+    setType(item.type || SHOWCASE_TYPE.QUOTE);
     setSelectedBook(
       item.bookId
         ? {
@@ -75,7 +167,28 @@ const ProfileShowcase = ({
         : null
     );
     setQuote(item.quote || "");
+    setTitle(
+      item.type === SHOWCASE_TYPE.FAVORITE_BOOKS
+        ? item.title === VITRINE_COPY.defaultFavoriteTitle
+          ? ""
+          : item.title || ""
+        : item.title === VITRINE_COPY.defaultQuoteTitle
+          ? ""
+          : item.title || ""
+    );
+    setDescription(item.description || "");
+    const bookRows = Array.isArray(item.books) ? item.books : [];
+    setSelectedFavoriteIds(bookRows.map((b) => b.bookId));
+    setLocalPickedBooks(
+      bookRows.map((b) => ({
+        id: b.bookId,
+        title: b.title,
+        authorName: b.authorName,
+        coverUrl: b.coverUrl,
+      }))
+    );
     setComposerOpen(true);
+    setManaging(true);
   };
 
   const handleBookPicked = (book) => {
@@ -84,14 +197,71 @@ const ProfileShowcase = ({
     setPickerOpen(false);
   };
 
-  const handleSave = async () => {
-    if (!quote.trim()) return;
+  const removeFavoriteId = (bookId) => {
+    setSelectedFavoriteIds((prev) => prev.filter((id) => id !== bookId));
+    setLocalPickedBooks((prev) => prev.filter((b) => b.id !== bookId));
+    setInlineError("");
+  };
+
+  const selectFavoriteCandidate = async (book) => {
+    if (!book?.id) return;
+    if (selectedFavoriteIds.includes(book.id)) return;
+    if (selectedFavoriteIds.length >= favLimit) {
+      setInlineError(VITRINE_COPY.booksLimit(favLimit));
+      return;
+    }
+
+    const alreadyFavorite = favoritesForPicker.some((f) => f.id === book.id);
     setBusy(true);
+    setInlineError("");
     try {
-      const payload = {
-        bookId: selectedBook?.id ?? null,
-        quote: quote.trim(),
-      };
+      if (!alreadyFavorite) {
+        await createUserActivityFromGhostMenu({
+          bookId: book.id,
+          authorId: book.authorId,
+          actionType: "FAVOURITE",
+          action: "ADD",
+        });
+      }
+      setLocalPickedBooks((prev) =>
+        prev.some((b) => b.id === book.id) ? prev : [...prev, book]
+      );
+      setSelectedFavoriteIds((prev) =>
+        prev.includes(book.id) ? prev : [...prev, book.id]
+      );
+      onChanged?.();
+    } catch (err) {
+      setInlineError(extractApiErrorMessage(err, "Kitap favorilere eklenemedi."));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const canSave =
+    type === SHOWCASE_TYPE.FAVORITE_BOOKS
+      ? selectedFavoriteIds.length > 0
+      : quote.trim().length >= 2;
+
+  const handleSave = async () => {
+    if (!canSave) return;
+    setBusy(true);
+    setInlineError("");
+    try {
+      const payload =
+        type === SHOWCASE_TYPE.FAVORITE_BOOKS
+          ? {
+              type: SHOWCASE_TYPE.FAVORITE_BOOKS,
+              title: title.trim() || null,
+              description: description.trim() || null,
+              bookIds: selectedFavoriteIds,
+            }
+          : {
+              type: SHOWCASE_TYPE.QUOTE,
+              title: title.trim() || null,
+              description: description.trim() || null,
+              bookId: selectedBook?.id ?? null,
+              quote: quote.trim(),
+            };
       if (editingId) {
         await updateShowcase(editingId, payload);
       } else {
@@ -101,218 +271,179 @@ const ProfileShowcase = ({
       setManaging(false);
       onChanged?.();
     } catch (err) {
-      alert(err?.response?.data?.message || err?.message || "Showcase kaydedilemedi.");
+      setInlineError(extractApiErrorMessage(err, VITRINE_COPY.saveError));
     } finally {
       setBusy(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Bu showcase silinsin mi?")) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     setBusy(true);
+    setInlineError("");
     try {
-      await deleteShowcase(id);
-      if (editingId === id) {
-        setComposerOpen(false);
-      }
+      await deleteShowcase(deleteTarget.id);
+      if (editingId === deleteTarget.id) setComposerOpen(false);
+      setDeleteTarget(null);
       onChanged?.();
     } catch (err) {
-      alert(err?.response?.data?.message || err?.message || "Silinemedi.");
+      setInlineError(extractApiErrorMessage(err, VITRINE_COPY.deleteError));
     } finally {
       setBusy(false);
     }
   };
 
-  if (!isOwnProfile && items.length === 0) {
+  const moveItem = async (index, direction) => {
+    const next = [...items];
+    const target = index + direction;
+    if (target < 0 || target >= next.length) return;
+    const tmp = next[index];
+    next[index] = next[target];
+    next[target] = tmp;
+    setBusy(true);
+    try {
+      await reorderShowcases(next.map((i) => i.id));
+      onChanged?.();
+    } catch (err) {
+      setInlineError(extractApiErrorMessage(err, "Sıralama güncellenemedi."));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!isOwnProfile && visibleItems.length === 0) {
     return null;
   }
 
   const showActions = isOwnProfile && managing && !composerOpen;
 
+  const slots = Array.from({ length: limit }, (_, i) => i < items.length);
+
   return (
     <section className={`profile-section profile-showcase ${managing ? "is-managing" : ""}`}>
-      <div className="folios-section-header">
-        <h2 className="folios-section-title">Showcase</h2>
+      <div className="folios-section-header ps-section-header">
+        <div className="ps-section-heading">
+          <h2 className="folios-section-title">{VITRINE_COPY.section}</h2>
+          {isOwnProfile && (
+            <div className="ps-slot-meter" title={`${items.length} / ${limit}`} aria-label={`${items.length} / ${limit}`}>
+              <span className="ps-slot-count">{items.length}/{limit}</span>
+              <span className="ps-slot-dots" aria-hidden="true">
+                {slots.map((filled, i) => (
+                  <span key={i} className={`ps-slot-dot ${filled ? "is-filled" : ""}`} />
+                ))}
+              </span>
+            </div>
+          )}
+        </div>
         {isOwnProfile && (
           <div className="ps-header-actions">
             {managing ? (
               <button type="button" className="folios-see-all" onClick={finishManaging}>
-                Bitir
+                {VITRINE_COPY.finishManage}
               </button>
             ) : (
-              <>
-                {items.length > 0 && !composerOpen && (
-                  <button type="button" className="folios-see-all" onClick={startManaging}>
-                    Düzenle
-                  </button>
+              <div className="ps-manage-menu">
+                <button
+                  type="button"
+                  className="folios-see-all"
+                  aria-haspopup="menu"
+                  aria-expanded={menuOpen}
+                  onClick={() => setMenuOpen((v) => !v)}
+                >
+                  {VITRINE_COPY.manage}
+                </button>
+                {menuOpen && (
+                  <div className="ps-manage-dropdown" role="menu">
+                    <button type="button" role="menuitem" onClick={openAdd}>
+                      {VITRINE_COPY.add}
+                    </button>
+                    {items.length > 0 && (
+                      <button type="button" role="menuitem" onClick={startManaging}>
+                        {VITRINE_COPY.edit}
+                      </button>
+                    )}
+                  </div>
                 )}
-                {canAdd && !composerOpen && (
-                  <button type="button" className="folios-see-all" onClick={openAdd}>
-                    Showcase ekle
-                  </button>
-                )}
-              </>
+              </div>
             )}
           </div>
         )}
       </div>
 
+      {limitShow && (
+        <p className="ps-inline-error" role="status">
+          {VITRINE_COPY.limitFull}
+        </p>
+      )}
+
       {items.length === 0 && isOwnProfile && !composerOpen && (
         <div className="ps-empty">
-          <p>Bir söz paylaş veya bir kitapla anını ekle.</p>
+          <p className="ps-empty-title">{VITRINE_COPY.emptyTitle}</p>
+          <p>{VITRINE_COPY.emptyBody}</p>
           <button type="button" className="profile-btn profile-btn--subtle" onClick={openAdd}>
-            + Showcase ekle
+            {VITRINE_COPY.add}
           </button>
-          <p className="ps-limit-hint">
-            {isProPlanRole(role)
-              ? "PRO: 3 showcase hakkın var."
-              : "1 showcase hakkın var · PRO ile 3’e çıkar."}
-          </p>
         </div>
       )}
 
       {!composerOpen && (
         <div className="ps-list">
-          {items.map((item) => {
-            const hasBook = !!item.bookId;
+          {visibleItems.map((item) => {
+            const index = items.findIndex((i) => i.id === item.id);
             return (
-              <article
-                className={`ps-card ${hasBook ? "" : "ps-card--quote-only"}`}
+              <ProfileShowcaseRenderer
                 key={item.id}
-              >
-                {hasBook ? (
-                  <>
-                    <Link to={`/book/${item.bookId}`} className="ps-cover-link" title={item.bookTitle}>
-                      <CoverImage src={item.coverUrl} alt={item.bookTitle || ""} className="ps-cover" />
-                    </Link>
-                    <div className="ps-body">
-                      <Link to={`/book/${item.bookId}`} className="ps-title">
-                        {item.bookTitle}
-                      </Link>
-                      {item.authorName && <p className="ps-author">{item.authorName}</p>}
-                      <blockquote className="ps-quote">“{item.quote}”</blockquote>
-                      {showActions && (
-                        <div className="ps-actions">
-                          <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
-                            Düzenle
-                          </button>
-                          <button
-                            type="button"
-                            className="ps-action ps-action--danger"
-                            onClick={() => handleDelete(item.id)}
-                            disabled={busy}
-                          >
-                            Sil
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="ps-quote-only">
-                    <blockquote className="ps-handwriting">“{item.quote}”</blockquote>
-                    {showActions && (
-                      <div className="ps-actions ps-actions--center">
-                        <button type="button" className="ps-action" onClick={() => openEdit(item)} disabled={busy}>
-                          Düzenle
-                        </button>
-                        <button
-                          type="button"
-                          className="ps-action ps-action--danger"
-                          onClick={() => handleDelete(item.id)}
-                          disabled={busy}
-                        >
-                          Sil
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </article>
+                item={item}
+                isOwnProfile={isOwnProfile}
+                showActions={showActions}
+                busy={busy}
+                canMoveUp={showActions && index > 0}
+                canMoveDown={showActions && index < items.length - 1}
+                onEdit={openEdit}
+                onDelete={setDeleteTarget}
+                onMoveUp={() => moveItem(index, -1)}
+                onMoveDown={() => moveItem(index, 1)}
+              />
             );
           })}
         </div>
       )}
 
-      {showActions && items.length > 0 && (
-        <p className="ps-limit-hint">
-          {items.length}/{limit} showcase
-          {canAdd ? " · " : ""}
-          {canAdd && (
-            <button type="button" className="ps-action" onClick={openAdd}>
-              Yeni ekle
-            </button>
-          )}
-          {!isProPlanRole(role) && limit === 1 ? " · PRO ile 3 slot" : ""}
-        </p>
-      )}
-
       {composerOpen && (
-        <div className="ps-composer">
-          <h4 className="ps-composer-title">{editingId ? "Showcase düzenle" : "Showcase ekle"}</h4>
-          <div className="ps-composer-row">
-            <div className="ps-pick-col">
-              <button
-                type="button"
-                className="ps-pick-book"
-                onClick={() => setPickerOpen(true)}
-              >
-                {selectedBook ? (
-                  <>
-                    <CoverImage
-                      src={selectedBook.coverUrl}
-                      alt={selectedBook.title || ""}
-                      className="ps-pick-cover"
-                    />
-                    <span className="ps-pick-meta">
-                      <strong>{selectedBook.title}</strong>
-                      <span>{selectedBook.authorName || "Kitap seçildi"}</span>
-                    </span>
-                  </>
-                ) : (
-                  <span className="ps-pick-placeholder">Kitap seç (opsiyonel)</span>
-                )}
-              </button>
-              {selectedBook && (
-                <button
-                  type="button"
-                  className="ps-action ps-clear-book"
-                  onClick={() => setSelectedBook(null)}
-                >
-                  Kitabı kaldır
-                </button>
-              )}
-            </div>
-            <textarea
-              className={`ps-quote-input ${selectedBook ? "" : "ps-quote-input--hand"}`}
-              value={quote}
-              onChange={(e) => setQuote(e.target.value.slice(0, QUOTE_MAX))}
-              placeholder={
-                selectedBook
-                  ? "Bu kitapla ilgili fikrin, alıntın veya anın…"
-                  : "Paylaşmak istediğin sözü yaz…"
-              }
-              rows={4}
-              maxLength={QUOTE_MAX}
-            />
-          </div>
-          <div className="ps-composer-actions">
-            <span className="ps-char-count">
-              {quote.length}/{QUOTE_MAX}
-            </span>
-            <button type="button" className="ps-action" onClick={closeComposer} disabled={busy}>
-              Vazgeç
-            </button>
-            <button
-              type="button"
-              className="profile-btn profile-btn--subtle"
-              onClick={handleSave}
-              disabled={busy || quote.trim().length < 2}
-            >
-              {busy ? "Kaydediliyor…" : editingId ? "Güncelle" : "Ekle"}
-            </button>
-          </div>
-        </div>
+        <ShowcaseEditor
+          editingId={editingId}
+          type={type}
+          setType={setType}
+          typeLocked={!!editingId}
+          availableTypes={
+            editingId
+              ? [type]
+              : availableTypes.length
+                ? availableTypes
+                : [SHOWCASE_TYPE.QUOTE]
+          }
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          quote={quote}
+          setQuote={setQuote}
+          selectedBook={selectedBook}
+          onPickBook={() => setPickerOpen(true)}
+          onClearBook={() => setSelectedBook(null)}
+          catalogBooks={books}
+          favoriteBooks={favoritesForPicker}
+          selectedFavoriteIds={selectedFavoriteIds}
+          selectedFavoriteBooks={selectedFavoriteBooks}
+          onSelectFavoriteCandidate={selectFavoriteCandidate}
+          onRemoveFavoriteId={removeFavoriteId}
+          favoriteLimit={favLimit}
+          inlineError={inlineError}
+          busy={busy}
+          onCancel={closeComposer}
+          onSave={handleSave}
+          canSave={canSave}
+        />
       )}
 
       {pickerOpen && (
@@ -322,6 +453,28 @@ const ProfileShowcase = ({
           selectedBookHandler={handleBookPicked}
           data={books}
         />
+      )}
+
+      {deleteTarget && (
+        <div className="ps-confirm" role="dialog" aria-modal="true" aria-labelledby="ps-del-title">
+          <div className="ps-confirm-card">
+            <h4 id="ps-del-title">{VITRINE_COPY.deleteConfirmTitle}</h4>
+            <p>{VITRINE_COPY.deleteConfirmBody}</p>
+            <div className="ps-confirm-actions">
+              <button type="button" className="ps-action" onClick={() => setDeleteTarget(null)} disabled={busy}>
+                {VITRINE_COPY.cancel}
+              </button>
+              <button
+                type="button"
+                className="ps-action ps-action--danger"
+                onClick={confirmDelete}
+                disabled={busy}
+              >
+                {VITRINE_COPY.deleteConfirmAction}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

@@ -4,6 +4,7 @@ import org.hk.flixly.model.ChangePasswordRequest;
 import org.hk.flixly.model.DailyReadCheckinDto;
 import org.hk.flixly.model.ProfileInfoDTO;
 import org.hk.flixly.model.ProfileShowcaseDto;
+import org.hk.flixly.model.ShowcaseReorderRequest;
 import org.hk.flixly.model.ShowcaseRequest;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.service.DailyReadCheckinService;
@@ -69,6 +70,20 @@ public class ProfileSummaryController {
         requireAuth(userDetails);
         try {
             return profileShowcaseService.create(request, userDetails);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @PutMapping("/showcases/reorder")
+    public List<ProfileShowcaseDto> reorderShowcases(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ShowcaseReorderRequest request
+    ) {
+        requireAuth(userDetails);
+        try {
+            return profileShowcaseService.reorder(
+                    request != null ? request.getIds() : null, userDetails);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

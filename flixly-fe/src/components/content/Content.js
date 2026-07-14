@@ -4,7 +4,6 @@ import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import LocalFireDepartmentOutlinedIcon from "@mui/icons-material/LocalFireDepartmentOutlined";
-import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
 import SectionHeader from "../ui/SectionHeader";
 import CoverImage from "../ui/CoverImage";
 import BookCoverCard from "../ui/BookCoverCard";
@@ -16,8 +15,13 @@ import {
   getProfileSummaryByUsername,
   setDailyReadCheckin,
 } from "../../service/APIService";
+import { showToast } from "../../utils/uiEvents";
 import "../ui/folios-ui.css";
 import "./Content.css";
+import COPY from "../../copy";
+import PopularReviewCard from "./PopularReviewCard";
+
+const CHECKIN_HINT_KEY = "oldb_checkin_hint_seen";
 
 const greeting = () => {
   const hour = new Date().getHours();
@@ -57,8 +61,14 @@ const Content = ({ token }) => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [checkin, setCheckin] = useState(null);
   const [checkinBusy, setCheckinBusy] = useState(false);
+  const [checkinError, setCheckinError] = useState(null);
+  const [showCheckinHint, setShowCheckinHint] = useState(
+    () => localStorage.getItem(CHECKIN_HINT_KEY) !== "1"
+  );
 
   const community = feed?.communityStats;
+  // Avoid weak social proof while the community is still small.
+  const showCommunityProof = (community?.activeMembers ?? 0) >= 25;
   const stoaPicks = feed?.stoaPicks || [];
   const newReleases = feed?.newReleases || [];
   const discussed = feed?.discussed || [];
@@ -89,9 +99,11 @@ const Content = ({ token }) => {
   const displayName = profile?.profileName || username;
 
   const toggleCheckin = async () => {
-    if (!token || checkinBusy) return;
-    const next = !checkin?.checkedInToday;
+    if (!token || checkinBusy || !checkin) return;
+    const next = !checkin.checkedInToday;
+    const previous = checkin;
     setCheckinBusy(true);
+    setCheckinError(null);
     setCheckin((prev) =>
       prev
         ? { ...prev, checkedInToday: next }
@@ -103,8 +115,22 @@ const Content = ({ token }) => {
       if (profile && data?.readingStreak != null) {
         setProfile({ ...profile, readingStreak: data.readingStreak });
       }
+      if (next) {
+        const streak = data?.readingStreak ?? 0;
+        showToast(
+          streak > 0
+            ? `${COPY.checkin.toastOk} · ${COPY.checkin.streak(streak)}`
+            : COPY.checkin.toastOk
+        );
+        if (showCheckinHint) {
+          localStorage.setItem(CHECKIN_HINT_KEY, "1");
+          setShowCheckinHint(false);
+        }
+      }
     } catch {
-      setCheckin((prev) => (prev ? { ...prev, checkedInToday: !next } : prev));
+      setCheckin(previous);
+      setCheckinError(COPY.checkin.toastError);
+      showToast(COPY.checkin.toastError);
     } finally {
       setCheckinBusy(false);
     }
@@ -147,45 +173,79 @@ const Content = ({ token }) => {
 
               {checkin && (
                 <div className="lb-checkin">
-                  <button
-                    type="button"
-                    className={`lb-checkin-btn ${checkin.checkedInToday ? "is-checked" : ""}`}
-                    disabled={checkinBusy}
-                    onClick={toggleCheckin}
-                  >
-                    <span className="lb-checkin-tick" aria-hidden>
-                      {checkin.checkedInToday ? "✓" : ""}
-                    </span>
-                    <span className="lb-checkin-label">
-                      {checkin.checkedInToday ? "Bugün okudun" : "Bugün kitap okudun mu?"}
-                    </span>
-                  </button>
-                  {(checkin.readingStreak > 0 || checkin.checkedInToday) && (
-                    <span className="lb-checkin-streak" title="Okuma serisi">
-                      <LocalFireDepartmentOutlinedIcon sx={{ fontSize: 16 }} />
-                      {checkin.readingStreak ?? 0} gün
-                    </span>
-                  )}
+                  <div className="lb-checkin-block">
+                    {!checkin.checkedInToday && (
+                      <p className="lb-checkin-prompt">{COPY.checkin.prompt}</p>
+                    )}
+                    <div className="lb-checkin-row">
+                      <button
+                        type="button"
+                        className={`lb-checkin-btn ${
+                          checkin.checkedInToday ? "is-checked" : "is-action"
+                        }${checkinBusy ? " is-busy" : ""}`}
+                        disabled={checkinBusy}
+                        onClick={toggleCheckin}
+                        title={
+                          checkin.checkedInToday ? COPY.checkin.undoTitle : undefined
+                        }
+                        aria-label={
+                          checkinBusy
+                            ? COPY.checkin.ariaBusy
+                            : checkin.checkedInToday
+                              ? COPY.checkin.ariaUndo
+                              : COPY.checkin.ariaMark
+                        }
+                        aria-pressed={!!checkin.checkedInToday}
+                      >
+                        <span className="lb-checkin-tick" aria-hidden="true">
+                          {checkin.checkedInToday ? "✓" : ""}
+                        </span>
+                        <span className="lb-checkin-label">
+                          {checkinBusy
+                            ? "Kaydediliyor…"
+                            : checkin.checkedInToday
+                              ? COPY.checkin.done
+                              : COPY.checkin.action}
+                        </span>
+                      </button>
+                      {(checkin.readingStreak > 0 || checkin.checkedInToday) && (
+                        <span
+                          className="lb-checkin-streak"
+                          title={COPY.checkin.streak(checkin.readingStreak ?? 0)}
+                        >
+                          <LocalFireDepartmentOutlinedIcon
+                            sx={{ fontSize: 16 }}
+                            aria-hidden="true"
+                          />
+                          <span>{COPY.checkin.streak(checkin.readingStreak ?? 0)}</span>
+                        </span>
+                      )}
+                    </div>
+                    {!checkin.checkedInToday && showCheckinHint && (
+                      <p className="lb-checkin-hint">{COPY.checkin.hint}</p>
+                    )}
+                    {checkinError && (
+                      <p className="lb-checkin-error" role="alert">
+                        {checkinError}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </>
           ) : (
             <>
-              <h1 className="lb-hero-title">Kitaplarını keşfet ve logla.</h1>
+              <h1 className="lb-hero-title">{COPY.home.heroGuest}</h1>
               <p className="lb-hero-sub">
                 OLDB’de okuduklarını kaydet, puanla ve okurlarla paylaş.
               </p>
             </>
           )}
 
-          {community && (
+          {showCommunityProof && (
             <p className="lb-hero-community">
               Üyelerimiz bu ay <strong>{community.booksReadThisMonth ?? 0}</strong> kitap okudu
-              {community.activeMembers > 0 && (
-                <>
-                  {" "}· <strong>{community.activeMembers}</strong> aktif üye
-                </>
-              )}
+              {" "}· <strong>{community.activeMembers}</strong> aktif üye
             </p>
           )}
 
@@ -201,20 +261,24 @@ const Content = ({ token }) => {
           )}
         </div>
 
-        {community && (
+        {(showCommunityProof || (token && profile)) && (
           <div className="lb-hero-stats">
-            <div className="lb-stat">
-              <span className="lb-stat-value">
-                {(community.booksReadThisMonth ?? 0).toLocaleString("tr-TR")}
-              </span>
-              <span className="lb-stat-label">Bu ay okunan</span>
-            </div>
-            <div className="lb-stat">
-              <span className="lb-stat-value">
-                {(community.activeMembers ?? 0).toLocaleString("tr-TR")}
-              </span>
-              <span className="lb-stat-label">Aktif üye</span>
-            </div>
+            {showCommunityProof && (
+              <>
+                <div className="lb-stat">
+                  <span className="lb-stat-value">
+                    {(community.booksReadThisMonth ?? 0).toLocaleString("tr-TR")}
+                  </span>
+                  <span className="lb-stat-label">Bu ay okunan</span>
+                </div>
+                <div className="lb-stat">
+                  <span className="lb-stat-value">
+                    {(community.activeMembers ?? 0).toLocaleString("tr-TR")}
+                  </span>
+                  <span className="lb-stat-label">Aktif üye</span>
+                </div>
+              </>
+            )}
             {token && profile && (
               <div className="lb-stat">
                 <span className="lb-stat-value">{profile.bookReadThisYear ?? 0}</span>
@@ -283,54 +347,16 @@ const Content = ({ token }) => {
             ))}
           </div>
         ) : (
-          <p className="lb-empty">Henüz aktivite yok — ilk logu sen bırak.</p>
+          <p className="lb-empty">Henüz aktivite yok — ilk kaydı sen bırakabilirsin.</p>
         )}
       </section>
 
       {popularReviews.length > 0 && (
         <section className="lb-section">
-          <SectionHeader title="Popüler incelemeler" to="/activities" linkLabel="Aktivite" />
+          <SectionHeader title="Popüler incelemeler" to="/activities" linkLabel="Tüm incelemeler" />
           <div className="lb-review-list">
             {popularReviews.slice(0, 4).map((review) => (
-              <article className="lb-review-card" key={review.activityId}>
-                <Link to={`/book/${review.bookId}`} className="lb-review-cover-link">
-                  <CoverImage src={review.coverUrl} alt={review.title} className="lb-review-cover" />
-                </Link>
-                <div className="lb-review-body">
-                  <div className="lb-review-head">
-                    <CoverImage
-                      src={review.avatarUrl}
-                      alt={review.username}
-                      className="lb-review-avatar"
-                      variant="avatar"
-                    />
-                    {review.username ? (
-                      <Link to={`/profile/${review.username}`} className="lb-review-user">
-                        <UserDisplayName
-                          name={review.profileName || review.username}
-                          role={review.role}
-                          badgeSize="xs"
-                        />
-                      </Link>
-                    ) : (
-                      <span className="lb-review-user">okur</span>
-                    )}
-                    {review.likeCount > 0 && (
-                      <span className="lb-review-likes" title="Beğeni">
-                        <ThumbUpAltOutlinedIcon sx={{ fontSize: 14 }} />
-                        {review.likeCount}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="lb-review-title">
-                    <Link to={`/book/${review.bookId}`}>{review.title}</Link>
-                  </h3>
-                  {review.rating > 0 && (
-                    <p className="lb-review-stars">{stars(review.rating)}</p>
-                  )}
-                  {review.comment && <p className="lb-review-text">{review.comment}</p>}
-                </div>
-              </article>
+              <PopularReviewCard key={review.activityId} review={review} />
             ))}
           </div>
         </section>

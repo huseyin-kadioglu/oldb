@@ -11,6 +11,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CoverImage from "../ui/CoverImage";
 import SelectedBookDialog from "../common/SelectedBookDialog";
 import { createUserActivityFromGhostMenu } from "../../service/APIService";
+import COPY from "../../copy";
 
 const PhotoFrame = ({
   book,
@@ -116,8 +117,8 @@ const PhotoFrame = ({
       <button
         type="button"
         className="qa-btn"
-        title="Detaylı log"
-        aria-label="Detaylı log"
+        title={COPY.book.detailSave}
+        aria-label={COPY.book.detailSave}
         onClick={handleDetailLog}
       >
         <MoreHorizIcon fontSize="inherit" />
@@ -148,7 +149,7 @@ const PhotoFrame = ({
         </Link>
       )}
       {ratingBlock}
-      {isRead && <span className="frame-logged-chip">Logged</span>}
+      {isRead && <span className="frame-logged-chip">{COPY.book.savedChip}</span>}
     </div>
   );
 
