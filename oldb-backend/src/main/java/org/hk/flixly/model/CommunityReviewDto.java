@@ -22,4 +22,5 @@ public class CommunityReviewDto {
     private double rating;
     private String comment;
     private LocalDate readDate;
+    private long likeCount;
 }

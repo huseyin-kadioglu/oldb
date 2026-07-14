@@ -27,4 +27,20 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
     List<BookEntity> findFiltered(@Param("nobelOnly") boolean nobelOnly,
                                   @Param("yearFrom") Integer yearFrom,
                                   @Param("yearTo") Integer yearTo);
+
+    @Query(value = """
+            SELECT * FROM books
+            WHERE editor_choice = true
+            ORDER BY id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<BookEntity> findEditorChoices(@Param("limit") int limit);
+
+    @Query(value = """
+            SELECT * FROM books
+            WHERE new_release = true
+            ORDER BY publication_year DESC, id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<BookEntity> findNewReleases(@Param("limit") int limit);
 }

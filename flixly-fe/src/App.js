@@ -1,11 +1,10 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
 
 import "./App.css";
 import { getBooks } from "./service/APIService";
 import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
-import Profile from "./components/profile/Profile";
 import ProfilePage from "./components/profile/ProfilPage";
 import Books from "./components/books/Books";
 import BookFilter from "./components/common/BookFilter";
@@ -26,29 +25,32 @@ import BadgesPage from "./components/pages/BadgesPage";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
 
+const needsCatalogPath = (path) =>
+  path.startsWith("/books") ||
+  path.startsWith("/search") ||
+  path.startsWith("/book/") ||
+  path.startsWith("/profile/");
+
 const App = () => {
+  const location = useLocation();
   const [activityDialog, setActivityDialog] = useState(false);
   const [selectedBookDialog, setSelectedBookDialog] = useState(null);
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [booksLoaded, setBooksLoaded] = useState(false);
+  const [booksLoading, setBooksLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(null);
-
   const [token, setToken] = useState(sessionStorage.getItem("token"));
 
   const handleLogout = () => {
     sessionStorage.clear();
     localStorage.clear();
-
-    // axios kullanıyorsan
-    // delete axios.defaults.headers.common["Authorization"];
-
-    setToken(null); // 🔥 EN ÖNEMLİ SATIR
+    setToken(null);
   };
 
-  const handleToken = (token) => {
-    setToken(token);
-    sessionStorage.setItem("token", token);
+  const handleToken = (nextToken) => {
+    setToken(nextToken);
+    sessionStorage.setItem("token", nextToken);
   };
 
   const handleDialog = (state) => {
@@ -60,21 +62,31 @@ const App = () => {
     setSelectedBookDialog(data);
   };
 
-  useEffect(() => {
-    fetchBooks();
-  }, []);
-
-  const fetchBooks = async () => {
+  const ensureBooks = useCallback(async () => {
+    if (booksLoaded || booksLoading) return;
+    setBooksLoading(true);
     try {
       const data = await getBooks();
-      console.log("App.js | Books are fetched", data);
-      setBooks(data?.books);
+      setBooks(data?.books || []);
+      setBooksLoaded(true);
     } catch (err) {
       setError("Kitaplar yüklenirken bir hata oluştu.");
     } finally {
-      setLoading(false);
+      setBooksLoading(false);
     }
-  };
+  }, [booksLoaded, booksLoading]);
+
+  useEffect(() => {
+    if (needsCatalogPath(location.pathname)) {
+      ensureBooks();
+    }
+  }, [location.pathname, ensureBooks]);
+
+  useEffect(() => {
+    if (activityDialog) {
+      ensureBooks();
+    }
+  }, [activityDialog, ensureBooks]);
 
   return (
     <div className="App">
@@ -88,28 +100,22 @@ const App = () => {
 
       <div className="app-content">
         <Routes>
-          <Route path="/" element={<Content books={books} token={token} />} />
+          <Route path="/" element={<Content token={token} />} />
           <Route path="/profile/:username" element={<ProfilePage books={books} />} />
           <Route path="/profile/:username/list/:listType" element={<ProfileListPage />} />
           <Route path="/books" element={<Books books={books} />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/badges" element={<BadgesPage />} />
-        <Route path="/activities" element={<Activies />} />
-        <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
-        <Route
-          path="/search/:searchTerm"
-          element={<SearchView books={books} />}
-        />
-        <Route
-          path="/book/:bookId"
-          element={<BookSummaryView books={books} />}
-        />
-        <Route path="/author/:authorId" element={<Author />} />
-        <Route path="/addAuthor" element={<AuthorContributeForm />} />
-        <Route path="/bookContribute" element={<BookContributeForm />} />
-        <Route path="/authorApproval" element={<AuthorApproval />} />
-        <Route path="/bookApproval" element={<BookApproval />} />
-        <Route path="/profileApproval" element={<ProfileApproval />} />
+          <Route path="/activities" element={<Activies />} />
+          <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
+          <Route path="/search/:searchTerm" element={<SearchView books={books} />} />
+          <Route path="/book/:bookId" element={<BookSummaryView books={books} />} />
+          <Route path="/author/:authorId" element={<Author />} />
+          <Route path="/addAuthor" element={<AuthorContributeForm />} />
+          <Route path="/bookContribute" element={<BookContributeForm />} />
+          <Route path="/authorApproval" element={<AuthorApproval />} />
+          <Route path="/bookApproval" element={<BookApproval />} />
+          <Route path="/profileApproval" element={<ProfileApproval />} />
         </Routes>
       </div>
 

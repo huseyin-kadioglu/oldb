@@ -4,15 +4,15 @@ import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import LocalFireDepartmentOutlinedIcon from "@mui/icons-material/LocalFireDepartmentOutlined";
+import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
 import SectionHeader from "../ui/SectionHeader";
 import CoverImage from "../ui/CoverImage";
 import BookCoverCard from "../ui/BookCoverCard";
 import { UserDisplayName } from "../common/ProVerifiedBadge";
 import {
   getActivityRecent,
-  getCommunityReviews,
-  getCommunityStats,
   getDailyReadCheckin,
+  getHomeFeed,
   getProfileSummaryByUsername,
   setDailyReadCheckin,
 } from "../../service/APIService";
@@ -49,44 +49,29 @@ const formatShortDate = (item) => {
   return d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
 };
 
-const flag = (book, ...keys) => keys.some((k) => !!book?.[k]);
-
-const Content = ({ books, token }) => {
+const Content = ({ token }) => {
   const username = sessionStorage.getItem("username");
   const [profile, setProfile] = useState(null);
-  const [community, setCommunity] = useState(null);
+  const [feed, setFeed] = useState(null);
+  const [feedLoading, setFeedLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState([]);
-  const [communityReviews, setCommunityReviews] = useState([]);
   const [checkin, setCheckin] = useState(null);
   const [checkinBusy, setCheckinBusy] = useState(false);
 
-  const popular =
-    community?.booksReadThisMonthList?.length > 0
-      ? community.booksReadThisMonthList
-      : [...(books || [])]
-          .filter((b) => b.averageRating > 0)
-          .sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0))
-          .slice(0, 8);
-
-  const popularFallback =
-    popular.length > 0
-      ? popular
-      : [...(books || [])].sort((a, b) => (b.publicationYear || 0) - (a.publicationYear || 0)).slice(0, 8);
-
-  const editorPicks = (books || [])
-    .filter((b) => flag(b, "isEditorChoice", "editorChoice"))
-    .slice(0, 10);
-  const weeklyPicks = (books || [])
-    .filter((b) => flag(b, "isWeeklyPick", "weeklyPick"))
-    .slice(0, 10);
-  const newReleases = (books || [])
-    .filter((b) => flag(b, "isNewRelease", "newRelease"))
-    .slice(0, 10);
+  const community = feed?.communityStats;
+  const stoaPicks = feed?.stoaPicks || [];
+  const newReleases = feed?.newReleases || [];
+  const discussed = feed?.discussed || [];
+  const allTimeMostRead = feed?.allTimeMostRead || [];
+  const popularReviews = feed?.popularReviews || [];
 
   useEffect(() => {
-    getCommunityStats().then(setCommunity).catch(() => setCommunity(null));
+    setFeedLoading(true);
+    getHomeFeed()
+      .then(setFeed)
+      .catch(() => setFeed(null))
+      .finally(() => setFeedLoading(false));
     getActivityRecent(12).then(setRecentActivity).catch(() => setRecentActivity([]));
-    getCommunityReviews(4).then(setCommunityReviews).catch(() => setCommunityReviews([]));
   }, []);
 
   useEffect(() => {
@@ -133,7 +118,7 @@ const Content = ({ books, token }) => {
         <div className="lb-poster-row lb-poster-row--large">
           {list.map((book) => (
             <div key={book.id} className="lb-popular-item">
-              <BookCoverCard book={book} showAuthor={false} />
+              <BookCoverCard book={book} showAuthor={!!book.authorName} />
             </div>
           ))}
         </div>
@@ -240,9 +225,12 @@ const Content = ({ books, token }) => {
         )}
       </header>
 
-      {renderBookRail("stoa şunları önerdi", editorPicks, "Keşfet")}
-      {renderBookRail("Haftanın kitabı", weeklyPicks)}
+      {feedLoading && <p className="lb-empty">Raflar yükleniyor…</p>}
+
+      {renderBookRail("stoa önerdi", stoaPicks, "Keşfet")}
       {renderBookRail("Yeni çıkanlar", newReleases)}
+      {renderBookRail("Konuşulanlar", discussed)}
+      {renderBookRail("Tüm zamanların en çok okunanları", allTimeMostRead)}
 
       <section className="lb-section">
         <SectionHeader
@@ -299,22 +287,11 @@ const Content = ({ books, token }) => {
         )}
       </section>
 
-      <section className="lb-section">
-        <SectionHeader title="Popüler" to="/books" linkLabel="Daha fazla" />
-        <div className="lb-poster-row lb-poster-row--large">
-          {popularFallback.slice(0, 8).map((book) => (
-            <div key={book.id} className="lb-popular-item">
-              <BookCoverCard book={book} showAuthor={false} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {communityReviews.length > 0 && (
+      {popularReviews.length > 0 && (
         <section className="lb-section">
           <SectionHeader title="Popüler incelemeler" to="/activities" linkLabel="Aktivite" />
           <div className="lb-review-list">
-            {communityReviews.map((review) => (
+            {popularReviews.slice(0, 4).map((review) => (
               <article className="lb-review-card" key={review.activityId}>
                 <Link to={`/book/${review.bookId}`} className="lb-review-cover-link">
                   <CoverImage src={review.coverUrl} alt={review.title} className="lb-review-cover" />
@@ -337,6 +314,12 @@ const Content = ({ books, token }) => {
                       </Link>
                     ) : (
                       <span className="lb-review-user">okur</span>
+                    )}
+                    {review.likeCount > 0 && (
+                      <span className="lb-review-likes" title="Beğeni">
+                        <ThumbUpAltOutlinedIcon sx={{ fontSize: 14 }} />
+                        {review.likeCount}
+                      </span>
                     )}
                   </div>
                   <h3 className="lb-review-title">
