@@ -6,6 +6,7 @@ import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.CommentEntity;
 import org.hk.flixly.model.entity.CommentLikeEntity;
 import org.hk.flixly.model.enums.UserRole;
+import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.CommentLikeRepository;
@@ -15,8 +16,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class CommentService {
@@ -31,6 +36,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
+    private final ActivityRepository activityRepository;
     private final NotificationService notificationService;
 
     public CommentService(
@@ -39,19 +45,33 @@ public class CommentService {
             UserRepository userRepository,
             BookRepository bookRepository,
             AuthorRepository authorRepository,
+            ActivityRepository activityRepository,
             NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.commentLikeRepository = commentLikeRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
+        this.activityRepository = activityRepository;
         this.notificationService = notificationService;
     }
 
     public List<CommentDto> list(String targetType, Long targetId, Long viewerUserId) {
         String type = normalizeType(targetType);
-        return commentRepository.findByTargetTypeAndTargetIdOrderByUpdatedAtDesc(type, targetId).stream()
-                .map(c -> toDto(c, viewerUserId))
+        List<CommentEntity> comments =
+                commentRepository.findByTargetTypeAndTargetIdOrderByUpdatedAtDesc(type, targetId);
+        Map<Long, Double> ratingByUser = Collections.emptyMap();
+        if (BOOK.equals(type) && !comments.isEmpty()) {
+            List<Long> userIds = comments.stream()
+                    .map(CommentEntity::getUserId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+            ratingByUser = loadBookRatings(targetId, userIds);
+        }
+        Map<Long, Double> ratings = ratingByUser;
+        return comments.stream()
+                .map(c -> toDto(c, viewerUserId, ratings.get(c.getUserId())))
                 .toList();
     }
 
@@ -74,6 +94,11 @@ public class CommentService {
         }
         validateTarget(type, request.getTargetId());
 
+        Double rating = null;
+        if (BOOK.equals(type)) {
+            rating = loadBookRatings(request.getTargetId(), List.of(user.getId())).get(user.getId());
+        }
+
         var existing = commentRepository.findByUserIdAndTargetTypeAndTargetId(
                 user.getId(), type, request.getTargetId());
         if (existing.isPresent()) {
@@ -81,7 +106,7 @@ public class CommentService {
             entity.setBody(body);
             entity.setSpoiler(request.isSpoiler());
             entity = commentRepository.save(entity);
-            return toDto(entity, user.getId());
+            return toDto(entity, user.getId(), rating);
         }
 
         CommentEntity entity = CommentEntity.builder()
@@ -97,7 +122,7 @@ public class CommentService {
         if (BOOK.equals(type)) {
             notificationService.notifyWeeklyPickComment(user.getId(), request.getTargetId());
         }
-        return toDto(entity, user.getId());
+        return toDto(entity, user.getId(), rating);
     }
 
     @Transactional
@@ -125,7 +150,12 @@ public class CommentService {
             notificationService.notifyCommentLike(user.getId(), comment.getUserId(), commentId, bookId);
         }
         commentRepository.save(comment);
-        return toDto(comment, user.getId());
+        Double rating = null;
+        if (BOOK.equals(comment.getTargetType())) {
+            rating = loadBookRatings(comment.getTargetId(), List.of(comment.getUserId()))
+                    .get(comment.getUserId());
+        }
+        return toDto(comment, user.getId(), rating);
     }
 
     @Transactional
@@ -138,6 +168,20 @@ public class CommentService {
             throw new IllegalArgumentException("Bu yorumu silemezsin");
         }
         commentRepository.delete(comment);
+    }
+
+    private Map<Long, Double> loadBookRatings(Long bookId, List<Long> userIds) {
+        if (bookId == null || userIds == null || userIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<Long, Double> map = new HashMap<>();
+        for (Object[] row : activityRepository.findMaxRatingsByBookAndUsers(bookId, userIds)) {
+            if (row == null || row[0] == null || row[1] == null) continue;
+            Long uid = ((Number) row[0]).longValue();
+            double rating = ((Number) row[1]).doubleValue();
+            map.put(uid, rating);
+        }
+        return map;
     }
 
     private void validateTarget(String type, Long targetId) {
@@ -159,15 +203,21 @@ public class CommentService {
         });
     }
 
-    private CommentDto toDto(CommentEntity c, Long viewerUserId) {
+    private CommentDto toDto(CommentEntity c, Long viewerUserId, Double rating) {
         UserEntity author = userRepository.findById(c.getUserId().intValue()).orElse(null);
         boolean liked = viewerUserId != null
                 && commentLikeRepository.existsByCommentIdAndUserId(c.getId(), viewerUserId);
+        String displayName = null;
+        if (author != null) {
+            displayName = author.getFullName() != null && !author.getFullName().isBlank()
+                    ? author.getFullName()
+                    : author.getProfilName();
+        }
         return CommentDto.builder()
                 .id(c.getId())
                 .userId(c.getUserId())
                 .username(author != null ? author.getProfilName() : null)
-                .profileName(author != null ? author.getProfilName() : null)
+                .profileName(displayName)
                 .avatarUrl(author != null ? author.getAvatarUrl() : null)
                 .role(author != null ? author.getRole() : null)
                 .targetType(c.getTargetType())
@@ -178,6 +228,7 @@ public class CommentService {
                 .likedByMe(liked)
                 .createdAt(c.getCreatedAt())
                 .updatedAt(c.getUpdatedAt())
+                .rating(rating != null && rating > 0 ? rating : null)
                 .build();
     }
 

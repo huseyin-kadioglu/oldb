@@ -29,7 +29,9 @@ import {
   getBookSocial,
 } from "../../service/APIService";
 import COPY from "../../copy";
+import { showToast } from "../../utils/uiEvents";
 import {
+  buildAudienceHints,
   buildFallbackSynopsis,
   pickBookTags,
   splitSynopsisLead,
@@ -40,12 +42,30 @@ import "./BookSummaryView.css";
 const STATUS_LABELS = {
   READ: "Okudu",
   COMPLETED: "Okudu",
-  READLIST: "Okuma listesinde",
+  READLIST: "Şu an okuyor",
   LIBRARY: "Kütüphanede",
   LIKE: "Beğendi",
   SHOPPING: "Alınacaklarda",
   DROPPED: "Bıraktı",
 };
+
+const normalizeEditionKey = (title) =>
+  String(title || "")
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9ğüşıöç\s]/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const formatUserRatingLabel = (rating) => {
+  const n = Number(rating);
+  if (!n || n <= 0) return null;
+  const text = Number.isInteger(n) ? String(n) : n.toFixed(1).replace(".", ",");
+  return `${text} yıldız verdin`;
+};
+
+const distStarLabel = (star) => "★".repeat(star) + "☆".repeat(5 - star);
 
 const communityStars = (avg) => {
   const n = Math.max(0, Math.min(5, Number(avg) || 0));
@@ -229,7 +249,7 @@ const BookSummaryView = ({ books = [] }) => {
 
   const requireLogin = () => {
     if (!isLoggedIn) {
-      alert("Bu işlem için giriş yapmalısınız.");
+      showToast("Bu işlem için giriş yapmalısın.");
       return false;
     }
     return true;
@@ -250,7 +270,7 @@ const BookSummaryView = ({ books = [] }) => {
       await refreshBook(book.id);
     } catch {
       applyLocalFlag(actionType, current);
-      alert("İşlem sırasında bir hata oluştu.");
+      showToast("İşlem sırasında bir hata oluştu.");
     } finally {
       setActionLoading(false);
     }
@@ -310,7 +330,7 @@ const BookSummaryView = ({ books = [] }) => {
       }
       await refreshBook(book.id);
     } catch {
-      alert("Durum güncellenemedi.");
+      showToast("Durum güncellenemedi.");
     } finally {
       setActionLoading(false);
     }
@@ -334,7 +354,7 @@ const BookSummaryView = ({ books = [] }) => {
       await refreshBook(book.id);
     } catch {
       setUserRating(prev);
-      alert("Puan kaydedilemedi.");
+      showToast("Puan kaydedilemedi.");
     }
   };
 
@@ -412,20 +432,49 @@ const BookSummaryView = ({ books = [] }) => {
       .map((g) => g.trim().toLowerCase())
       .filter((g) => g.length > 2);
     if (rawTokens.length === 0) return [];
+
+    const selfKey = normalizeEditionKey(book.title);
+    const selfYear = Number(book.publicationYear) || 0;
+    const seenTitles = new Set(selfKey ? [selfKey] : []);
+
     return books
-      .filter((b) => b.id !== book.id && !authorOtherIds.has(b.id))
+      .filter((b) => {
+        if (!b?.id || b.id === book.id) return false;
+        if (book.authorId && b.authorId === book.authorId) return false;
+        if (authorOtherIds.has(b.id)) return false;
+        const key = normalizeEditionKey(b.title);
+        if (!key || seenTitles.has(key)) return false;
+        return true;
+      })
       .map((b) => {
         const hay = String(b.genres || "").toLowerCase();
-        const score = rawTokens.reduce((acc, t) => (hay.includes(t) ? acc + 1 : acc), 0);
-        return { book: b, score };
+        const genreScore = rawTokens.reduce((acc, t) => (hay.includes(t) ? acc + 2 : acc), 0);
+        let score = genreScore;
+        if (b.isEditorChoice || b.editorChoice) score += 1.5;
+        const year = Number(b.publicationYear) || 0;
+        if (selfYear > 0 && year > 0) {
+          const diff = Math.abs(selfYear - year);
+          if (diff === 0) score += 1.2;
+          else if (diff <= 3) score += 0.8;
+          else if (diff <= 8) score += 0.3;
+        }
+        score += Math.min(1, (Number(b.averageRating) || 0) / 5);
+        return { book: b, score, genreScore };
       })
-      .filter((x) => x.score > 0)
+      .filter((x) => x.genreScore > 0)
       .sort((a, b) => b.score - a.score || (b.book.averageRating || 0) - (a.book.averageRating || 0))
-      .slice(0, 12)
-      .map((x) => x.book);
+      .reduce((acc, x) => {
+        const key = normalizeEditionKey(x.book.title);
+        if (seenTitles.has(key)) return acc;
+        seenTitles.add(key);
+        acc.push(x.book);
+        return acc;
+      }, [])
+      .slice(0, 6);
   })();
 
   const tags = pickBookTags(book.genres || book.bookSummaryTags, 5);
+  const audienceHints = buildAudienceHints(book.genres || book.bookSummaryTags, 3);
   const authorData = author?.name ? author : { name: book.authorName };
   const likedCount = book.howManyPplLiked ?? 0;
   const readlistCount = book.howManyPplAddedToReadList ?? 0;
@@ -437,14 +486,43 @@ const BookSummaryView = ({ books = [] }) => {
   ].filter(Boolean);
   const hasCommunityStats = communityRows.length > 0;
 
-  const primaryStatusLabel =
-    primaryKey === "read"
-      ? "✓ Okudun"
-      : primaryKey === "reading"
-        ? "📖 Şu an okuyorsun"
-        : primaryKey === "want"
-          ? "○ Okuyacaksın"
-          : "Henüz seçilmedi";
+  const ratingCount = Number(book.ratingCount) || 0;
+  const ratingDist = Array.isArray(book.ratingDistribution) ? book.ratingDistribution : [];
+  const showRatingHistogram = ratingCount >= 5 && ratingDist.length === 5;
+  const avgRatingLabel =
+    book.averageRating > 0
+      ? (Number.isInteger(book.averageRating)
+          ? String(book.averageRating)
+          : Number(book.averageRating).toFixed(1).replace(".", ","))
+      : null;
+
+  const yourRecordLines = [];
+  if (primaryKey === "read") yourRecordLines.push({ key: "read", icon: "✓", label: "Okudun" });
+  else if (primaryKey === "reading") {
+    yourRecordLines.push({ key: "reading", icon: "📖", label: "Şu an okuyorsun" });
+  } else if (primaryKey === "want") {
+    yourRecordLines.push({ key: "want", icon: "○", label: "Okuyacaksın" });
+  }
+  if (userRating > 0) {
+    yourRecordLines.push({
+      key: "rating",
+      icon: "★",
+      label: formatUserRatingLabel(userRating),
+    });
+  }
+  if (isFavourite) yourRecordLines.push({ key: "fav", icon: "★", label: "Favorilerinde" });
+  if (isInLibrary) yourRecordLines.push({ key: "lib", icon: "📚", label: "Kütüphanende" });
+  if (isLiked) yourRecordLines.push({ key: "like", icon: "♥", label: "Beğendin" });
+  const hasYourRecord = yourRecordLines.length > 0;
+
+  const friendsReadCount = friendsReading.filter((f) =>
+    ["READ", "COMPLETED"].includes(String(f.status || "").toUpperCase())
+  ).length;
+  const friendsSummaryCount = friendsReadCount > 0 ? friendsReadCount : friendsReading.length;
+  const friendsSummary =
+    friendsReadCount > 0
+      ? `Arkadaşlarından ${friendsSummaryCount} kişi okudu`
+      : `Arkadaşlarından ${friendsSummaryCount} kişi bu kitapla ilgileniyor`;
 
   const metaBits = [
     book.pageCount > 0 ? `${book.pageCount} sayfa` : null,
@@ -526,7 +604,7 @@ const BookSummaryView = ({ books = [] }) => {
                 <p className="book-page-meta-line">
                   {metaBits.map((bit, i) => (
                     <span key={bit}>
-                      {i > 0 && <span className="book-page-meta-dot"> · </span>}
+                      {i > 0 && <span className="book-page-meta-dot"> • </span>}
                       {book.publicationYear > 0 && bit === String(book.publicationYear) ? (
                         <Link
                           to={`/books/year/${book.publicationYear}`}
@@ -576,6 +654,28 @@ const BookSummaryView = ({ books = [] }) => {
                   >
                     {synopsisOpen ? "Daha az göster" : "Devamını oku →"}
                   </button>
+                )}
+                {audienceHints && (
+                  <div className="book-audience">
+                    <p className="book-audience-title">Kimler için uygun?</p>
+                    <ul className="book-audience-list">
+                      {audienceHints.for.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                    {audienceHints.against?.length > 0 && (
+                      <>
+                        <p className="book-audience-title book-audience-title--muted">
+                          Kimler için uygun olmayabilir?
+                        </p>
+                        <ul className="book-audience-list book-audience-list--muted">
+                          {audienceHints.against.map((line) => (
+                            <li key={line}>{line}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
                 )}
               </section>
             ) : null}
@@ -728,48 +828,90 @@ const BookSummaryView = ({ books = [] }) => {
         </header>
       </div>
 
-      {friendsReading.length > 0 && (
-        <section className="book-page-friends">
-          <div className="book-page-friends-head">
-            <h2 className="book-page-friends-title">Arkadaşlarından okuyanlar</h2>
-            <button
-              type="button"
-              className="folios-see-all"
-              onClick={() => setFriendsOpen(true)}
-            >
-              {friendsReading.length} arkadaş →
-            </button>
-          </div>
-          <button
-            type="button"
-            className="book-friends-strip"
-            onClick={() => setFriendsOpen(true)}
-            aria-label="Arkadaş listesini aç"
-          >
-            {friendsReading.slice(0, 10).map((f) => (
-              <span
-                key={f.userId}
-                className="book-friends-avatar"
-                title={f.profileName || f.username}
-              >
-                <InitialAvatar name={f.profileName || f.username} src={f.avatarUrl} />
-              </span>
-            ))}
-            {friendsReading.length > 10 && (
-              <span className="book-friends-more">+{friendsReading.length - 10}</span>
-            )}
-          </button>
-          <p className="book-friends-caption">
-            {friendsReading.length} arkadaş okudu veya listesine ekledi
-          </p>
-        </section>
-      )}
-
       <div className="page-layout book-page-layout">
         <main className="page-main">
+          {friendsReading.length > 0 && (
+            <section className="book-page-friends book-page-section">
+              <div className="book-page-friends-head">
+                <h2 className="folios-section-title book-page-friends-title">
+                  Arkadaşlarından okuyanlar
+                </h2>
+                <button
+                  type="button"
+                  className="folios-see-all"
+                  onClick={() => setFriendsOpen(true)}
+                >
+                  Tümünü gör →
+                </button>
+              </div>
+              <button
+                type="button"
+                className="book-friends-strip"
+                onClick={() => setFriendsOpen(true)}
+                aria-label="Arkadaş listesini aç"
+              >
+                {friendsReading.slice(0, 10).map((f) => (
+                  <span
+                    key={f.userId}
+                    className="book-friends-avatar"
+                    title={f.profileName || f.username}
+                  >
+                    <InitialAvatar name={f.profileName || f.username} src={f.avatarUrl} />
+                  </span>
+                ))}
+                {friendsReading.length > 10 && (
+                  <span className="book-friends-more">+{friendsReading.length - 10}</span>
+                )}
+              </button>
+              <p className="book-friends-caption">{friendsSummary}</p>
+            </section>
+          )}
+
           {book.adminNotes && (
             <section className="book-page-section">
               <div className="book-admin-notes folios-card">{book.adminNotes}</div>
+            </section>
+          )}
+
+          {(ratingCount > 0 && avgRatingLabel) && (
+            <section className="book-page-section book-rating-dist-section">
+              <SectionHeader title="Puan dağılımı" />
+              <div
+                className={`book-rating-dist${showRatingHistogram ? " has-bars" : ""}`}
+              >
+                <div className="book-rating-dist-summary">
+                  <span className="book-rating-dist-avg-val">{avgRatingLabel}</span>
+                  <span className="book-rating-dist-avg-stars" aria-hidden="true">
+                    {communityStars(book.averageRating)}
+                  </span>
+                  <span className="book-rating-dist-count">
+                    {ratingCount.toLocaleString("tr-TR")} değerlendirme
+                  </span>
+                </div>
+                {showRatingHistogram && (
+                  <ul className="book-rating-dist-bars" aria-label="Yıldız dağılımı">
+                    {[5, 4, 3, 2, 1].map((star, idx) => {
+                      const pct = Number(ratingDist[idx]) || 0;
+                      return (
+                        <li key={star} className="book-rating-dist-row">
+                          <span
+                            className="book-rating-dist-label"
+                            aria-label={`${star} yıldız`}
+                          >
+                            {distStarLabel(star)}
+                          </span>
+                          <span className="book-rating-dist-track">
+                            <span
+                              className="book-rating-dist-fill"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             </section>
           )}
 
@@ -828,6 +970,17 @@ const BookSummaryView = ({ books = [] }) => {
             />
           </section>
 
+          {similarBooks.length > 0 && (
+            <section className="book-page-section">
+              <SectionHeader title="Benzer Kitaplar" />
+              <div className="book-author-shelf">
+                {similarBooks.map((b) => (
+                  <BookCoverCard key={b.id} book={b} showAuthor showRating />
+                ))}
+              </div>
+            </section>
+          )}
+
           {authorOtherBooks.length > 0 && (
             <section className="book-page-section">
               <SectionHeader
@@ -837,22 +990,11 @@ const BookSummaryView = ({ books = [] }) => {
                     : "Yazarın diğer kitapları"
                 }
                 to={book.authorId ? `/author/${book.authorId}` : undefined}
-                linkLabel={book.authorId ? "Tüm kitapları" : undefined}
+                linkLabel={book.authorId ? "Tümünü gör" : undefined}
               />
               <div className="book-author-shelf">
                 {authorOtherBooks.map((b) => (
-                  <BookCoverCard key={b.id} book={b} showAuthor={false} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {similarBooks.length > 0 && (
-            <section className="book-page-section">
-              <SectionHeader title="Benzer kitaplar" />
-              <div className="book-author-shelf">
-                {similarBooks.map((b) => (
-                  <BookCoverCard key={b.id} book={b} showAuthor />
+                  <BookCoverCard key={b.id} book={b} showAuthor={false} showRating />
                 ))}
               </div>
             </section>
@@ -860,32 +1002,48 @@ const BookSummaryView = ({ books = [] }) => {
         </main>
 
         <aside className="page-sidebar book-page-sidebar">
-          <div className="sidebar-block book-side-card">
+          <div className="sidebar-block book-side-card book-your-record">
             <h3 className="sidebar-title">Senin kaydın</h3>
-            <div className="book-side-stack">
-              <div className="book-side-fact">
-                <span className="book-side-label">Durum</span>
-                <strong className="book-side-value">{primaryStatusLabel}</strong>
+            {hasYourRecord ? (
+              <>
+                <ul className="book-your-record-list">
+                  {yourRecordLines.map((line) => (
+                    <li key={line.key}>
+                      <span className="book-your-record-icon" aria-hidden="true">
+                        {line.icon}
+                      </span>
+                      <span className="book-your-record-label">{line.label}</span>
+                    </li>
+                  ))}
+                </ul>
+                {isLoggedIn && (
+                  <button
+                    type="button"
+                    className="book-your-record-edit"
+                    disabled={actionLoading}
+                    onClick={() => setLogOpen(true)}
+                  >
+                    Kaydı düzenle
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className="book-your-record-empty">
+                <p className="book-your-record-empty-text">Henüz bir kaydın yok.</p>
+                {isLoggedIn ? (
+                  <button
+                    type="button"
+                    className="book-your-record-cta"
+                    disabled={actionLoading}
+                    onClick={() => setLogOpen(true)}
+                  >
+                    Bu kitabı kaydet
+                  </button>
+                ) : (
+                  <p className="book-side-empty">Kayıt için giriş yap.</p>
+                )}
               </div>
-              <div className="book-side-fact">
-                <span className="book-side-label">Puan</span>
-                <strong className="book-side-value">
-                  {userRating > 0 ? `${userRating} ★` : "—"}
-                </strong>
-              </div>
-              <div className="book-side-fact">
-                <span className="book-side-label">Favori</span>
-                <strong className="book-side-value">
-                  {isFavourite ? "★ Favorilerinde" : "Değil"}
-                </strong>
-              </div>
-              <div className="book-side-fact">
-                <span className="book-side-label">Kütüphane</span>
-                <strong className="book-side-value">
-                  {isInLibrary ? "Kütüphanende" : "Değil"}
-                </strong>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="sidebar-block book-side-card">

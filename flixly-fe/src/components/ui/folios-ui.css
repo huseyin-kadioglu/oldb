@@ -84,6 +84,14 @@
   overflow: hidden;
 }
 
+.folios-book-card-rating {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgba(212, 175, 55, 0.85);
+}
+
 .folios-card {
   background: var(--color-background-card);
   border: 1px solid var(--color-border-subtle);

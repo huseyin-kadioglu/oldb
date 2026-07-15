@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,20 @@ public interface ActivityRepository extends JpaRepository<UserActivityEntity, Lo
 
     @Query("SELECT ua.bookId, AVG(ua.rating), COUNT(ua.id) FROM UserActivityEntity ua WHERE ua.rating > 0 GROUP BY ua.bookId")
     List<Object[]> findBookRatingStats();
+
+    @Query("""
+            SELECT ua.userId, MAX(ua.rating)
+            FROM UserActivityEntity ua
+            WHERE ua.bookId = :bookId
+              AND ua.userId IN :userIds
+              AND ua.rating IS NOT NULL
+              AND ua.rating > 0
+            GROUP BY ua.userId
+            """)
+    List<Object[]> findMaxRatingsByBookAndUsers(
+            @Param("bookId") Long bookId,
+            @Param("userIds") Collection<Long> userIds
+    );
 
     @Query("SELECT ua.bookId, AVG(ua.rating), COUNT(ua.id) FROM UserActivityEntity ua WHERE ua.bookId = :bookId AND ua.rating > 0")
     Object[] findRatingStatsByBookId(Long bookId);

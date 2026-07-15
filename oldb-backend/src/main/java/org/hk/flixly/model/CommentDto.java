@@ -24,4 +24,6 @@ public class CommentDto {
     private boolean likedByMe;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    /** Kitap yorumlarında kullanıcının o kitaba verdiği puan (varsa) */
+    private Double rating;
 }
