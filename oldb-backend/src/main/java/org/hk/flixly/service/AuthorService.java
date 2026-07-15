@@ -8,6 +8,7 @@ import org.hk.flixly.model.entity.AuthorRatingEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.UserBookMapEntity;
 import org.hk.flixly.model.enums.BookActivityStatus;
+import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.AuthorRatingRepository;
 import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.UserBookMapRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,14 +30,17 @@ public class AuthorService {
     private final BookService bookService;
     private final AuthorRatingRepository authorRatingRepository;
     private final UserBookMapRepository userBookMapRepository;
+    private final ActivityRepository activityRepository;
 
     public AuthorService(AuthorRepository authorRepository, BookService bookService,
                          AuthorRatingRepository authorRatingRepository,
-                         UserBookMapRepository userBookMapRepository) {
+                         UserBookMapRepository userBookMapRepository,
+                         ActivityRepository activityRepository) {
         this.authorRepository = authorRepository;
         this.bookService = bookService;
         this.authorRatingRepository = authorRatingRepository;
         this.userBookMapRepository = userBookMapRepository;
+        this.activityRepository = activityRepository;
     }
 
     public AuthorDto findById(Long id) {
@@ -57,8 +62,24 @@ public class AuthorService {
         }
 
         final Map<Long, Set<String>> statusMap = userStatusMap;
+        Map<Long, double[]> bookRatingMap = buildBookRatingMap();
+        Map<Long, Map<String, Integer>> statusCountsMap = mapBookStatusCounts();
         List<BookDto> bookDtos = writtenByAuthor.stream()
-                .map(book -> toBookDto(book, authorEntity, statusMap.getOrDefault(book.getId(), Collections.emptySet())))
+                .map(book -> {
+                    BookDto dto = toBookDto(book, authorEntity, statusMap.getOrDefault(book.getId(), Collections.emptySet()));
+                    double[] rating = bookRatingMap.get(book.getId());
+                    if (rating != null) {
+                        dto.setAverageRating(new BigDecimal(rating[0]).setScale(1, RoundingMode.HALF_UP).doubleValue());
+                        dto.setRatingCount((long) rating[1]);
+                    }
+                    Map<String, Integer> counts = statusCountsMap.getOrDefault(book.getId(), Collections.emptyMap());
+                    int read = counts.getOrDefault(BookActivityStatus.READ, 0)
+                            + counts.getOrDefault(BookActivityStatus.COMPLETED, 0);
+                    int liked = counts.getOrDefault(BookActivityStatus.LIKE, 0);
+                    dto.setReadCount(read);
+                    dto.setHowManyPplLiked(liked);
+                    return dto;
+                })
                 .toList();
 
         List<BookDto> readByUser = bookDtos.stream()
@@ -160,5 +181,42 @@ public class AuthorService {
         long count = row[1] != null ? ((Number) row[1]).longValue() : 0;
         dto.setAverageRating(new BigDecimal(avg).setScale(1, RoundingMode.HALF_UP).doubleValue());
         dto.setRatingCount(count);
+    }
+
+    /** bookId -> [avgRating, ratingCount] — keşif kartları için mevcut activity verisi */
+    private Map<Long, double[]> buildBookRatingMap() {
+        List<Object[]> rows = activityRepository.findBookRatingStats();
+        Map<Long, double[]> map = new HashMap<>();
+        if (rows == null) {
+            return map;
+        }
+        for (Object[] row : rows) {
+            if (row == null || row.length < 3 || row[0] == null || row[1] == null) {
+                continue;
+            }
+            Long bookId = ((Number) row[0]).longValue();
+            double avg = ((Number) row[1]).doubleValue();
+            double count = row[2] != null ? ((Number) row[2]).doubleValue() : 0;
+            map.put(bookId, new double[]{avg, count});
+        }
+        return map;
+    }
+
+    private Map<Long, Map<String, Integer>> mapBookStatusCounts() {
+        List<Object[]> statusCounts = userBookMapRepository.findBookStatusCounts();
+        Map<Long, Map<String, Integer>> map = new HashMap<>();
+        if (statusCounts == null) {
+            return map;
+        }
+        for (Object[] row : statusCounts) {
+            if (row == null || row.length < 3 || row[0] == null || row[1] == null) {
+                continue;
+            }
+            Long bookId = ((Number) row[0]).longValue();
+            String status = String.valueOf(row[1]);
+            int count = row[2] != null ? ((Number) row[2]).intValue() : 0;
+            map.computeIfAbsent(bookId, k -> new HashMap<>()).put(status, count);
+        }
+        return map;
     }
 }

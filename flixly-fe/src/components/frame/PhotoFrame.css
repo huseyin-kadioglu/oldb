@@ -60,6 +60,10 @@
 .photo-frame .frame-title-wrap {
   margin-top: 10px;
   padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
 }
 
 .photo-frame .title {
@@ -73,7 +77,135 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease-out;
+}
+
+/* Yazar sayfası zengin kart tipografisi — kapak odaklı, kompakt meta */
+.photo-frame--rich {
+  cursor: pointer;
+}
+
+.photo-frame--rich .frame-cover-wrap {
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-cover, 0 4px 14px rgba(0, 0, 0, 0.35));
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    border-color 0.2s ease-out;
+}
+
+.photo-frame--rich .frame-cover-wrap img,
+.photo-frame--rich img.cover,
+.photo-frame--rich img {
+  box-shadow: none;
+  transition: none;
+}
+
+.photo-frame--rich:hover .frame-cover-wrap {
+  transform: translateY(-4px) scale(1.03);
+  border-color: rgba(212, 175, 55, 0.42);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(212, 175, 55, 0.22),
+    0 0 18px rgba(212, 175, 55, 0.12);
+}
+
+.photo-frame--rich:hover .frame-cover-wrap img {
+  transform: none;
+  box-shadow: none;
+}
+
+.photo-frame--rich .frame-title-wrap {
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.photo-frame--rich .title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.005em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-frame--rich .frame-meta {
+  margin-top: 0;
+  gap: 3px;
+}
+
+.photo-frame--rich .frame-rating {
+  margin-top: 0;
+  gap: 5px;
+}
+
+.photo-frame--rich .frame-rating-stars {
+  color: var(--color-primary-button, #d4af37);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  transition: color 0.15s ease-out;
+}
+
+.photo-frame--rich .frame-rating-val {
+  font-size: 13px;
+  font-weight: 550;
+  color: rgba(255, 255, 255, 0.48);
+  transition: color 0.15s ease-out;
+}
+
+.photo-frame--rich .frame-readers {
+  font-size: 12px;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.38);
+  transition: color 0.15s ease-out;
+}
+
+.photo-frame--rich .frame-editor-badge {
+  transition:
+    border-color 0.2s ease-out,
+    background 0.2s ease-out,
+    color 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .photo-frame--rich:hover .title {
+    color: #fff;
+  }
+
+  .photo-frame--rich:hover .frame-rating-stars {
+    color: #e0c35a;
+  }
+
+  .photo-frame--rich:hover .frame-rating-val {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .photo-frame--rich:hover .frame-readers {
+    color: rgba(255, 255, 255, 0.52);
+  }
+
+  .photo-frame--rich:hover .frame-editor-badge {
+    border-color: rgba(232, 201, 90, 0.85);
+    color: #e8c95a;
+    background: rgba(12, 12, 14, 0.82);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-frame--rich .frame-cover-wrap,
+  .photo-frame--rich .frame-editor-badge {
+    transition: none;
+  }
+
+  .photo-frame--rich:hover .frame-cover-wrap {
+    transform: none;
+  }
 }
 
 .frame-year-link {
@@ -86,19 +218,26 @@
   letter-spacing: 0.02em;
 }
 
+.frame-year-link.is-muted {
+  margin-top: 2px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.38);
+}
+
 .frame-year-link:hover {
   text-decoration: underline;
 }
 
-.photo-frame:hover .frame-title-wrap .title {
+.photo-frame:not(.photo-frame--rich):hover .frame-title-wrap .title {
   color: var(--color-primary-button);
 }
 
 .frame-rating {
   display: flex;
   align-items: center;
-  gap: 3px;
-  margin-top: 3px;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .frame-rating-star {
@@ -107,15 +246,66 @@
   line-height: 1;
 }
 
+.frame-rating-stars {
+  color: rgba(212, 175, 55, 0.72);
+  font-size: 0.58rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .frame-rating-val {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.42);
+  line-height: 1;
 }
 
 .frame-rating-count {
   font-size: 9px;
   color: var(--color-text-muted);
+}
+
+.frame-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.frame-meta .frame-rating {
+  margin-top: 0;
+}
+
+.frame-readers {
+  margin: 0;
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.frame-editor-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  max-width: calc(100% - 12px);
+  padding: 2px 6px;
+  border: 1px solid rgba(212, 175, 55, 0.7);
+  border-radius: var(--radius-sm, 4px);
+  background: rgba(12, 12, 14, 0.72);
+  color: var(--color-primary-button, #d4af37);
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 
 .frame-logged-chip {

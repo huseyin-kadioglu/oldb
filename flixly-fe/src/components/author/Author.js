@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CoverImage from "../ui/CoverImage";
+import ExpandableText from "../ui/ExpandableText";
 import PhotoFrame from "../frame/PhotoFrame";
 import CommentSection from "../common/CommentSection";
 import { getAuthorById, rateAuthor } from "../../service/APIService";
@@ -11,8 +12,8 @@ import "../ui/folios-ui.css";
 import "./Author.css";
 
 const SORT_OPTIONS = [
-  { id: "title-asc", label: "Kitap adı (A–Z)" },
-  { id: "title-desc", label: "Kitap adı (Z–A)" },
+  { id: "title-asc", label: "Kitap adı (A→Z)" },
+  { id: "title-desc", label: "Kitap adı (Z→A)" },
   { id: "year-desc", label: "Yayın tarihi (yeni → eski)" },
   { id: "year-asc", label: "Yayın tarihi (eski → yeni)" },
   { id: "rating-desc", label: "Ortalama puan (yüksek → düşük)" },
@@ -58,9 +59,26 @@ const Author = () => {
   const [sortOpen, setSortOpen] = useState(false);
   const isLoggedIn = !!sessionStorage.getItem("token");
 
+  const fetchAuthor = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getAuthorById(params.authorId);
+      const authorData = data?.author || data;
+      setAuthor(authorData);
+      if (authorData?.userRating) setUserRating(authorData.userRating);
+      else setUserRating(0);
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Yazar yüklenirken hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  }, [params.authorId]);
+
   useEffect(() => {
     fetchAuthor();
-  }, [params.authorId]);
+  }, [fetchAuthor]);
 
   useEffect(() => {
     if (!sortOpen) return undefined;
@@ -68,21 +86,6 @@ const Author = () => {
     window.addEventListener("click", close);
     return () => window.removeEventListener("click", close);
   }, [sortOpen]);
-
-  const fetchAuthor = async () => {
-    setLoading(true);
-    try {
-      const data = await getAuthorById(params.authorId);
-      const authorData = data?.author || data;
-      setAuthor(authorData);
-      if (authorData?.userRating) setUserRating(authorData.userRating);
-    } catch (err) {
-      console.error(err);
-      setError("Yazar yüklenirken hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleRate = async (rating) => {
     if (!isLoggedIn) return;
@@ -123,12 +126,6 @@ const Author = () => {
   const completionPct = totalBooks > 0 ? Math.round((readCount / totalBooks) * 100) : 0;
   const activeSort = SORT_OPTIONS.find((o) => o.id === sortId) || SORT_OPTIONS[0];
 
-  const metaParts = [
-    author.birthYear && `d. ${author.birthYear}`,
-    author.deathYear && `ö. ${author.deathYear}`,
-    author.country,
-  ].filter(Boolean);
-
   return (
     <div className="author-page">
       <button type="button" className="folios-back-link" onClick={() => navigate(-1)}>
@@ -138,10 +135,10 @@ const Author = () => {
       <div className="author-layout">
         <main className="author-main">
           <header className="author-main-header">
-            <p className="author-main-label">YAZARIN KİTAPLARI</p>
+            <p className="author-main-label">Yazarın kitapları</p>
             <h1 className="author-main-name">{author.name}</h1>
-            {metaParts.length > 0 && (
-              <p className="author-main-meta">{metaParts.join(" · ")}</p>
+            {author.country && (
+              <p className="author-main-meta">{author.country}</p>
             )}
           </header>
 
@@ -188,7 +185,7 @@ const Author = () => {
                   key={book.id}
                   book={{ ...book, authorName: author.name }}
                   showTitle
-                  showYear
+                  showMeta
                   showGhostMenu
                   className="author-grid-cover"
                 />
@@ -208,7 +205,11 @@ const Author = () => {
           />
 
           {author.description && (
-            <p className="author-sidebar-bio">{author.description}</p>
+            <ExpandableText
+              text={author.description}
+              lineCount={6}
+              className="author-sidebar-bio"
+            />
           )}
 
           <div className="author-sidebar-rating">
@@ -268,7 +269,11 @@ const Author = () => {
       </div>
 
       <div className="author-comments-wrap">
-        <CommentSection targetType="AUTHOR" targetId={author.id || params.authorId} title="Yazar yorumları" />
+        <CommentSection
+          targetType="AUTHOR"
+          targetId={author.id || params.authorId}
+          title="Yazar yorumları"
+        />
       </div>
     </div>
   );
