@@ -1,22 +1,22 @@
-import { useEffect, useState, useCallback } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState, useCallback, useMemo, useRef, useLayoutEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Rating } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
-import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DoNotDisturbAltIcon from "@mui/icons-material/DoNotDisturbAlt";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import CoverImage from "../ui/CoverImage";
 import SectionHeader from "../ui/SectionHeader";
 import BookCoverCard from "../ui/BookCoverCard";
+import BookCoverCommunityStats from "./BookCoverCommunityStats";
 import SelectedBookDialog from "../common/SelectedBookDialog";
 import CommentSection from "../common/CommentSection";
 import InitialAvatar from "../common/InitialAvatar";
@@ -29,17 +29,30 @@ import {
   getBookSocial,
 } from "../../service/APIService";
 import COPY from "../../copy";
+import {
+  buildFallbackSynopsis,
+  pickBookTags,
+  splitSynopsisLead,
+} from "./bookGenreLabels";
 import "../ui/folios-ui.css";
 import "./BookSummaryView.css";
 
 const STATUS_LABELS = {
-  READ: "Okundu",
-  COMPLETED: "Okundu",
+  READ: "Okudu",
+  COMPLETED: "Okudu",
   READLIST: "Okuma listesinde",
-  LIBRARY: "Kütüphanemde",
+  LIBRARY: "Kütüphanede",
   LIKE: "Beğendi",
   SHOPPING: "Alınacaklarda",
-  DROPPED: "Bırakıldı",
+  DROPPED: "Bıraktı",
+};
+
+const communityStars = (avg) => {
+  const n = Math.max(0, Math.min(5, Number(avg) || 0));
+  const full = Math.floor(n);
+  const half = n - full >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+  return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
 };
 
 const reviewStars = (rating) => {
@@ -48,6 +61,15 @@ const reviewStars = (rating) => {
   const full = Math.floor(n);
   const half = n - full >= 0.5;
   return "★".repeat(full) + (half ? "½" : "");
+};
+
+const formatReviewDate = (raw) => {
+  if (!raw) return "";
+  try {
+    return new Date(raw).toLocaleDateString("tr-TR");
+  } catch {
+    return "";
+  }
 };
 
 const BookSummaryView = ({ books = [] }) => {
@@ -59,6 +81,9 @@ const BookSummaryView = ({ books = [] }) => {
   const [actionLoading, setActionLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [shareCopied, setShareCopied] = useState(false);
+  const [synopsisOpen, setSynopsisOpen] = useState(false);
+  const [synopsisHeights, setSynopsisHeights] = useState({ full: 0, collapsed: 0 });
+  const synopsisInnerRef = useRef(null);
   const [social, setSocial] = useState({
     friendsReading: [],
     topReviews: [],
@@ -67,13 +92,14 @@ const BookSummaryView = ({ books = [] }) => {
   const [friendsOpen, setFriendsOpen] = useState(false);
 
   const [isLiked, setIsLiked] = useState(false);
+  const [isFavourite, setIsFavourite] = useState(false);
   const [isRead, setIsRead] = useState(false);
   const [isInReadlist, setIsInReadlist] = useState(false);
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [isInShopping, setIsInShopping] = useState(false);
   const [isDropped, setIsDropped] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
   const isLoggedIn = !!sessionStorage.getItem("token");
@@ -82,11 +108,14 @@ const BookSummaryView = ({ books = [] }) => {
     if (!b) return;
     const flag = (...keys) => keys.some((k) => !!b[k]);
     setIsLiked(flag("liked", "isLiked"));
+    setIsFavourite(flag("favourite", "favorite", "isFavourite"));
     setIsRead(flag("read", "isRead"));
     setIsInReadlist(flag("inReadList", "isInReadList"));
     setIsInLibrary(flag("inLibrary", "isInLibrary"));
     setIsInShopping(flag("inShopping", "isInShopping"));
     setIsDropped(flag("dropped", "isDropped"));
+    setCurrentPage(Number(b.currentPage) || 0);
+    if (b.rating != null) setUserRating(Number(b.rating) || 0);
   }, []);
 
   const applyLocalFlag = (actionType, next) => {
@@ -94,11 +123,15 @@ const BookSummaryView = ({ books = [] }) => {
       case "LIKE":
         setIsLiked(next);
         break;
+      case "FAVOURITE":
+        setIsFavourite(next);
+        break;
       case "READ":
         setIsRead(next);
         if (next) {
           setIsInReadlist(false);
           setIsDropped(false);
+          setCurrentPage(0);
         }
         break;
       case "READLIST":
@@ -107,6 +140,7 @@ const BookSummaryView = ({ books = [] }) => {
           setIsRead(false);
           setIsDropped(false);
         }
+        if (!next) setCurrentPage(0);
         break;
       case "LIBRARY":
         setIsInLibrary(next);
@@ -121,6 +155,7 @@ const BookSummaryView = ({ books = [] }) => {
           setIsRead(false);
           setIsInReadlist(false);
           setIsInLibrary(false);
+          setCurrentPage(0);
         }
         break;
       default:
@@ -136,7 +171,6 @@ const BookSummaryView = ({ books = [] }) => {
         if (found) {
           setBook(found);
           syncBookFlags(found);
-          if (found.rating != null) setUserRating(found.rating);
         }
       } catch {
         /* keep current */
@@ -222,6 +256,66 @@ const BookSummaryView = ({ books = [] }) => {
     }
   };
 
+  /** Exclusive reading position — uses existing READ / READLIST (+ currentPage) enums. */
+  const primaryKey = useMemo(() => {
+    if (isRead) return "read";
+    if (isInReadlist && currentPage > 0) return "reading";
+    if (isInReadlist) return "want";
+    return null;
+  }, [isRead, isInReadlist, currentPage]);
+
+  const handlePrimary = async (key) => {
+    if (!requireLogin()) return;
+    setActionLoading(true);
+    try {
+      if (key === primaryKey) {
+        if (isRead) {
+          await createUserActivityFromGhostMenu({
+            bookId: book.id,
+            authorId: book.authorId,
+            actionType: "READ",
+            action: "REMOVE",
+          });
+        } else if (isInReadlist) {
+          await createUserActivityFromGhostMenu({
+            bookId: book.id,
+            authorId: book.authorId,
+            actionType: "READLIST",
+            action: "REMOVE",
+          });
+        }
+      } else if (key === "read") {
+        await createUserActivity({
+          bookId: book.id,
+          authorId: book.authorId,
+          status: "READ",
+          actionType: "READ",
+        });
+      } else if (key === "want") {
+        await createUserActivity({
+          bookId: book.id,
+          authorId: book.authorId,
+          status: "READLIST",
+          actionType: "READLIST",
+          currentPage: 0,
+        });
+      } else if (key === "reading") {
+        await createUserActivity({
+          bookId: book.id,
+          authorId: book.authorId,
+          status: "READLIST",
+          actionType: "READLIST",
+          currentPage: currentPage > 0 ? currentPage : 1,
+        });
+      }
+      await refreshBook(book.id);
+    } catch {
+      alert("Durum güncellenemedi.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleRate = async (_event, value) => {
     if (!requireLogin()) return;
     const next = value ?? 0;
@@ -261,31 +355,100 @@ const BookSummaryView = ({ books = [] }) => {
     }
   };
 
+  const synopsisAuthorName = author?.name || book?.authorName;
+  const description = useMemo(() => {
+    if (!book) return "";
+    const raw = (book.description || book.bookSummary || book.summary || "").trim();
+    return (raw || buildFallbackSynopsis(book, synopsisAuthorName)).trim();
+  }, [book, synopsisAuthorName]);
+
+  const { lead: synopsisLead, rest: synopsisRest } = useMemo(
+    () => splitSynopsisLead(description),
+    [description]
+  );
+  const synopsisNeedsClamp = description.length > 180;
+
+  useLayoutEffect(() => {
+    setSynopsisOpen(false);
+  }, [book?.id]);
+
+  useLayoutEffect(() => {
+    if (!description || !synopsisInnerRef.current) {
+      setSynopsisHeights({ full: 0, collapsed: 0 });
+      return;
+    }
+    const el = synopsisInnerRef.current;
+    const full = el.scrollHeight;
+    const styles = window.getComputedStyle(el);
+    const lineHeight = parseFloat(styles.lineHeight) || 28;
+    const collapsed = Math.round(lineHeight * 4);
+    setSynopsisHeights({ full, collapsed });
+  }, [description, book?.id]);
+
+  const synopsisMaxHeight = !synopsisNeedsClamp
+    ? "none"
+    : synopsisOpen
+      ? `${Math.max(synopsisHeights.full, synopsisHeights.collapsed) + 8}px`
+      : `${synopsisHeights.collapsed || 112}px`;
+
   if (loading) return <div className="page-loading">Yükleniyor…</div>;
   if (!book) return <div className="page-error">Kitap bulunamadı.</div>;
   if (error) return <div className="page-error">{error}</div>;
 
   const friendsReading = social.friendsReading || [];
-  const topReviews = social.topReviews || [];
+  const topReviews = (social.topReviews || []).slice(0, 3);
   const authorOtherBooks =
     social.authorOtherBooks?.length > 0
       ? social.authorOtherBooks
       : books
           .filter((b) => b.id !== book?.id && b.authorId === book?.authorId)
           .slice(0, 12);
-  const hasSocialSignal = friendsReading.length > 0 || topReviews.length > 0;
 
-  const ratingDistribution = Array.isArray(book?.ratingDistribution) && book.ratingDistribution.length === 5
-    ? book.ratingDistribution
-    : [0, 0, 0, 0, 0];
-  const hasRatingBars = ratingDistribution.some((v) => v > 0);
+  const authorOtherIds = new Set(authorOtherBooks.map((b) => b.id));
+  const similarBooks = (() => {
+    if (!book || !Array.isArray(books) || books.length === 0) return [];
+    const rawTokens = String(book.genres || "")
+      .split(",")
+      .map((g) => g.trim().toLowerCase())
+      .filter((g) => g.length > 2);
+    if (rawTokens.length === 0) return [];
+    return books
+      .filter((b) => b.id !== book.id && !authorOtherIds.has(b.id))
+      .map((b) => {
+        const hay = String(b.genres || "").toLowerCase();
+        const score = rawTokens.reduce((acc, t) => (hay.includes(t) ? acc + 1 : acc), 0);
+        return { book: b, score };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score || (b.book.averageRating || 0) - (a.book.averageRating || 0))
+      .slice(0, 12)
+      .map((x) => x.book);
+  })();
+
+  const tags = pickBookTags(book.genres || book.bookSummaryTags, 5);
   const authorData = author?.name ? author : { name: book.authorName };
-  const activeStatuses = [
-    isRead && "READ",
-    isInReadlist && "READLIST",
-    isInLibrary && "LIBRARY",
-    isInShopping && "SHOPPING",
-    isDropped && "DROPPED",
+  const likedCount = book.howManyPplLiked ?? 0;
+  const readlistCount = book.howManyPplAddedToReadList ?? 0;
+  const droppedCount = book.howManyPplDropped ?? 0;
+  const communityRows = [
+    likedCount > 0 && { label: "Beğeni", value: likedCount },
+    readlistCount > 0 && { label: "Okuma listesi", value: readlistCount },
+    droppedCount > 0 && { label: "Bırakan", value: droppedCount },
+  ].filter(Boolean);
+  const hasCommunityStats = communityRows.length > 0;
+
+  const primaryStatusLabel =
+    primaryKey === "read"
+      ? "✓ Okudun"
+      : primaryKey === "reading"
+        ? "📖 Şu an okuyorsun"
+        : primaryKey === "want"
+          ? "○ Okuyacaksın"
+          : "Henüz seçilmedi";
+
+  const metaBits = [
+    book.pageCount > 0 ? `${book.pageCount} sayfa` : null,
+    book.publicationYear > 0 ? String(book.publicationYear) : null,
   ].filter(Boolean);
 
   return (
@@ -294,186 +457,258 @@ const BookSummaryView = ({ books = [] }) => {
         <ArrowBackIcon fontSize="small" /> Geri
       </button>
 
-      <header className="book-page-header">
-        <div className="book-page-cover-wrap">
-          <CoverImage src={book.coverUrl} alt={book.title} className="book-page-cover-img" />
-          <div className="book-page-cover-stats">
-            <span>
-              <FavoriteIcon fontSize="inherit" /> {book.howManyPplLiked ?? 0}
-            </span>
-            <span>
-              <BookmarkAddedIcon fontSize="inherit" /> {book.howManyPplAddedToReadList ?? 0}
-            </span>
-            {(book.howManyPplDropped ?? 0) > 0 && (
-              <span>
-                <DoNotDisturbAltIcon fontSize="inherit" /> {book.howManyPplDropped}
-              </span>
-            )}
-          </div>
-        </div>
+      <div className="book-page-hero-shell">
+        {book.coverUrl && (
+          <div
+            className="book-page-hero-backdrop"
+            style={{ backgroundImage: `url(${book.coverUrl})` }}
+            aria-hidden="true"
+          />
+        )}
+        <div className="book-page-hero-scrim" aria-hidden="true" />
 
-        <div className="book-page-info">
-          {book.wonNobelPrize && <span className="book-award-badge">Nobel Ödüllü</span>}
-          {book.isEditorChoice && <span className="book-award-badge">Editörün Seçimi</span>}
-          {book.isWeeklyPick && <span className="book-award-badge weekly">Haftanın Kitabı</span>}
-          {book.isNewRelease && <span className="book-award-badge new">Yeni Çıkan</span>}
-
-          <div className="book-page-title-row">
-            <h1 className="book-page-title">{book.title}</h1>
-            {book.publicationYear > 0 && (
-              <Link
-                to={`/books/year/${book.publicationYear}`}
-                className="book-page-year"
-                title={`${book.publicationYear} yılında çıkan kitaplar`}
-              >
-                {book.publicationYear}
-              </Link>
-            )}
+        <header className="book-page-hero">
+          <div className="book-page-cover-wrap">
+            <CoverImage src={book.coverUrl} alt={book.title} className="book-page-cover-img" />
+            <BookCoverCommunityStats book={book} />
           </div>
 
-          {book.originalTitle && (
-            <p className="book-page-original-title">{book.originalTitle}</p>
-          )}
+          <div className="book-page-hero-body">
+            <div className="book-page-identity">
+              {(book.wonNobelPrize ||
+                book.isEditorChoice ||
+                book.isWeeklyPick ||
+                book.isNewRelease) && (
+                <div className="book-award-row">
+                  {book.wonNobelPrize && <span className="book-award-badge">Nobel Ödüllü</span>}
+                  {book.isEditorChoice && (
+                    <span className="book-award-badge">Editörün Seçimi</span>
+                  )}
+                  {book.isWeeklyPick && (
+                    <span className="book-award-badge weekly">Haftanın Kitabı</span>
+                  )}
+                  {book.isNewRelease && <span className="book-award-badge new">Yeni Çıkan</span>}
+                </div>
+              )}
 
-          <p className="book-page-byline">
-            <span className="book-page-byline-label">Yazan</span>{" "}
-            <Link
-              to={`/author/${book.authorId}`}
-              state={{ author: authorData }}
-              className="book-page-author"
-            >
-              {authorData.name}
-            </Link>
-            {authorData.country && (
-              <span className="book-page-author-country"> · {authorData.country}</span>
-            )}
-          </p>
+              <h1 className="book-page-title">{book.title}</h1>
 
-          {book.averageRating > 0 && (
-            <div className="book-page-rating-row">
-              <span className="book-page-stars">
-                {"★".repeat(Math.round(book.averageRating || 0))}
-                {"☆".repeat(5 - Math.round(book.averageRating || 0))}
-              </span>
-              <span className="book-page-rating-val">{Number(book.averageRating).toFixed(1)}</span>
-              {book.ratingCount > 0 && (
-                <span className="book-page-rating-count">{book.ratingCount} puan</span>
+              <p className="book-page-byline">
+                <Link
+                  to={`/author/${book.authorId}`}
+                  state={{ author: authorData }}
+                  className="book-page-author"
+                >
+                  {authorData.name || "Yazar"}
+                </Link>
+                {authorData.country && (
+                  <span className="book-page-author-country"> · {authorData.country}</span>
+                )}
+              </p>
+
+              {book.averageRating > 0 && (
+                <div className="book-page-community-rating" aria-label="Topluluk puanı">
+                  <span className="book-page-stars">{communityStars(book.averageRating)}</span>
+                  <div className="book-page-rating-meta">
+                    <span className="book-page-rating-val">
+                      {Number(book.averageRating).toFixed(1)}
+                    </span>
+                    {book.ratingCount > 0 && (
+                      <span className="book-page-rating-count">
+                        ({book.ratingCount} değerlendirme)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {metaBits.length > 0 && (
+                <p className="book-page-meta-line">
+                  {metaBits.map((bit, i) => (
+                    <span key={bit}>
+                      {i > 0 && <span className="book-page-meta-dot"> · </span>}
+                      {book.publicationYear > 0 && bit === String(book.publicationYear) ? (
+                        <Link
+                          to={`/books/year/${book.publicationYear}`}
+                          className="book-page-year-link"
+                        >
+                          {bit}
+                        </Link>
+                      ) : (
+                        bit
+                      )}
+                    </span>
+                  ))}
+                </p>
+              )}
+
+              {tags.length > 0 && (
+                <div className="book-page-tags">
+                  {tags.map((g) => (
+                    <span key={g}>{g}</span>
+                  ))}
+                </div>
               )}
             </div>
-          )}
 
-          {book.pageCount > 0 && (
-            <div className="book-page-meta-tags">
-              <span>{book.pageCount} sayfa</span>
+            {description ? (
+              <section className="book-about book-hero-block" aria-label="Kitap Hakkında">
+                <h2 className="book-about-heading">Kitap Hakkında</h2>
+                <div
+                  className={`book-about-collapse ${synopsisOpen || !synopsisNeedsClamp ? "is-open" : ""}`}
+                  style={{ maxHeight: synopsisMaxHeight }}
+                >
+                  <div ref={synopsisInnerRef} className="book-about-inner">
+                    <p className="book-about-text">
+                      <span className="book-about-lead">{synopsisLead}</span>
+                      {synopsisRest ? (
+                        <span className="book-about-rest"> {synopsisRest}</span>
+                      ) : null}
+                    </p>
+                  </div>
+                </div>
+                {synopsisNeedsClamp && (
+                  <button
+                    type="button"
+                    className="book-about-more"
+                    aria-expanded={synopsisOpen}
+                    onClick={() => setSynopsisOpen((v) => !v)}
+                  >
+                    {synopsisOpen ? "Daha az göster" : "Devamını oku →"}
+                  </button>
+                )}
+              </section>
+            ) : null}
+
+            <div className="book-page-primary book-hero-block" role="group" aria-label="Okuma durumu">
+              <p className="book-hero-block-label">Okuma durumu</p>
+              <div className="book-page-primary-row">
+                <button
+                  type="button"
+                  className={`book-primary-btn ${primaryKey === "want" ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("want")}
+                >
+                  <span className="book-primary-mark" aria-hidden="true">
+                    {primaryKey === "want" ? "●" : "○"}
+                  </span>
+                  {COPY.status.want}
+                </button>
+                <button
+                  type="button"
+                  className={`book-primary-btn ${primaryKey === "reading" ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("reading")}
+                >
+                  <span className="book-primary-mark" aria-hidden="true">
+                    📖
+                  </span>
+                  {COPY.status.reading}
+                </button>
+                <button
+                  type="button"
+                  className={`book-primary-btn ${primaryKey === "read" ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("read")}
+                >
+                  <span className="book-primary-mark" aria-hidden="true">
+                    {primaryKey === "read" ? "✓" : "○"}
+                  </span>
+                  {COPY.status.read}
+                </button>
+              </div>
             </div>
-          )}
 
-          {book.genres && (
-            <div className="book-page-meta-tags">
-              {String(book.genres)
-                .split(",")
-                .map((g) => g.trim())
-                .filter(Boolean)
-                .slice(0, 6)
-                .map((g) => (
-                  <span key={g}>{g}</span>
-                ))}
+            <div className="book-page-secondary book-hero-block" role="group" aria-label="Diğer">
+              <p className="book-hero-block-label">Diğer</p>
+              <div className="book-page-secondary-row">
+                <button
+                  type="button"
+                  className={`book-secondary-btn ${isLiked ? "is-active liked" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handleGhostAction("LIKE", isLiked)}
+                >
+                  {isLiked ? <FavoriteIcon fontSize="inherit" /> : <FavoriteBorderIcon fontSize="inherit" />}
+                  {COPY.other.like}
+                </button>
+                <button
+                  type="button"
+                  className={`book-secondary-btn ${isFavourite ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handleGhostAction("FAVOURITE", isFavourite)}
+                >
+                  {isFavourite ? <StarIcon fontSize="inherit" /> : <StarBorderIcon fontSize="inherit" />}
+                  {COPY.other.favourite}
+                </button>
+                <button
+                  type="button"
+                  className={`book-secondary-btn ${isInLibrary ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handleGhostAction("LIBRARY", isInLibrary)}
+                >
+                  {isInLibrary ? (
+                    <LibraryBooksIcon fontSize="inherit" />
+                  ) : (
+                    <LibraryAddIcon fontSize="inherit" />
+                  )}
+                  {COPY.other.library}
+                </button>
+                <button
+                  type="button"
+                  className={`book-secondary-btn ${isInShopping ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handleGhostAction("SHOPPING", isInShopping)}
+                >
+                  {isInShopping ? (
+                    <ShoppingCartIcon fontSize="inherit" />
+                  ) : (
+                    <ShoppingCartOutlinedIcon fontSize="inherit" />
+                  )}
+                  {COPY.other.shopping}
+                </button>
+                <button
+                  type="button"
+                  className={`book-secondary-btn ${isDropped ? "is-active dropped" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handleGhostAction("DROPPED", isDropped)}
+                >
+                  <DoNotDisturbAltIcon fontSize="inherit" />
+                  {COPY.status.dropped}
+                </button>
+              </div>
             </div>
-          )}
 
-          {book.description && (
-            <p className="book-page-synopsis">{book.description}</p>
-          )}
-
-          {activeStatuses.length > 0 && (
-            <div className="book-status-badges">
-              {activeStatuses.map((s) => (
-                <span key={s} className={`book-status-badge status-${s.toLowerCase()}`}>
-                  {STATUS_LABELS[s]}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <aside className="book-action-panel">
-          <div className="book-action-icons">
-            <button
-              type="button"
-              className={`book-panel-icon ${isRead ? "active" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handleGhostAction("READ", isRead)}
-              title={isRead ? "Okundu" : "Okundu işaretle"}
-            >
-              {isRead ? <MenuBookIcon /> : <MenuBookOutlinedIcon />}
-              <span>{isRead ? "Okundu" : "Okunmadı"}</span>
-            </button>
-            <button
-              type="button"
-              className={`book-panel-icon ${isLiked ? "active liked" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handleGhostAction("LIKE", isLiked)}
-              title="Beğen"
-            >
-              {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              <span>Beğen</span>
-            </button>
-            <button
-              type="button"
-              className={`book-panel-icon ${isInShopping ? "active" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handleGhostAction("SHOPPING", isInShopping)}
-              title={isInShopping ? "Alınacaklarda" : "Alışveriş listesine ekle"}
-            >
-              {isInShopping ? <ShoppingCartIcon /> : <ShoppingCartOutlinedIcon />}
-              <span>{isInShopping ? "Alınacak" : "Alınacaklar"}</span>
-            </button>
-          </div>
-
-          <div className="book-panel-rating">
-            <span className="book-panel-rating-label">
-              {userRating > 0 ? `Puanın · ${userRating}` : "Puanla"}
-            </span>
-            <div className="book-panel-stars">
+            <div className="book-page-your-rating book-hero-block">
+              <p className="book-hero-block-label">Senin puanın</p>
               <Rating
-                name="book-half-rating"
+                name="book-user-rating"
                 value={userRating}
                 precision={0.5}
                 size="large"
                 onChange={handleRate}
                 disabled={!isLoggedIn || actionLoading}
                 sx={{
-                  "& .MuiRating-iconFilled": { color: "var(--color-accent, #d4af37)" },
-                  "& .MuiRating-iconHover": { color: "#e8c547" },
+                  "& .MuiRating-iconFilled": { color: "var(--color-primary-button, #d4af37)" },
+                  "& .MuiRating-iconHover": {
+                    color: "var(--color-primary-button-hover, #e8c547)",
+                  },
                   "& .MuiRating-iconEmpty": { color: "rgba(255,255,255,0.18)" },
                 }}
               />
+              <p className="book-page-your-rating-caption">
+                {userRating > 0
+                  ? `Bu kitaba ${Number(userRating) % 1 === 0 ? Number(userRating) : Number(userRating).toFixed(1)} yıldız verdin.`
+                  : isLoggedIn
+                    ? "Bu kitaba kaç yıldız verirsin?"
+                    : "Puanlamak için giriş yap."}
+              </p>
             </div>
-          </div>
 
-          <div className="book-panel-links">
-            <button
-              type="button"
-              className={`book-panel-link ${isInLibrary ? "active" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handleGhostAction("LIBRARY", isInLibrary)}
-            >
-              {isInLibrary ? <LibraryBooksIcon fontSize="small" /> : <LibraryAddIcon fontSize="small" />}
-              {isInLibrary ? "Kütüphanemde" : "Kütüphaneme ekle"}
-            </button>
-            <button
-              type="button"
-              className={`book-panel-link ${isDropped ? "dropped" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handleGhostAction("DROPPED", isDropped)}
-            >
-              <DoNotDisturbAltIcon fontSize="small" />
-              {isDropped ? "Bırakıldı" : "Bıraktım"}
-            </button>
+          <div className="book-page-tools">
             {isLoggedIn && (
               <button
                 type="button"
-                className="book-panel-link"
+                className="book-tool-link"
                 disabled={actionLoading}
                 onClick={() => setLogOpen(true)}
               >
@@ -481,42 +716,56 @@ const BookSummaryView = ({ books = [] }) => {
                 {COPY.book.saveReview}
               </button>
             )}
-            <button type="button" className="book-panel-link" onClick={handleShare}>
+            <button type="button" className="book-tool-link" onClick={handleShare}>
               <ShareOutlinedIcon fontSize="small" />
               {shareCopied ? "Kopyalandı" : "Paylaş"}
             </button>
-          </div>
-
-          {!isLoggedIn && (
-            <p className="book-page-login-hint">İşlemler için giriş yapın.</p>
-          )}
-
-          <div className="book-panel-ratings">
-            <div className="book-panel-ratings-head">
-              <span>PUANLAR</span>
-              {book.averageRating > 0 && (
-                <strong>{Number(book.averageRating).toFixed(1)}</strong>
-              )}
-            </div>
-            {hasRatingBars ? (
-              <div className="book-panel-bars">
-                {[5, 4, 3, 2, 1].map((stars, i) => (
-                  <div className="book-panel-bar-row" key={stars}>
-                    <span>{stars}</span>
-                    <div className="book-panel-bar">
-                      <div style={{ width: `${ratingDistribution[i]}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="book-page-login-hint">Henüz puan yok.</p>
+            {!isLoggedIn && (
+              <span className="book-page-login-hint">İşlemler için giriş yapın.</span>
             )}
           </div>
-        </aside>
-      </header>
+          </div>
+        </header>
+      </div>
 
-      <div className="page-layout">
+      {friendsReading.length > 0 && (
+        <section className="book-page-friends">
+          <div className="book-page-friends-head">
+            <h2 className="book-page-friends-title">Arkadaşlarından okuyanlar</h2>
+            <button
+              type="button"
+              className="folios-see-all"
+              onClick={() => setFriendsOpen(true)}
+            >
+              {friendsReading.length} arkadaş →
+            </button>
+          </div>
+          <button
+            type="button"
+            className="book-friends-strip"
+            onClick={() => setFriendsOpen(true)}
+            aria-label="Arkadaş listesini aç"
+          >
+            {friendsReading.slice(0, 10).map((f) => (
+              <span
+                key={f.userId}
+                className="book-friends-avatar"
+                title={f.profileName || f.username}
+              >
+                <InitialAvatar name={f.profileName || f.username} src={f.avatarUrl} />
+              </span>
+            ))}
+            {friendsReading.length > 10 && (
+              <span className="book-friends-more">+{friendsReading.length - 10}</span>
+            )}
+          </button>
+          <p className="book-friends-caption">
+            {friendsReading.length} arkadaş okudu veya listesine ekledi
+          </p>
+        </section>
+      )}
+
+      <div className="page-layout book-page-layout">
         <main className="page-main">
           {book.adminNotes && (
             <section className="book-page-section">
@@ -524,147 +773,163 @@ const BookSummaryView = ({ books = [] }) => {
             </section>
           )}
 
-          {hasSocialSignal ? (
-            <>
-              {friendsReading.length > 0 && (
-                <section className="book-page-section">
-                  <SectionHeader
-                    title="Arkadaşlarından okuyanlar"
-                    linkLabel={`${friendsReading.length} kişi`}
-                    onLinkClick={() => setFriendsOpen(true)}
-                  />
-                  <button
-                    type="button"
-                    className="book-friends-strip"
-                    onClick={() => setFriendsOpen(true)}
-                    aria-label="Arkadaş listesini aç"
-                  >
-                    {friendsReading.slice(0, 10).map((f) => (
-                      <span key={f.userId} className="book-friends-avatar" title={f.profileName || f.username}>
-                        <InitialAvatar name={f.profileName || f.username} src={f.avatarUrl} />
-                      </span>
-                    ))}
-                    {friendsReading.length > 10 && (
-                      <span className="book-friends-more">+{friendsReading.length - 10}</span>
-                    )}
-                  </button>
-                </section>
-              )}
-
-              {topReviews.length > 0 && (
-                <section className="book-page-section">
-                  <SectionHeader title="En iyi incelemeler" />
-                  <div className="book-hub-reviews">
-                    {topReviews.map((r) => (
-                      <article className="book-hub-review" key={r.activityId}>
-                        <div className="book-hub-review-head">
-                          {r.username ? (
-                            <Link to={`/profile/${r.username}`} className="book-hub-review-user">
-                              <InitialAvatar name={r.profileName || r.username} src={r.avatarUrl} />
-                              <UserDisplayName
-                                name={r.profileName || r.username}
-                                role={r.role}
-                                badgeSize="xs"
-                              />
-                            </Link>
-                          ) : (
-                            <span className="book-hub-review-user">
-                              <InitialAvatar name="okur" />
-                              <span>okur</span>
-                            </span>
-                          )}
-                          {r.rating > 0 && (
-                            <span className="book-hub-review-stars">{reviewStars(r.rating)}</span>
-                          )}
-                        </div>
-                        {r.comment && <p className="book-hub-review-text">{r.comment}</p>}
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              )}
-            </>
-          ) : (
-            <p className="book-hub-empty-compact">
-              Henüz arkadaş aktivitesi veya inceleme yok.
-            </p>
+          {topReviews.length > 0 && (
+            <section className="book-page-section">
+              <SectionHeader title="Top incelemeler" />
+              <div className="book-hub-reviews">
+                {topReviews.map((r) => (
+                  <article className="book-hub-review" key={r.activityId}>
+                    <div className="book-hub-review-head">
+                      {r.username ? (
+                        <Link to={`/profile/${r.username}`} className="book-hub-review-user">
+                          <InitialAvatar
+                            name={r.profileName || r.username}
+                            src={r.avatarUrl}
+                          />
+                          <UserDisplayName
+                            name={r.profileName || r.username}
+                            role={r.role}
+                            badgeSize="xs"
+                          />
+                        </Link>
+                      ) : (
+                        <span className="book-hub-review-user">
+                          <InitialAvatar name="okur" />
+                          <span>okur</span>
+                        </span>
+                      )}
+                      <div className="book-hub-review-meta">
+                        {r.rating > 0 && (
+                          <span className="book-hub-review-stars">{reviewStars(r.rating)}</span>
+                        )}
+                        {Number(r.likeCount) > 0 && (
+                          <span className="book-hub-review-likes">♥ {r.likeCount}</span>
+                        )}
+                        {formatReviewDate(r.readDate) && (
+                          <span className="book-hub-review-date">
+                            {formatReviewDate(r.readDate)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {r.comment && <p className="book-hub-review-text">{r.comment}</p>}
+                  </article>
+                ))}
+              </div>
+            </section>
           )}
 
           <section className="book-page-section">
-            <CommentSection targetType="BOOK" targetId={book.id} title="Yorumlar" />
+            <CommentSection
+              targetType="BOOK"
+              targetId={book.id}
+              title="Okur yorumları"
+              placeholder="Bu kitap hakkında ne düşünüyorsun?"
+            />
           </section>
 
-          <section className="book-page-section">
-            <SectionHeader
-              title={authorData.name ? `${authorData.name} — diğer kitaplar` : "Yazarın diğer kitapları"}
-              to={book.authorId ? `/author/${book.authorId}` : undefined}
-              linkLabel={book.authorId ? "Yazar" : undefined}
-            />
-            {authorOtherBooks.length > 0 ? (
-              <div className="lb-poster-row lb-poster-row--large book-author-shelf">
+          {authorOtherBooks.length > 0 && (
+            <section className="book-page-section">
+              <SectionHeader
+                title={
+                  authorData.name
+                    ? `${authorData.name}'ın diğer kitapları`
+                    : "Yazarın diğer kitapları"
+                }
+                to={book.authorId ? `/author/${book.authorId}` : undefined}
+                linkLabel={book.authorId ? "Tüm kitapları" : undefined}
+              />
+              <div className="book-author-shelf">
                 {authorOtherBooks.map((b) => (
-                  <div key={b.id} className="lb-popular-item">
-                    <BookCoverCard book={b} showAuthor={false} />
-                  </div>
+                  <BookCoverCard key={b.id} book={b} showAuthor={false} />
                 ))}
               </div>
-            ) : (
-              <p className="book-page-empty">Katalogda başka kitap yok.</p>
-            )}
-          </section>
+            </section>
+          )}
+
+          {similarBooks.length > 0 && (
+            <section className="book-page-section">
+              <SectionHeader title="Benzer kitaplar" />
+              <div className="book-author-shelf">
+                {similarBooks.map((b) => (
+                  <BookCoverCard key={b.id} book={b} showAuthor />
+                ))}
+              </div>
+            </section>
+          )}
         </main>
 
-        <aside className="page-sidebar">
-          <div className="sidebar-block">
-            <h3 className="sidebar-title">Kitap Detayları</h3>
-            <dl className="book-details-list">
-              {book.publicationYear > 0 && (
-                <>
-                  <dt>Yayın yılı</dt>
-                  <dd>
-                    <Link to={`/books/year/${book.publicationYear}`}>{book.publicationYear}</Link>
-                  </dd>
-                </>
-              )}
-              {book.pageCount > 0 && (
-                <>
-                  <dt>Sayfa</dt>
-                  <dd>{book.pageCount}</dd>
-                </>
-              )}
-              {book.originalTitle && (
-                <>
-                  <dt>Orijinal ad</dt>
-                  <dd>{book.originalTitle}</dd>
-                </>
-              )}
-              {authorData.name && (
-                <>
-                  <dt>Yazar</dt>
-                  <dd>
-                    <Link to={`/author/${book.authorId}`}>{authorData.name}</Link>
-                  </dd>
-                </>
-              )}
-              {authorData.country && (
-                <>
-                  <dt>Ülke</dt>
-                  <dd>{authorData.country}</dd>
-                </>
-              )}
-            </dl>
+        <aside className="page-sidebar book-page-sidebar">
+          <div className="sidebar-block book-side-card">
+            <h3 className="sidebar-title">Senin kaydın</h3>
+            <div className="book-side-stack">
+              <div className="book-side-fact">
+                <span className="book-side-label">Durum</span>
+                <strong className="book-side-value">{primaryStatusLabel}</strong>
+              </div>
+              <div className="book-side-fact">
+                <span className="book-side-label">Puan</span>
+                <strong className="book-side-value">
+                  {userRating > 0 ? `${userRating} ★` : "—"}
+                </strong>
+              </div>
+              <div className="book-side-fact">
+                <span className="book-side-label">Favori</span>
+                <strong className="book-side-value">
+                  {isFavourite ? "★ Favorilerinde" : "Değil"}
+                </strong>
+              </div>
+              <div className="book-side-fact">
+                <span className="book-side-label">Kütüphane</span>
+                <strong className="book-side-value">
+                  {isInLibrary ? "Kütüphanende" : "Değil"}
+                </strong>
+              </div>
+            </div>
           </div>
 
-          <div className="sidebar-block">
-            <h3 className="sidebar-title">Topluluk</h3>
-            <dl className="book-details-list">
-              <dt>Beğeni</dt>
-              <dd>{book.howManyPplLiked ?? 0}</dd>
-              <dt>Okuma listesi</dt>
-              <dd>{book.howManyPplAddedToReadList ?? 0}</dd>
-              <dt>Bırakan</dt>
-              <dd>{book.howManyPplDropped ?? 0}</dd>
-            </dl>
+          <div className="sidebar-block book-side-card">
+            <h3 className="sidebar-title">Kitap bilgileri</h3>
+            <div className="book-side-stack">
+              {book.publicationYear > 0 && (
+                <div className="book-side-fact">
+                  <span className="book-side-label">Yıl</span>
+                  <strong className="book-side-value">
+                    <Link to={`/books/year/${book.publicationYear}`}>
+                      {book.publicationYear}
+                    </Link>
+                  </strong>
+                </div>
+              )}
+              {book.pageCount > 0 && (
+                <div className="book-side-fact">
+                  <span className="book-side-label">Sayfa</span>
+                  <strong className="book-side-value">{book.pageCount}</strong>
+                </div>
+              )}
+              {book.originalTitle && (
+                <div className="book-side-fact">
+                  <span className="book-side-label">Orijinal ad</span>
+                  <strong className="book-side-value">{book.originalTitle}</strong>
+                </div>
+              )}
+              {book.isbn && (
+                <div className="book-side-fact">
+                  <span className="book-side-label">ISBN</span>
+                  <strong className="book-side-value book-side-value--mono">{book.isbn}</strong>
+                </div>
+              )}
+              {hasCommunityStats ? (
+                communityRows.map((row) => (
+                  <div className="book-side-fact" key={row.label}>
+                    <span className="book-side-label">{row.label}</span>
+                    <strong className="book-side-value">{row.value}</strong>
+                  </div>
+                ))
+              ) : (
+                <p className="book-side-empty">Henüz yeterli veri oluşmadı</p>
+              )}
+            </div>
           </div>
         </aside>
       </div>

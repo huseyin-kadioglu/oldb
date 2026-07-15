@@ -1,5 +1,5 @@
 .comment-section {
-  margin-top: 28px;
+  margin-top: 0;
 }
 
 .comment-section-title {
@@ -29,14 +29,30 @@
 
 .comment-form textarea {
   width: 100%;
-  resize: vertical;
-  min-height: 84px;
-  padding: 12px 14px;
+  resize: none;
+  min-height: 40px;
+  max-height: 40px;
+  padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  border: 1px solid rgba(212, 175, 55, 0.22);
   background: rgba(0, 0, 0, 0.35);
   color: #eee;
   font: inherit;
+  line-height: 1.4;
+  overflow: hidden;
+  transition:
+    min-height 0.18s ease-out,
+    max-height 0.18s ease-out,
+    border-color 0.15s ease;
+}
+
+.comment-form textarea:focus,
+.comment-form textarea:not(:placeholder-shown) {
+  min-height: 108px;
+  max-height: 220px;
+  overflow-y: auto;
+  border-color: rgba(212, 175, 55, 0.42);
+  outline: none;
 }
 
 .comment-avatar,
@@ -75,10 +91,20 @@ img.comment-avatar,
   border: none;
   border-radius: 6px;
   padding: 8px 16px;
-  background: var(--color-accent, #d4af37);
+  /* Prefer brand gold — --color-accent is green in this app */
+  background: var(--color-primary-button, #d4af37);
   color: #111;
   font-weight: 600;
   cursor: pointer;
+}
+
+.comment-form button:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.comment-form button:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .comment-form-actions {

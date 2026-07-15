@@ -47,6 +47,11 @@ public class BookDto {
     private long howManyPplInShopping;
     private long howManyPplDropped;
 
+    /** Kapak altı sosyal kanıt — tek book detail response */
+    private long favoriteCount;
+    private long libraryCount;
+    private long readCount;
+
     private double averageRating;
     private long ratingCount;
 

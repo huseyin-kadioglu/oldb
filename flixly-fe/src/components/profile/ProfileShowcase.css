@@ -142,14 +142,17 @@
   gap: 14px;
 }
 
-/* Premium card shell — each vitrine is visually separate */
+/* Premium card shell — each vitrine is visually separate.
+   Hover/focus motion comes from .folios-interactive-card (folios-ui.css). */
 .ps-vitrine-card {
   width: 100%;
-  padding: 14px 14px 16px;
+  height: auto;
+  min-height: 0;
+  padding: 12px 12px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--folios-ix-border, rgba(255, 255, 255, 0.08));
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--folios-ix-shadow, 0 6px 16px rgba(0, 0, 0, 0.14));
 }
 
 .ps-vitrine-card-head {
@@ -157,7 +160,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .ps-vitrine-card-labels {
@@ -176,6 +179,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.48);
+  transition: color var(--folios-ix-duration, 200ms) var(--folios-ix-ease, ease-out);
 }
 
 .ps-vitrine-title {
@@ -185,6 +189,26 @@
   line-height: 1.25;
   color: #fff;
   letter-spacing: -0.01em;
+  transition: color var(--folios-ix-duration, 200ms) var(--folios-ix-ease, ease-out);
+}
+
+/* Quiet accent: title + type icon shift slightly toward brand gold */
+@media (hover: hover) and (pointer: fine) {
+  .ps-vitrine-card:hover .ps-vitrine-title {
+    color: var(--folios-ix-title-hover, rgba(232, 204, 120, 0.92));
+  }
+
+  .ps-vitrine-card:hover .ps-type-label {
+    color: var(--folios-ix-label-hover, rgba(212, 175, 55, 0.72));
+  }
+}
+
+.ps-vitrine-card:focus-within .ps-vitrine-title {
+  color: var(--folios-ix-title-hover, rgba(232, 204, 120, 0.92));
+}
+
+.ps-vitrine-card:focus-within .ps-type-label {
+  color: var(--folios-ix-label-hover, rgba(212, 175, 55, 0.72));
 }
 
 .ps-vitrine-desc {
@@ -250,6 +274,12 @@
   line-height: 0;
   border-radius: 4px;
   overflow: hidden;
+  cursor: pointer;
+}
+
+.ps-quote-cover-link:focus-visible {
+  outline: 2px solid rgba(212, 175, 55, 0.55);
+  outline-offset: 2px;
 }
 
 .ps-quote-cover {
@@ -730,16 +760,17 @@
   display: block;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
   aspect-ratio: 2 / 3;
   background: rgba(255, 255, 255, 0.03);
   scroll-snap-align: start;
-  transition: transform 0.18s ease;
 }
 
-.ps-fav-item:hover {
-  transform: translateY(-2px);
+.ps-fav-item:focus-visible {
+  outline: 2px solid rgba(212, 175, 55, 0.55);
+  outline-offset: 2px;
 }
 
 .ps-fav-cover {
@@ -962,10 +993,6 @@
     overflow: visible;
     aspect-ratio: auto;
     background: transparent;
-  }
-
-  .ps-fav-item:hover {
-    transform: none;
   }
 
   .ps-fav-cover {

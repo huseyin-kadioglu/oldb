@@ -3,6 +3,7 @@ import { VITRINE_COPY } from "./showcaseConstants";
 
 /**
  * Shared premium card chrome for every vitrine type.
+ * @param {"lift"|"calm"} motion — lift = soft cover scale; calm = border/shadow only (quotes)
  */
 const VitrineShell = ({
   type,
@@ -18,11 +19,18 @@ const VitrineShell = ({
   onMoveDown,
   children,
   className = "",
+  motion = "lift",
 }) => {
   const meta = getTypeMeta(type);
+  const motionClass =
+    motion === "calm"
+      ? "folios-interactive-card--calm"
+      : "folios-interactive-card--lift";
 
   return (
-    <article className={`ps-vitrine-card ${className}`.trim()}>
+    <article
+      className={`ps-vitrine-card folios-interactive-card ${motionClass} ${className}`.trim()}
+    >
       <header className="ps-vitrine-card-head">
         <div className="ps-vitrine-card-labels">
           <span className="ps-type-label">

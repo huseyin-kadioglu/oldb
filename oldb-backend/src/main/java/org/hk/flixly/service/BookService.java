@@ -6,6 +6,7 @@ import org.hk.flixly.model.BookResponse;
 import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.UserBookMapEntity;
+import org.hk.flixly.model.enums.BookActivityStatus;
 import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
@@ -99,12 +100,7 @@ public class BookService {
                     dto.setRead(statuses.contains("READ") || statuses.contains("COMPLETED"));
                     dto.setDropped(statuses.contains("DROPPED"));
 
-                    Map<String, Integer> counts = bookStatusCountsMap.getOrDefault(book.getId(), Collections.emptyMap());
-                    dto.setHowManyPplLiked(counts.getOrDefault("LIKE", 0));
-                    dto.setHowManyPplFavourited(counts.getOrDefault("FAVOURITE", 0));
-                    dto.setHowManyPplAddedToReadList(counts.getOrDefault("READLIST", 0));
-                    dto.setHowManyPplInShopping(counts.getOrDefault("SHOPPING", 0));
-                    dto.setHowManyPplDropped(counts.getOrDefault("DROPPED", 0));
+                    applyStatusCounts(dto, bookStatusCountsMap.getOrDefault(book.getId(), Collections.emptyMap()));
 
                     double[] rating = ratingMap.getOrDefault(book.getId(), new double[]{0.0, 0L});
                     dto.setAverageRating(rating[0]);
@@ -167,12 +163,7 @@ public class BookService {
                     dto.setNewRelease(book.isNewRelease());
                     dto.setGenres(book.getGenres());
 
-                    Map<String, Integer> counts = bookStatusCountsMap.getOrDefault(book.getId(), Collections.emptyMap());
-                    dto.setHowManyPplLiked(counts.getOrDefault("LIKE", 0));
-                    dto.setHowManyPplFavourited(counts.getOrDefault("FAVOURITE", 0));
-                    dto.setHowManyPplAddedToReadList(counts.getOrDefault("READLIST", 0));
-                    dto.setHowManyPplInShopping(counts.getOrDefault("SHOPPING", 0));
-                    dto.setHowManyPplDropped(counts.getOrDefault("DROPPED", 0));
+                    applyStatusCounts(dto, bookStatusCountsMap.getOrDefault(book.getId(), Collections.emptyMap()));
 
                     double[] rating = ratingMap.getOrDefault(book.getId(), new double[]{0.0, 0L});
                     dto.setAverageRating(rating[0]);
@@ -187,6 +178,27 @@ public class BookService {
         BookResponse response = new BookResponse();
         response.setBooks(bookDTOs);
         return response;
+    }
+
+    /** Distinct user rows per status (GROUP BY bookId, status). READ+COMPLETED exclusive → sum is safe. */
+    private static void applyStatusCounts(BookDto dto, Map<String, Integer> counts) {
+        int liked = counts.getOrDefault(BookActivityStatus.LIKE, 0);
+        int favourite = counts.getOrDefault(BookActivityStatus.FAVOURITE, 0);
+        int readlist = counts.getOrDefault(BookActivityStatus.READLIST, 0);
+        int shopping = counts.getOrDefault(BookActivityStatus.SHOPPING, 0);
+        int dropped = counts.getOrDefault(BookActivityStatus.DROPPED, 0);
+        int library = counts.getOrDefault(BookActivityStatus.LIBRARY, 0);
+        int read = counts.getOrDefault(BookActivityStatus.READ, 0)
+                + counts.getOrDefault(BookActivityStatus.COMPLETED, 0);
+
+        dto.setHowManyPplLiked(liked);
+        dto.setHowManyPplFavourited(favourite);
+        dto.setHowManyPplAddedToReadList(readlist);
+        dto.setHowManyPplInShopping(shopping);
+        dto.setHowManyPplDropped(dropped);
+        dto.setFavoriteCount(favourite);
+        dto.setLibraryCount(library);
+        dto.setReadCount(read);
     }
 
     private Map<Long, Map<String, Integer>> mapTotalStats() {

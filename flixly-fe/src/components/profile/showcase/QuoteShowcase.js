@@ -34,6 +34,7 @@ const QuoteShowcase = ({
       onMoveUp={onMoveUp}
       onMoveDown={onMoveDown}
       className="ps-vitrine-card--quote"
+      motion="calm"
     >
       <div className={`ps-quote-layout ${hasBook ? "" : "is-solo"}`}>
         {hasBook && (

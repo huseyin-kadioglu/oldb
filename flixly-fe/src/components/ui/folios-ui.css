@@ -111,3 +111,86 @@
 .folios-back-link:hover {
   color: var(--color-primary-button);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Interactive card — shared micro-interaction language                       */
+/* Quiet premium: no card lift; soft border/shadow; optional cover scale.     */
+/* Reuse on list / book / review / profile cards.                             */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --folios-ix-duration: 200ms;
+  --folios-ix-ease: ease-out;
+  --folios-ix-transition:
+    transform var(--folios-ix-duration) var(--folios-ix-ease),
+    box-shadow var(--folios-ix-duration) var(--folios-ix-ease),
+    border-color var(--folios-ix-duration) var(--folios-ix-ease),
+    background-color var(--folios-ix-duration) var(--folios-ix-ease),
+    color var(--folios-ix-duration) var(--folios-ix-ease),
+    opacity var(--folios-ix-duration) var(--folios-ix-ease);
+  --folios-ix-border: rgba(255, 255, 255, 0.08);
+  /* ~45% softer than previous gold edge */
+  --folios-ix-border-glow: rgba(212, 175, 55, 0.18);
+  --folios-ix-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+  --folios-ix-shadow-hover: 0 8px 18px rgba(0, 0, 0, 0.16);
+  --folios-ix-cover-scale: scale(1.02);
+  --folios-ix-focus-ring: 0 0 0 1px rgba(212, 175, 55, 0.28);
+  --folios-ix-title-hover: rgba(232, 204, 120, 0.92);
+  --folios-ix-label-hover: rgba(212, 175, 55, 0.72);
+}
+
+.folios-interactive-card {
+  height: auto;
+  border-color: var(--folios-ix-border);
+  box-shadow: var(--folios-ix-shadow);
+  transition: var(--folios-ix-transition);
+  cursor: default;
+}
+
+.folios-interactive-cover {
+  transform-origin: center center;
+  transition: transform var(--folios-ix-duration) var(--folios-ix-ease);
+}
+
+/* Fine pointer + real hover only — avoid sticky “hover” on touch */
+@media (hover: hover) and (pointer: fine) {
+  .folios-interactive-card--lift:hover,
+  .folios-interactive-card--calm:hover {
+    border-color: var(--folios-ix-border-glow);
+    box-shadow: var(--folios-ix-shadow-hover);
+  }
+
+  /* Lift = covers nudge; card itself stays put */
+  .folios-interactive-card--lift:hover .folios-interactive-cover {
+    transform: var(--folios-ix-cover-scale);
+  }
+}
+
+/* Keyboard: same quiet quality when focus enters the card */
+.folios-interactive-card:focus-within {
+  border-color: var(--folios-ix-border-glow);
+  box-shadow: var(--folios-ix-shadow-hover), var(--folios-ix-focus-ring);
+  outline: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .folios-interactive-card--lift:focus-within .folios-interactive-cover {
+    transform: var(--folios-ix-cover-scale);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folios-interactive-card,
+  .folios-interactive-cover {
+    transition:
+      border-color var(--folios-ix-duration) var(--folios-ix-ease),
+      box-shadow var(--folios-ix-duration) var(--folios-ix-ease),
+      color var(--folios-ix-duration) var(--folios-ix-ease),
+      opacity var(--folios-ix-duration) var(--folios-ix-ease);
+  }
+
+  .folios-interactive-card--lift:hover .folios-interactive-cover,
+  .folios-interactive-card--lift:focus-within .folios-interactive-cover {
+    transform: none;
+  }
+}

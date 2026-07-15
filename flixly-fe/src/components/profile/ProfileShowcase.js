@@ -15,6 +15,7 @@ import {
   SHOWCASE_TYPE,
   VITRINE_COPY,
 } from "./showcase/showcaseConstants";
+import "../ui/folios-ui.css";
 import "./ProfileShowcase.css";
 
 const favoriteBookLimit = (role) => (isProPlanRole(role) ? 6 : 3);

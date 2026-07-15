@@ -55,7 +55,12 @@ const SpoilerBody = ({ body }) => {
   );
 };
 
-const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
+const CommentSection = ({
+  targetType,
+  targetId,
+  title = "Yorumlar",
+  placeholder = "Düşüncelerini yaz…",
+}) => {
   const token = sessionStorage.getItem("token");
   const myAvatar = sessionStorage.getItem("avatarUrl");
   const myUsername = sessionStorage.getItem("username");
@@ -160,11 +165,7 @@ const CommentSection = ({ targetType, targetId, title = "Yorumlar" }) => {
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder={
-                editingId
-                  ? "Yorumunu güncelle…"
-                  : "Düşüncelerini yaz…"
-              }
+              placeholder={editingId ? "Yorumunu güncelle…" : placeholder}
               rows={3}
               maxLength={2000}
             />
