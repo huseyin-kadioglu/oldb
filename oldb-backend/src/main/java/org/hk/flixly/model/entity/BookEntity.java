@@ -5,7 +5,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "books", indexes = {
-        @Index(name = "idx_books_ol_key", columnList = "openLibraryKey", unique = true)
+        @Index(name = "idx_books_ol_key", columnList = "openLibraryKey", unique = true),
+        @Index(name = "idx_books_title", columnList = "title"),
+        @Index(name = "idx_books_author_id", columnList = "authorId"),
+        @Index(name = "idx_books_publication_year", columnList = "publicationYear")
 })
 @Getter
 @Setter
@@ -60,4 +63,8 @@ public class BookEntity {
     /** Virgülle ayrılmış türler (ör. Fiction, Mystery) */
     @Column(length = 1000)
     private String genres;
+
+    /** ISO dil kodu (ör. tur, eng) — Open Library language */
+    @Column(length = 16)
+    private String language;
 }

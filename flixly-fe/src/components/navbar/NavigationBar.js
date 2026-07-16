@@ -4,17 +4,19 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
-import SearchIcon from "@mui/icons-material/Search";
+import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import "./NavigationBar.css";
 import SignInPanel from "./SignInPanel";
 import CreateAccountModal from "./CreateAccountModal";
 import LoggedUser from "./LoggedUser";
 import NotificationsBell from "./NotificationsBell";
+import NavbarSearch from "./NavbarSearch";
 import COPY from "../../copy";
 
 const NAV_ITEMS = [
   { key: "home", label: "Ana Sayfa", path: "/", icon: HomeOutlinedIcon },
+  { key: "discover", label: "Keşfet", path: "/discover", icon: ExploreOutlinedIcon },
   { key: "activity", label: COPY.nav.activity, path: "/activities", icon: BoltOutlinedIcon },
   { key: "profile", label: "Profil", path: null, icon: PersonOutlineIcon },
   { key: "badges", label: "Rozetler", path: "/badges", icon: EmojiEventsOutlinedIcon },
@@ -33,8 +35,6 @@ const NavigationBar = ({
 
   const [showSignInPanel, setShowSignInPanel] = useState(false);
   const [showCreateAccountPanel, setShowCreateAccountPanel] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (location.pathname === "/signup") {
@@ -61,7 +61,10 @@ const NavigationBar = ({
 
   const isActive = (item) => {
     if (item.key === "home") {
-      return location.pathname === "/" || location.pathname.startsWith("/search");
+      return location.pathname === "/";
+    }
+    if (item.key === "discover") {
+      return location.pathname.startsWith("/discover");
     }
     if (item.key === "profile") {
       return location.pathname.startsWith("/profile");
@@ -85,13 +88,6 @@ const NavigationBar = ({
       return;
     }
     navigate(item.path);
-  };
-
-  const submitSearch = () => {
-    if (searchTerm.trim()) {
-      navigate(`/search/${encodeURIComponent(searchTerm.trim())}`);
-      setShowSearch(false);
-    }
   };
 
   return (
@@ -130,25 +126,7 @@ const NavigationBar = ({
           </div>
 
           <div className="navbar-zone navbar-zone-actions">
-            <div className={`navbar-search ${showSearch ? "open" : ""}`}>
-              <input
-                type="text"
-                className="navbar-search-input"
-                placeholder="Kitap ara…"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submitSearch()}
-                aria-label="Kitap ara"
-              />
-              <button
-                type="button"
-                className="navbar-icon-btn"
-                onClick={() => (showSearch ? submitSearch() : setShowSearch(true))}
-                aria-label="Ara"
-              >
-                <SearchIcon />
-              </button>
-            </div>
+            <NavbarSearch />
 
             {!token ? (
               <div className="navbar-auth-guest">
@@ -169,18 +147,16 @@ const NavigationBar = ({
               </div>
             ) : (
               <div className="navbar-auth-user">
-                {!showSearch && (
-                  <button
-                    type="button"
-                    className="navbar-log-btn"
-                    onClick={() => handleDialog(true)}
-                    aria-label={COPY.nav.saveBookAria}
-                  >
-                    {COPY.nav.saveBook}
-                  </button>
-                )}
                 <NotificationsBell />
                 <LoggedUser onLogout={onLogout} />
+                <button
+                  type="button"
+                  className="navbar-log-btn"
+                  onClick={() => handleDialog(true)}
+                  aria-label={COPY.nav.saveBookAria}
+                >
+                  {COPY.nav.saveBook}
+                </button>
               </div>
             )}
           </div>

@@ -30,6 +30,14 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
 
     @Query(value = """
             SELECT * FROM books
+            WHERE weekly_pick = true
+            ORDER BY id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<BookEntity> findWeeklyPicks(@Param("limit") int limit);
+
+    @Query(value = """
+            SELECT * FROM books
             WHERE editor_choice = true
             ORDER BY id DESC
             LIMIT :limit

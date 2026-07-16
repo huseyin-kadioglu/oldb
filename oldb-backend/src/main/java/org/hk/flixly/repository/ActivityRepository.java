@@ -135,6 +135,41 @@ public interface ActivityRepository extends JpaRepository<UserActivityEntity, Lo
     );
 
     @Query(value = """
+            SELECT r.book_id, (r.cnt - COALESCE(p.cnt, 0)) AS growth
+            FROM (
+                SELECT book_id, COUNT(*) AS cnt
+                FROM (
+                    SELECT DISTINCT user_id, book_id
+                    FROM user_activity
+                    WHERE status IN ('READ', 'COMPLETED')
+                      AND read_date IS NOT NULL
+                      AND read_date >= :recentFrom
+                ) t
+                GROUP BY book_id
+            ) r
+            LEFT JOIN (
+                SELECT book_id, COUNT(*) AS cnt
+                FROM (
+                    SELECT DISTINCT user_id, book_id
+                    FROM user_activity
+                    WHERE status IN ('READ', 'COMPLETED')
+                      AND read_date IS NOT NULL
+                      AND read_date >= :prevFrom
+                      AND read_date < :recentFrom
+                ) t
+                GROUP BY book_id
+            ) p ON p.book_id = r.book_id
+            WHERE r.cnt > COALESCE(p.cnt, 0)
+            ORDER BY growth DESC, r.cnt DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findRisingBookIds(
+            @Param("recentFrom") LocalDate recentFrom,
+            @Param("prevFrom") LocalDate prevFrom,
+            @Param("limit") int limit
+    );
+
+    @Query(value = """
             SELECT ua.id, ua.user_id, ua.book_id, ua.rating, ua.comment, ua.read_date, ua.status
             FROM user_activity ua
             WHERE ua.comment IS NOT NULL AND TRIM(ua.comment) <> ''

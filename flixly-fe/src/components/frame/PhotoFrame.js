@@ -51,6 +51,7 @@ const PhotoFrame = ({
   showTitle = true,
   showYear = false,
   showMeta = false,
+  showAuthor = false,
   justShowCover = false,
   showGhostMenu = true,
 }) => {
@@ -191,6 +192,9 @@ const PhotoFrame = ({
   const titleBlock = showTitle && (
     <div className="frame-title-wrap">
       <p className="title">{book.title}</p>
+      {showAuthor && book.authorName && (
+        <p className="frame-author">{book.authorName}</p>
+      )}
       {metaBlock}
       {yearBlock}
       {!showMeta && book?.averageRating > 0 && (

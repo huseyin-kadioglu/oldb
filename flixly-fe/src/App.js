@@ -21,6 +21,7 @@ import BookContributeForm from "./components/pages/BookContributeForm";
 import SettingsView from "./components/profile/SettingsView";
 import ProfileListPage from "./components/profile/ProfileListPage";
 import SearchView from "./components/pages/SearchView";
+import DiscoverPage from "./components/pages/DiscoverPage";
 import BadgesPage from "./components/pages/BadgesPage";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
@@ -110,6 +111,7 @@ const App = () => {
           <Route path="/activities" element={<Activies />} />
           <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
           <Route path="/search/:searchTerm" element={<SearchView books={books} />} />
+          <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/book/:bookId" element={<BookSummaryView books={books} />} />
           <Route path="/author/:authorId" element={<Author />} />
           <Route path="/addAuthor" element={<AuthorContributeForm />} />

@@ -37,6 +37,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/books/**",
                                 "/authors/**",
+                                "/search/**",
                                 "/api/auth/**",
                                 "/send-email",
                                 "/community/**",

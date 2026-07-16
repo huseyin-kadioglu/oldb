@@ -140,6 +140,7 @@ public class OpenLibraryImportService {
         String isbn = firstIsbn(doc);
         String cover = coverUrl(doc, isbn);
         String genres = extractGenres(doc);
+        String language = extractLanguage(doc);
         Integer pages = doc.hasNonNull("number_of_pages_median")
                 ? doc.get("number_of_pages_median").asInt() : null;
         int year = doc.hasNonNull("first_publish_year") ? doc.get("first_publish_year").asInt(0) : 0;
@@ -157,6 +158,7 @@ public class OpenLibraryImportService {
             book.setWonNobelPrize(false);
             book.setNewRelease(year >= java.time.Year.now().getValue() - 2);
             book.setGenres(genres);
+            book.setLanguage(language);
             bookRepository.save(book);
             return new Result(wasNewAuthor, true, false);
         }
@@ -186,6 +188,10 @@ public class OpenLibraryImportService {
             existing.setGenres(genres);
             updated = true;
         }
+        if ((existing.getLanguage() == null || existing.getLanguage().isBlank()) && language != null) {
+            existing.setLanguage(language);
+            updated = true;
+        }
         if (updated) {
             bookRepository.save(existing);
         }
@@ -205,6 +211,19 @@ public class OpenLibraryImportService {
             if (set.size() >= 5) break;
         }
         return set.isEmpty() ? null : String.join(", ", set);
+    }
+
+    private static String extractLanguage(JsonNode doc) {
+        JsonNode langs = doc.get("language");
+        if (langs == null || !langs.isArray() || langs.isEmpty()) {
+            return null;
+        }
+        String raw = langs.get(0).asText("");
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        String code = raw.replace("/languages/", "").trim().toLowerCase(java.util.Locale.ROOT);
+        return code.isBlank() ? null : code;
     }
 
     private AuthorEntity resolveAuthor(JsonNode doc, Map<String, AuthorEntity> cache) {

@@ -237,6 +237,35 @@ export const getFilteredBooks = async ({ nobelOnly, country, yearFrom, yearTo, m
   return response.json();
 };
 
+export const getSearchSuggestions = async (q, { signal } = {}) => {
+  const params = new URLSearchParams();
+  params.set("q", q);
+  const response = await fetch(`${BASE_URL}search/suggestions?${params}`, { signal });
+  if (!response.ok) throw new Error(`Arama önerileri başarısız (${response.status})`);
+  return response.json();
+};
+
+export const getDiscoverBooks = async (filters = {}, { signal } = {}) => {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    if (typeof value === "boolean") {
+      if (value) params.set(key, "true");
+      return;
+    }
+    params.set(key, String(value));
+  });
+  const response = await fetch(`${BASE_URL}books/discover?${params}`, { signal });
+  if (!response.ok) throw new Error(`Keşfet isteği başarısız (${response.status})`);
+  return response.json();
+};
+
+export const getDiscoverFeed = async ({ signal } = {}) => {
+  const response = await fetch(`${BASE_URL}books/discover/feed`, { signal });
+  if (!response.ok) throw new Error(`Keşfet feed başarısız (${response.status})`);
+  return response.json();
+};
+
 export const getBooks = async () => {
   const token = sessionStorage.getItem("token");
 
