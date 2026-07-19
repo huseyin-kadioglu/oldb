@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   height: 38px;
-  width: clamp(220px, 22vw, 340px);
+  width: clamp(180px, 22vw, 340px);
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
@@ -91,7 +91,7 @@
   top: calc(100% + 8px);
   left: 0;
   width: 100%;
-  min-width: clamp(220px, 22vw, 340px);
+  min-width: clamp(180px, 22vw, 340px);
   max-height: min(420px, 70vh);
   overflow-y: auto;
   z-index: 220;
@@ -256,11 +256,11 @@
 
 @media (max-width: 1439px) and (min-width: 901px) {
   .navbar-search-field {
-    width: clamp(220px, 20vw, 280px);
+    width: clamp(180px, 20vw, 280px);
   }
 
   .navbar-search-dropdown {
-    min-width: clamp(220px, 20vw, 280px);
+    min-width: clamp(180px, 20vw, 280px);
   }
 }
 

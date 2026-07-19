@@ -22,7 +22,7 @@
   margin: 0 auto;
   padding: 0 40px;
   display: grid;
-  grid-template-columns: 160px minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 20px;
   box-sizing: border-box;
@@ -41,7 +41,6 @@
 .navbar-zone-center {
   justify-content: center;
   gap: 6px;
-  overflow: hidden;
 }
 
 .navbar-zone-actions {
@@ -256,6 +255,20 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+@media (max-width: 1180px) {
+  .navbar-link span {
+    display: none;
+  }
+
+  .navbar-link {
+    padding: 8px 12px;
+  }
+
+  .navbar-logo-text {
+    display: none;
+  }
 }
 
 @media (max-width: 900px) {
