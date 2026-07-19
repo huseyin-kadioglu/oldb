@@ -7,7 +7,8 @@ import CoverImage from "../ui/CoverImage";
 import ExpandableText from "../ui/ExpandableText";
 import PhotoFrame from "../frame/PhotoFrame";
 import CommentSection from "../common/CommentSection";
-import { getAuthorById, rateAuthor } from "../../service/APIService";
+import { getAuthorById, rateAuthor, updateCatalogAuthor, isStaffRole } from "../../service/APIService";
+import { showToast } from "../../utils/uiEvents";
 import "../ui/folios-ui.css";
 import "./Author.css";
 
@@ -57,7 +58,11 @@ const Author = () => {
   const [copied, setCopied] = useState(false);
   const [sortId, setSortId] = useState("year-desc");
   const [sortOpen, setSortOpen] = useState(false);
+  const [portraitEditing, setPortraitEditing] = useState(false);
+  const [portraitDraft, setPortraitDraft] = useState("");
+  const [portraitSaving, setPortraitSaving] = useState(false);
   const isLoggedIn = !!sessionStorage.getItem("token");
+  const isStaff = isStaffRole(sessionStorage.getItem("userRole"));
 
   const fetchAuthor = useCallback(async () => {
     setLoading(true);
@@ -107,6 +112,28 @@ const Author = () => {
       setTimeout(() => setCopied(false), 1500);
     } catch {
       /* ignore */
+    }
+  };
+
+  const openPortraitEdit = () => {
+    setPortraitDraft(author?.portrait || "");
+    setPortraitEditing(true);
+  };
+
+  const handlePortraitSave = async () => {
+    if (!author?.id) return;
+    setPortraitSaving(true);
+    try {
+      const saved = await updateCatalogAuthor(author.id, {
+        portrait: portraitDraft.trim(),
+      });
+      setAuthor((prev) => ({ ...prev, portrait: saved?.portrait ?? portraitDraft.trim() }));
+      setPortraitEditing(false);
+      showToast("Profil resmi güncellendi.");
+    } catch (err) {
+      showToast(err.message || "Profil resmi güncellenemedi.");
+    } finally {
+      setPortraitSaving(false);
     }
   };
 
@@ -203,6 +230,63 @@ const Author = () => {
             className="author-sidebar-portrait"
             variant="avatar"
           />
+
+          {isStaff && (
+            <div className="author-portrait-admin">
+              {!portraitEditing ? (
+                <button
+                  type="button"
+                  className="author-portrait-edit-btn"
+                  onClick={openPortraitEdit}
+                >
+                  Fotoğrafı düzenle
+                </button>
+              ) : (
+                <div className="author-portrait-edit-form">
+                  <label className="author-portrait-edit-label" htmlFor="author-portrait-url">
+                    Profil resmi URL
+                  </label>
+                  <input
+                    id="author-portrait-url"
+                    type="url"
+                    className="author-portrait-edit-input"
+                    value={portraitDraft}
+                    onChange={(e) => setPortraitDraft(e.target.value)}
+                    placeholder="https://…"
+                    disabled={portraitSaving}
+                  />
+                  {portraitDraft.trim() && (
+                    <img
+                      src={portraitDraft.trim()}
+                      alt="Önizleme"
+                      className="author-portrait-edit-preview"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  )}
+                  <div className="author-portrait-edit-actions">
+                    <button
+                      type="button"
+                      className="author-portrait-save-btn"
+                      onClick={handlePortraitSave}
+                      disabled={portraitSaving}
+                    >
+                      {portraitSaving ? "Kaydediliyor…" : "Kaydet"}
+                    </button>
+                    <button
+                      type="button"
+                      className="author-portrait-cancel-btn"
+                      onClick={() => setPortraitEditing(false)}
+                      disabled={portraitSaving}
+                    >
+                      Vazgeç
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {author.description && (
             <ExpandableText

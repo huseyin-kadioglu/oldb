@@ -201,6 +201,11 @@ const catalogRequest = async (method, path, payload) => {
 export const createCatalogAuthor = (payload) =>
   catalogRequest("POST", "authors", payload);
 
+export const updateCatalogAuthor = (id, payload) =>
+  catalogRequest("PUT", `authors/${id}`, payload);
+
+export const getCatalogAuthor = (id) => catalogRequest("GET", `authors/${id}`);
+
 export const createCatalogBook = (payload) =>
   catalogRequest("POST", "books", payload);
 

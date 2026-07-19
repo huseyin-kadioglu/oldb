@@ -77,6 +77,107 @@
   background: var(--color-background-card);
 }
 
+.author-portrait-admin {
+  margin: -8px 0 16px;
+}
+
+.author-portrait-edit-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary-button, #d4af37);
+  cursor: pointer;
+  text-align: center;
+}
+
+.author-portrait-edit-btn:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.author-portrait-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.author-portrait-edit-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.author-portrait-edit-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--color-text, #f2f2f2);
+  font-size: 0.82rem;
+}
+
+.author-portrait-edit-input:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.55);
+}
+
+.author-portrait-edit-preview {
+  width: 72px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 6px;
+  align-self: center;
+  margin-top: 4px;
+}
+
+.author-portrait-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.author-portrait-save-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary-button, #d4af37);
+  color: #141414;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.author-portrait-save-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.author-portrait-cancel-btn {
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.author-portrait-cancel-btn:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .author-toolbar {
   display: flex;
   align-items: center;
