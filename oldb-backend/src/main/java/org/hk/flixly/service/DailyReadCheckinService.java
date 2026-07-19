@@ -1,17 +1,25 @@
 package org.hk.flixly.service;
 
 import org.hk.flixly.model.DailyReadCheckinDto;
+import org.hk.flixly.model.ReadCheckinHistoryDto;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.UserDailyReadCheckinEntity;
 import org.hk.flixly.repository.UserDailyReadCheckinRepository;
 import org.hk.flixly.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -62,7 +70,55 @@ public class DailyReadCheckinService {
                 .build();
     }
 
-    /** Public streak for profile: uses server today if no client date. */
+    /** Public contribution history for profile heatmap. */
+    public ReadCheckinHistoryDto getHistory(String username, String rangeParam) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı"));
+
+        String range = normalizeRange(rangeParam);
+        LocalDate today = LocalDate.now();
+        LocalDate from;
+        LocalDate to = today;
+
+        switch (range) {
+            case "month" -> {
+                YearMonth ym = YearMonth.from(today);
+                from = ym.atDay(1);
+                to = today;
+            }
+            case "year" -> {
+                from = today.minusWeeks(51).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                to = today;
+            }
+            default -> {
+                range = "week";
+                from = today.minusDays(6);
+                to = today;
+            }
+        }
+
+        List<UserDailyReadCheckinEntity> rows =
+                checkinRepository.findByUserIdAndCheckinDateGreaterThanEqualOrderByCheckinDateDesc(
+                        user.getId(), from);
+
+        List<String> dates = new ArrayList<>();
+        for (UserDailyReadCheckinEntity row : rows) {
+            LocalDate d = row.getCheckinDate();
+            if (d != null && !d.isAfter(to) && !d.isBefore(from)) {
+                dates.add(d.toString());
+            }
+        }
+
+        return ReadCheckinHistoryDto.builder()
+                .range(range)
+                .from(from.toString())
+                .to(to.toString())
+                .dates(dates)
+                .readingStreak(computeStreak(user.getId(), today))
+                .totalDays(dates.size())
+                .build();
+    }
+
     public int streakForUser(Long userId) {
         return computeStreak(userId, LocalDate.now());
     }
@@ -72,7 +128,6 @@ public class DailyReadCheckinService {
     }
 
     private int computeStreak(Long userId, LocalDate today) {
-        // Load last ~400 days of checkins
         LocalDate from = today.minusDays(400);
         List<UserDailyReadCheckinEntity> rows =
                 checkinRepository.findByUserIdAndCheckinDateGreaterThanEqualOrderByCheckinDateDesc(userId, from);
@@ -98,6 +153,16 @@ public class DailyReadCheckinService {
             cursor = cursor.minusDays(1);
         }
         return streak;
+    }
+
+    private static String normalizeRange(String rangeParam) {
+        if (rangeParam == null || rangeParam.isBlank()) {
+            return "week";
+        }
+        return switch (rangeParam.trim().toLowerCase(Locale.ROOT)) {
+            case "month", "year", "week" -> rangeParam.trim().toLowerCase(Locale.ROOT);
+            default -> "week";
+        };
     }
 
     private static LocalDate parseClientDate(String clientDate) {

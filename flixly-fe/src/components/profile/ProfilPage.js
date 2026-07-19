@@ -8,6 +8,7 @@ import ProfileActivityFeed from "./ProfileActivityFeed";
 import ProfileShowcase from "./ProfileShowcase";
 import YearlyGoalCard from "./YearlyGoalCard";
 import ReadingIdentityCard from "./ReadingIdentityCard";
+import ReadingHeatmap from "./ReadingHeatmap";
 import Review from "./Review";
 import BookFilter from "../common/BookFilter";
 import CoverImage from "../ui/CoverImage";
@@ -329,6 +330,8 @@ const ProfilePage = ({ books = [] }) => {
 
   const sidebar = (
     <aside className="page-sidebar profile-sidebar">
+      <ReadingHeatmap username={username} />
+
       <YearlyGoalCard
         yearlyGoal={profileSummary.yearlyBookGoal}
         booksThisYear={profileSummary.bookReadThisYear ?? 0}

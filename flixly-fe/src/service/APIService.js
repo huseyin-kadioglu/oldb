@@ -339,6 +339,15 @@ export const setDailyReadCheckin = async (checkedIn, date = localDateIso()) => {
   return response.data;
 };
 
+/** Profil okuma katkı geçmişi — range: week | month | year */
+export const getReadCheckins = async (username, range = "week", { signal } = {}) => {
+  const response = await axios.get(
+    `${BASE_URL}profile/${encodeURIComponent(username)}/read-checkins`,
+    { params: { range }, signal }
+  );
+  return response.data;
+};
+
 export const getBooksByPublishYear = async (publishYear) => {
   try {
     const response = await axios.get(`${BOOKS_BY_YEAR_API}${publishYear}`);

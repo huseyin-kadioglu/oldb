@@ -4,6 +4,7 @@ import org.hk.flixly.model.ChangePasswordRequest;
 import org.hk.flixly.model.DailyReadCheckinDto;
 import org.hk.flixly.model.ProfileInfoDTO;
 import org.hk.flixly.model.ProfileShowcaseDto;
+import org.hk.flixly.model.ReadCheckinHistoryDto;
 import org.hk.flixly.model.ShowcaseReorderRequest;
 import org.hk.flixly.model.ShowcaseRequest;
 import org.hk.flixly.model.entity.BookEntity;
@@ -115,6 +116,14 @@ public class ProfileSummaryController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
+    }
+
+    @GetMapping("/{username}/read-checkins")
+    public ReadCheckinHistoryDto getReadCheckins(
+            @PathVariable String username,
+            @RequestParam(required = false, defaultValue = "week") String range
+    ) {
+        return dailyReadCheckinService.getHistory(username, range);
     }
 
     @GetMapping("/{username}")

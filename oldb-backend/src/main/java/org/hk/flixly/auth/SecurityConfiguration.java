@@ -49,7 +49,7 @@ public class SecurityConfiguration {
                         ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/comments", "/comments/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/profile/*", "/profile/*/list/*").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/profile/*", "/profile/*/list/*", "/profile/*/read-checkins").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/recent").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/follow/*/stats").permitAll()
                         .requestMatchers("/activity/**").authenticated()
