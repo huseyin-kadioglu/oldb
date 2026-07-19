@@ -15,4 +15,5 @@ public class AuthorApprovalDto {
     private Integer birthYear;
     private Integer deathYear;
     private String description;
+    private String country;
 }

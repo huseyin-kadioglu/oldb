@@ -174,11 +174,59 @@ public class AuthorService {
         }
         AuthorEntity authorEntity = new AuthorEntity();
         authorEntity.setName(name);
-        authorEntity.setPortrait(dto.getPortrait());
-        authorEntity.setDescription(dto.getDescription());
+        authorEntity.setPortrait(blankToNull(dto.getPortrait()));
+        authorEntity.setDescription(blankToNull(dto.getDescription()));
         authorEntity.setBirthYear(dto.getBirthYear());
         authorEntity.setDeathYear(dto.getDeathYear());
+        if (dto.getCountry() != null) {
+            authorEntity.setCountry(blankToNull(dto.getCountry()));
+        }
         return authorRepository.save(authorEntity);
+    }
+
+    /** Staff — mevcut yazar metadata güncellemesi (portre dahil). */
+    public AuthorEntity updateAuthorDirect(Long authorId, AuthorApprovalDto dto) {
+        AuthorEntity author = authorRepository.findById(authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Yazar bulunamadı: " + authorId));
+
+        if (dto.getName() != null) {
+            String name = dto.getName().trim();
+            if (name.isBlank()) {
+                throw new IllegalArgumentException("Yazar adı zorunludur.");
+            }
+            authorRepository.findByName(name).ifPresent(other -> {
+                if (!other.getId().equals(authorId)) {
+                    throw new IllegalStateException("Bu isimde bir yazar zaten var: " + name);
+                }
+            });
+            author.setName(name);
+        }
+        if (dto.getPortrait() != null) {
+            author.setPortrait(blankToNull(dto.getPortrait()));
+        }
+        if (dto.getDescription() != null) {
+            author.setDescription(blankToNull(dto.getDescription()));
+        }
+        if (dto.getBirthYear() != null) {
+            author.setBirthYear(dto.getBirthYear());
+        }
+        if (dto.getDeathYear() != null) {
+            author.setDeathYear(dto.getDeathYear());
+        }
+        if (dto.getCountry() != null) {
+            author.setCountry(blankToNull(dto.getCountry()));
+        }
+        return authorRepository.save(author);
+    }
+
+    public AuthorEntity getAuthorEntity(Long authorId) {
+        return authorRepository.findById(authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Yazar bulunamadı: " + authorId));
+    }
+
+    private static String blankToNull(String s) {
+        if (s == null || s.isBlank()) return null;
+        return s.trim();
     }
 
     private void applyRatingStats(AuthorDto dto, Long authorId) {

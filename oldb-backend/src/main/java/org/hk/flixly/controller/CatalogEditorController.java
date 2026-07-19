@@ -74,6 +74,34 @@ public class CatalogEditorController {
         }
     }
 
+    @GetMapping("/authors/{id}")
+    public ResponseEntity<?> getAuthor(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id
+    ) {
+        if (!isStaff(userDetails)) return forbidden();
+        try {
+            return ResponseEntity.ok(authorService.getAuthorEntity(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/authors/{id}")
+    public ResponseEntity<?> updateAuthor(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id,
+            @RequestBody AuthorApprovalDto dto
+    ) {
+        if (!isStaff(userDetails)) return forbidden();
+        try {
+            AuthorEntity saved = authorService.updateAuthorDirect(id, dto);
+            return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PostMapping("/books")
     public ResponseEntity<?> createBook(
             @AuthenticationPrincipal UserDetails userDetails,
