@@ -20,4 +20,8 @@ public class BadgeProgressDto {
     private int percent;
     private boolean earned;
     private boolean legendaryTrack;
+    /** ISO-8601; yalnızca kazanılmışsa dolu */
+    private String earnedAt;
+    /** Kullanıcının profilde sergilediği rozet mi */
+    private boolean featured;
 }

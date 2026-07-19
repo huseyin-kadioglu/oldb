@@ -65,10 +65,22 @@ public class AuthorApprovalService {
     public void approve(AuthorApprovalDto dto, UserDetails userDetails) {
         authorService.createApprovedAuthor(dto);
 
-        UserEntity contributedUser = userService.loadUserByUsername(userDetails.getUsername());
-        contributedUser.setContributionPoint(contributedUser.getContributionPoint() + 1);
-        userService.save(contributedUser);
+        if (dto.getId() != null) {
+            authorApprovalRepository.findById(dto.getId()).ifPresent(approval -> {
+                awardContributionPoint(approval.getContributedUser());
+                authorApprovalRepository.deleteById(dto.getId());
+            });
+        }
+    }
 
-        // burada bilgileri return edebiliriz.
+    private void awardContributionPoint(String username) {
+        if (username == null || username.isBlank()) {
+            return;
+        }
+        UserEntity contributedUser = userService.loadUserByUsername(username);
+        if (contributedUser != null) {
+            contributedUser.setContributionPoint(contributedUser.getContributionPoint() + 1);
+            userService.save(contributedUser);
+        }
     }
 }

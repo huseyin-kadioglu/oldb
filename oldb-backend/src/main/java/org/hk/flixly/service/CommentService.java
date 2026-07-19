@@ -38,6 +38,7 @@ public class CommentService {
     private final AuthorRepository authorRepository;
     private final ActivityRepository activityRepository;
     private final NotificationService notificationService;
+    private final GamificationService gamificationService;
 
     public CommentService(
             CommentRepository commentRepository,
@@ -46,7 +47,8 @@ public class CommentService {
             BookRepository bookRepository,
             AuthorRepository authorRepository,
             ActivityRepository activityRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            GamificationService gamificationService) {
         this.commentRepository = commentRepository;
         this.commentLikeRepository = commentLikeRepository;
         this.userRepository = userRepository;
@@ -54,6 +56,7 @@ public class CommentService {
         this.authorRepository = authorRepository;
         this.activityRepository = activityRepository;
         this.notificationService = notificationService;
+        this.gamificationService = gamificationService;
     }
 
     public List<CommentDto> list(String targetType, Long targetId, Long viewerUserId) {
@@ -122,6 +125,7 @@ public class CommentService {
         if (BOOK.equals(type)) {
             notificationService.notifyWeeklyPickComment(user.getId(), request.getTargetId());
         }
+        gamificationService.evaluateAndPersist(user.getId());
         return toDto(entity, user.getId(), rating);
     }
 
@@ -150,6 +154,7 @@ public class CommentService {
             notificationService.notifyCommentLike(user.getId(), comment.getUserId(), commentId, bookId);
         }
         commentRepository.save(comment);
+        gamificationService.evaluateAndPersist(comment.getUserId());
         Double rating = null;
         if (BOOK.equals(comment.getTargetType())) {
             rating = loadBookRatings(comment.getTargetId(), List.of(comment.getUserId()))

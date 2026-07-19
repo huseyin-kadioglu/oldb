@@ -159,13 +159,26 @@ public class AuthorService {
     }
 
     public void createApprovedAuthor(AuthorApprovalDto dto) {
+        createAuthorDirect(dto);
+    }
+
+    /** Staff katalog editörü — yazarı doğrudan katalog tablosuna yazar ve kaydı döner. */
+    public AuthorEntity createAuthorDirect(AuthorApprovalDto dto) {
+        String name = dto.getName() != null ? dto.getName().trim() : "";
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Yazar adı zorunludur.");
+        }
+        AuthorEntity existing = authorRepository.findByName(name).orElse(null);
+        if (existing != null) {
+            throw new IllegalStateException("Bu isimde bir yazar zaten var: " + name);
+        }
         AuthorEntity authorEntity = new AuthorEntity();
-        authorEntity.setName(dto.getName());
+        authorEntity.setName(name);
         authorEntity.setPortrait(dto.getPortrait());
         authorEntity.setDescription(dto.getDescription());
         authorEntity.setBirthYear(dto.getBirthYear());
         authorEntity.setDeathYear(dto.getDeathYear());
-        authorRepository.save(authorEntity);
+        return authorRepository.save(authorEntity);
     }
 
     private void applyRatingStats(AuthorDto dto, Long authorId) {

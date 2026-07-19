@@ -127,14 +127,15 @@ public class ProfileService {
         response.setContinueReading(buildContinueReading(userBookMaps, bookIdToEntityMap, authorIdToEntityMap, userActivities));
         try {
             response.setChallenges(gamificationService.getChallengesForUser(userEntity.getId()));
-            response.setEarnedBadges(
-                    gamificationService.getBadgesForUser(userEntity.getId()).stream()
-                            .filter(BadgeProgressDto::isEarned)
-                            .toList()
-            );
+            gamificationService.evaluateAndPersist(userEntity.getId());
+            response.setEarnedBadgeCount((int) gamificationService.countEarned(userEntity.getId()));
+            response.setFeaturedBadge(gamificationService.getFeaturedBadge(userEntity.getId()));
+            response.setEarnedBadges(Collections.emptyList());
         } catch (Exception ignored) {
             response.setChallenges(Collections.emptyList());
             response.setEarnedBadges(Collections.emptyList());
+            response.setEarnedBadgeCount(0);
+            response.setFeaturedBadge(null);
         }
         try {
             response.setGenrePreferences(genrePreferenceService.forUserId(userEntity.getId()));

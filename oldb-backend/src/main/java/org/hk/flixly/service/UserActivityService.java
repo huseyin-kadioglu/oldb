@@ -22,16 +22,19 @@ public class UserActivityService {
     private final UserRepository userRepository;
     private final UserBookMapRepository userBookMapRepository;
     private final NotificationService notificationService;
+    private final GamificationService gamificationService;
 
     public UserActivityService(
             ActivityRepository activityRepository,
             UserRepository userRepository,
             UserBookMapRepository userBookMapRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            GamificationService gamificationService) {
         this.activityRepository = activityRepository;
         this.userRepository = userRepository;
         this.userBookMapRepository = userBookMapRepository;
         this.notificationService = notificationService;
+        this.gamificationService = gamificationService;
     }
 
     public UserActivityEntity createActivity(ActivityDto activityDto, UserDetails userDetails) {
@@ -73,6 +76,8 @@ public class UserActivityService {
         if (BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status)) {
             notificationService.notifySameBookReaders(userId, bookId);
         }
+
+        gamificationService.evaluateAndPersist(userId);
 
         return entity;
     }
@@ -146,6 +151,8 @@ public class UserActivityService {
         if (BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status)) {
             notificationService.notifySameBookReaders(userId, bookId);
         }
+
+        gamificationService.evaluateAndPersist(userId);
 
         return activity;
     }

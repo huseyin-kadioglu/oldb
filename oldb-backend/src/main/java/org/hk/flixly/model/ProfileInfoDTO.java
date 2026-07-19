@@ -41,7 +41,10 @@ public class ProfileInfoDTO {
     private List<BookEntity> shoppingBooks;
     private List<ContinueReadingDto> continueReading;
     private List<ChallengeProgressDto> challenges;
+    /** @deprecated Profil özeti için featuredBadge + earnedBadgeCount kullanın */
     private List<BadgeProgressDto> earnedBadges;
+    private FeaturedBadgeDto featuredBadge;
+    private Integer earnedBadgeCount;
     private List<GenrePreferenceDto> genrePreferences;
     private List<UserActivityWithBookDTO> recentActivity;
     private List<ReviewWithBookInfoDto> reviews;

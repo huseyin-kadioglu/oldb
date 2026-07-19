@@ -2,16 +2,21 @@ package org.hk.flixly.controller;
 
 import org.hk.flixly.model.ChangePasswordRequest;
 import org.hk.flixly.model.DailyReadCheckinDto;
+import org.hk.flixly.model.FeaturedBadgeDto;
 import org.hk.flixly.model.ProfileInfoDTO;
 import org.hk.flixly.model.ProfileShowcaseDto;
 import org.hk.flixly.model.ReadCheckinHistoryDto;
 import org.hk.flixly.model.ShowcaseReorderRequest;
 import org.hk.flixly.model.ShowcaseRequest;
+import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.BookEntity;
+import org.hk.flixly.repository.UserRepository;
 import org.hk.flixly.service.DailyReadCheckinService;
+import org.hk.flixly.service.GamificationService;
 import org.hk.flixly.service.ProfileService;
 import org.hk.flixly.service.ProfileShowcaseService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,14 +33,20 @@ public class ProfileSummaryController {
     private final ProfileService profileService;
     private final DailyReadCheckinService dailyReadCheckinService;
     private final ProfileShowcaseService profileShowcaseService;
+    private final GamificationService gamificationService;
+    private final UserRepository userRepository;
 
     public ProfileSummaryController(
             ProfileService profileService,
             DailyReadCheckinService dailyReadCheckinService,
-            ProfileShowcaseService profileShowcaseService) {
+            ProfileShowcaseService profileShowcaseService,
+            GamificationService gamificationService,
+            UserRepository userRepository) {
         this.profileService = profileService;
         this.dailyReadCheckinService = dailyReadCheckinService;
         this.profileShowcaseService = profileShowcaseService;
+        this.gamificationService = gamificationService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/")
@@ -118,6 +129,32 @@ public class ProfileSummaryController {
         }
     }
 
+    @PutMapping("/featured-badge")
+    public ResponseEntity<?> setFeaturedBadge(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, String> body
+    ) {
+        requireAuth(userDetails);
+        UserEntity user = requireUser(userDetails);
+        try {
+            FeaturedBadgeDto dto = gamificationService.setFeaturedBadge(
+                    user.getId(),
+                    body != null ? body.get("badgeCode") : null
+            );
+            return ResponseEntity.ok(dto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/featured-badge")
+    public ResponseEntity<?> clearFeaturedBadge(@AuthenticationPrincipal UserDetails userDetails) {
+        requireAuth(userDetails);
+        UserEntity user = requireUser(userDetails);
+        gamificationService.clearFeaturedBadge(user.getId());
+        return ResponseEntity.ok(Map.of("status", "ok"));
+    }
+
     @GetMapping("/{username}/read-checkins")
     public ReadCheckinHistoryDto getReadCheckins(
             @PathVariable String username,
@@ -172,5 +209,11 @@ public class ProfileSummaryController {
         if (userDetails == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Giriş gerekli");
         }
+    }
+
+    private UserEntity requireUser(UserDetails userDetails) {
+        requireAuth(userDetails);
+        return userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Kullanıcı bulunamadı"));
     }
 }

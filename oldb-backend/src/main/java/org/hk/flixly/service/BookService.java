@@ -3,6 +3,9 @@ package org.hk.flixly.service;
 import org.hk.flixly.model.BookApprovalDto;
 import org.hk.flixly.model.BookDto;
 import org.hk.flixly.model.BookResponse;
+import org.hk.flixly.model.CatalogBookDto;
+import org.hk.flixly.model.CatalogDuplicateCheckDto;
+import org.hk.flixly.model.CatalogDuplicateMatchDto;
 import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.UserBookMapEntity;
@@ -12,9 +15,11 @@ import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.UserBookMapRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -359,18 +364,211 @@ public class BookService {
     }
 
     public void createApprovedBook(BookApprovalDto dto) {
+        persistBook(dto, null);
+    }
+
+    /** Staff katalog editörü — kitabı doğrudan katalog tablosuna yazar ve kaydı döner. */
+    @Transactional
+    public CatalogBookDto createBookDirect(BookApprovalDto dto, String actorUsername) {
+        validateCatalogPayload(dto);
+        CatalogDuplicateCheckDto dups = findDuplicates(dto, null);
+        if (dups.isHasDuplicates()) {
+            throw new IllegalStateException("Benzer bir kitap zaten katalogda. Önce mevcut kaydı kontrol edin.");
+        }
+        enforceWeeklyPick(dto, null);
+        BookEntity saved = persistBook(dto, actorUsername);
+        return toCatalogDto(saved);
+    }
+
+    @Transactional
+    public CatalogBookDto updateBookDirect(Long bookId, BookApprovalDto dto, String actorUsername) {
+        BookEntity book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalArgumentException("Kitap bulunamadı: " + bookId));
+        validateCatalogPayload(dto);
+        CatalogDuplicateCheckDto dups = findDuplicates(dto, bookId);
+        if (dups.isHasDuplicates()) {
+            throw new IllegalStateException("Bu değişiklik başka bir katalog kaydıyla çakışıyor.");
+        }
+        enforceWeeklyPick(dto, bookId);
+        applyMetadata(book, dto);
+        book.setUpdatedBy(actorUsername);
+        return toCatalogDto(bookRepository.save(book));
+    }
+
+    public CatalogBookDto getCatalogBook(Long bookId) {
+        BookEntity book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalArgumentException("Kitap bulunamadı: " + bookId));
+        return toCatalogDto(book);
+    }
+
+    public CatalogDuplicateCheckDto findDuplicates(BookApprovalDto dto, Long excludeId) {
+        List<CatalogDuplicateMatchDto> matches = new ArrayList<>();
+        Set<Long> seen = new HashSet<>();
+
+        String isbnDigits = CatalogGenreCatalog.normalizeIsbn(dto.getIsbn());
+        if (isbnDigits.length() == 10 || isbnDigits.length() == 13) {
+            for (BookEntity b : bookRepository.findByNormalizedIsbn(isbnDigits, excludeId)) {
+                addMatch(matches, seen, b, "isbn");
+            }
+        }
+        if (dto.getAuthorId() != null) {
+            String title = dto.getTitle() != null ? dto.getTitle().trim() : "";
+            if (!title.isBlank()) {
+                for (BookEntity b : bookRepository.findByAuthorAndTitleIgnoreCase(dto.getAuthorId(), title, excludeId)) {
+                    addMatch(matches, seen, b, "title_author");
+                }
+            }
+            String original = dto.getOriginalTitle() != null ? dto.getOriginalTitle().trim() : "";
+            if (!original.isBlank()) {
+                for (BookEntity b : bookRepository.findByAuthorAndOriginalTitleIgnoreCase(
+                        dto.getAuthorId(), original, excludeId)) {
+                    addMatch(matches, seen, b, "original_title_author");
+                }
+            }
+        }
+
+        return CatalogDuplicateCheckDto.builder()
+                .hasDuplicates(!matches.isEmpty())
+                .matches(matches)
+                .build();
+    }
+
+    public CatalogBookDto getActiveWeeklyPick() {
+        List<BookEntity> picks = bookRepository.findAllWeeklyPicks();
+        if (picks.isEmpty()) return null;
+        return toCatalogDto(picks.get(0));
+    }
+
+    private void enforceWeeklyPick(BookApprovalDto dto, Long keepId) {
+        if (!dto.isWeeklyPick()) return;
+        List<BookEntity> existing = bookRepository.findAllWeeklyPicks();
+        boolean otherActive = existing.stream()
+                .anyMatch(b -> keepId == null || !b.getId().equals(keepId));
+        if (otherActive && !dto.isConfirmWeeklyPickReplace()) {
+            BookEntity current = existing.stream()
+                    .filter(b -> keepId == null || !b.getId().equals(keepId))
+                    .findFirst()
+                    .orElse(existing.get(0));
+            throw new WeeklyPickConflictException(
+                    "Şu an haftanın kitabı: \"" + current.getTitle() + "\". Değiştirmek için onaylayın.",
+                    toCatalogDto(current));
+        }
+        bookRepository.clearWeeklyPicksExcept(keepId);
+    }
+
+    private void validateCatalogPayload(BookApprovalDto dto) {
+        String title = dto.getTitle() != null ? dto.getTitle().trim() : "";
+        if (title.isBlank()) {
+            throw new IllegalArgumentException("Kitap adı zorunludur.");
+        }
+        if (dto.getAuthorId() == null || !authorRepository.existsById(dto.getAuthorId())) {
+            throw new IllegalArgumentException("Geçerli bir yazar seçilmelidir.");
+        }
+        if (dto.getYear() < 0 || dto.getYear() > java.time.Year.now().getValue() + 2) {
+            throw new IllegalArgumentException("Geçerli bir yayın yılı girin.");
+        }
+        if (dto.getPageCount() != null && dto.getPageCount() < 0) {
+            throw new IllegalArgumentException("Sayfa sayısı negatif olamaz.");
+        }
+        String isbn = CatalogGenreCatalog.normalizeIsbn(dto.getIsbn());
+        if (!isbn.isEmpty() && isbn.length() != 10 && isbn.length() != 13) {
+            throw new IllegalArgumentException("ISBN 10 veya 13 haneli olmalıdır.");
+        }
+    }
+
+    private BookEntity persistBook(BookApprovalDto dto, String actorUsername) {
         BookEntity bookEntity = new BookEntity();
-        bookEntity.setTitle(dto.getTitle());
-        bookEntity.setPublicationYear(dto.getYear());
-        bookEntity.setDescription(dto.getDescription());
-        bookEntity.setCoverUrl(dto.getCoverUrl());
-        bookEntity.setAuthorId(dto.getAuthorId());
-        bookEntity.setOriginalTitle(dto.getOriginalTitle());
-        bookEntity.setPageCount(dto.getPageCount());
-        bookEntity.setEditorChoice(dto.isEditorChoice());
-        bookEntity.setWeeklyPick(dto.isWeeklyPick());
-        bookEntity.setNewRelease(dto.isNewRelease());
-        bookEntity.setAdminNotes(dto.getAdminNotes());
-        bookRepository.save(bookEntity);
+        applyMetadata(bookEntity, dto);
+        bookEntity.setCreatedBy(actorUsername);
+        bookEntity.setUpdatedBy(actorUsername);
+        return bookRepository.save(bookEntity);
+    }
+
+    /** Yalnızca metadata — sosyal alanlara dokunulmaz (entity'de yok). */
+    private void applyMetadata(BookEntity book, BookApprovalDto dto) {
+        book.setTitle(dto.getTitle() != null ? dto.getTitle().trim() : null);
+        book.setPublicationYear(dto.getYear());
+        book.setDescription(blankToNull(dto.getDescription()));
+        book.setCoverUrl(blankToNull(dto.getCoverUrl()));
+        book.setAuthorId(dto.getAuthorId());
+        book.setOriginalTitle(blankToNull(dto.getOriginalTitle()));
+        book.setPageCount(dto.getPageCount());
+        book.setEditorChoice(dto.isEditorChoice());
+        book.setWeeklyPick(dto.isWeeklyPick());
+        book.setNewRelease(dto.isNewRelease());
+        book.setAdminNotes(blankToNull(dto.getAdminNotes()));
+        book.setEditorNotes(blankToNull(dto.getEditorNotes()));
+        book.setGenres(CatalogGenreCatalog.canonicalizeCsv(dto.getGenres()));
+        book.setLanguage(blankToNull(dto.getLanguage() != null ? dto.getLanguage().trim().toLowerCase() : null));
+        String isbn = CatalogGenreCatalog.normalizeIsbn(dto.getIsbn());
+        book.setIsbn(isbn.isEmpty() ? null : isbn);
+    }
+
+    private void addMatch(List<CatalogDuplicateMatchDto> matches, Set<Long> seen, BookEntity b, String reason) {
+        if (b == null || b.getId() == null || !seen.add(b.getId())) return;
+        String authorName = null;
+        if (b.getAuthorId() != null) {
+            authorName = authorRepository.findById(b.getAuthorId()).map(AuthorEntity::getName).orElse(null);
+        }
+        matches.add(CatalogDuplicateMatchDto.builder()
+                .id(b.getId())
+                .title(b.getTitle())
+                .authorId(b.getAuthorId())
+                .authorName(authorName)
+                .year(b.getPublicationYear())
+                .isbn(b.getIsbn())
+                .coverUrl(b.getCoverUrl())
+                .reason(reason)
+                .build());
+    }
+
+    public CatalogBookDto toCatalogDto(BookEntity book) {
+        String authorName = null;
+        if (book.getAuthorId() != null) {
+            authorName = authorRepository.findById(book.getAuthorId()).map(AuthorEntity::getName).orElse(null);
+        }
+        DateTimeFormatter fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        return CatalogBookDto.builder()
+                .id(book.getId())
+                .title(book.getTitle())
+                .originalTitle(book.getOriginalTitle())
+                .authorId(book.getAuthorId())
+                .authorName(authorName)
+                .pageCount(book.getPageCount())
+                .coverUrl(book.getCoverUrl())
+                .description(book.getDescription())
+                .year(book.getPublicationYear())
+                .isbn(book.getIsbn())
+                .genres(book.getGenres())
+                .language(book.getLanguage())
+                .adminNotes(book.getAdminNotes())
+                .editorNotes(book.getEditorNotes())
+                .editorChoice(book.isEditorChoice())
+                .weeklyPick(book.isWeeklyPick())
+                .newRelease(book.isNewRelease())
+                .createdBy(book.getCreatedBy())
+                .updatedBy(book.getUpdatedBy())
+                .createdAt(book.getCreatedAt() != null ? book.getCreatedAt().format(fmt) : null)
+                .updatedAt(book.getUpdatedAt() != null ? book.getUpdatedAt().format(fmt) : null)
+                .build();
+    }
+
+    private static String blankToNull(String s) {
+        if (s == null || s.isBlank()) return null;
+        return s.trim();
+    }
+
+    /** Haftanın kitabı çakışması — controller 409 döner. */
+    public static class WeeklyPickConflictException extends RuntimeException {
+        private final CatalogBookDto current;
+
+        public WeeklyPickConflictException(String message, CatalogBookDto current) {
+            super(message);
+            this.current = current;
+        }
+
+        public CatalogBookDto getCurrent() {
+            return current;
+        }
     }
 }

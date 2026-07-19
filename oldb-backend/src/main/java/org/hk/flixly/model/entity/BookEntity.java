@@ -51,6 +51,10 @@ public class BookEntity {
     @Column(length = 500)
     private String adminNotes;
 
+    /** Kullanıcıya açık editör öneri notu */
+    @Column(length = 1000)
+    private String editorNotes;
+
     @Column(nullable = false)
     private boolean editorChoice = false;
 
@@ -67,4 +71,29 @@ public class BookEntity {
     /** ISO dil kodu (ör. tur, eng) — Open Library language */
     @Column(length = 16)
     private String language;
+
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private java.time.LocalDateTime updatedAt;
+
+    /** Staff username (profil adı) */
+    @Column(name = "created_by", length = 64)
+    private String createdBy;
+
+    @Column(name = "updated_by", length = 64)
+    private String updatedBy;
+
+    @PrePersist
+    void onCreate() {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        if (createdAt == null) createdAt = now;
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = java.time.LocalDateTime.now();
+    }
 }

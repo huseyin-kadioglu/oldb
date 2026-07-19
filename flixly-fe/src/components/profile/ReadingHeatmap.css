@@ -1,0 +1,182 @@
+/* Compact sidebar variant of the reading heatmap */
+
+.rh-title-row {
+  margin-bottom: 10px;
+}
+
+.rh-streak {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-primary-button, #d4af37);
+  white-space: nowrap;
+}
+
+.rh-segments {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 12px;
+}
+
+.rh-seg {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 4px 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.rh-seg:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.rh-seg.is-active {
+  color: var(--color-primary-button, #d4af37);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.rh-summary {
+  margin: 10px 0 0;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.rh-empty {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.rh-cell {
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-sizing: border-box;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.rh-cell--sm {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.rh-cell--fluid {
+  width: 100%;
+  aspect-ratio: 1;
+  height: auto;
+}
+
+.rh-cell.is-active {
+  background: var(--color-primary-button, #d4af37);
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.18);
+}
+
+.rh-cell.is-muted {
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.rh-cell:not(.is-muted):hover {
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
+/* Week */
+.rh-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.rh-week-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rh-week-label {
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.42);
+  text-align: center;
+}
+
+/* Month */
+.rh-month {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rh-month-labels,
+.rh-month-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.rh-month-labels span {
+  font-size: 0.56rem;
+  color: rgba(255, 255, 255, 0.38);
+  text-align: center;
+}
+
+/* Year — GitHub-style, horizontally scrollable in the narrow sidebar */
+.rh-year-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
+}
+
+.rh-year {
+  display: flex;
+  gap: 2px;
+  width: max-content;
+}
+
+.rh-year-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Skeleton */
+.rh-skel {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.rh-skel-cell {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.04)
+  );
+  background-size: 200% 100%;
+  animation: rh-skel 1.1s ease-in-out infinite;
+}
+
+@keyframes rh-skel {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}

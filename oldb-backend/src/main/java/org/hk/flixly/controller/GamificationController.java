@@ -31,8 +31,22 @@ public class GamificationController {
     }
 
     @GetMapping("/badges/{username}")
-    public List<BadgeProgressDto> badgesForUser(@PathVariable String username) {
-        return gamificationService.getBadgesForUsername(username);
+    public List<BadgeProgressDto> badgesForUser(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails != null) {
+            UserEntity viewer = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+            if (viewer != null && usernameEquals(viewer, username)) {
+                return gamificationService.getBadgesForUser(viewer.getId());
+            }
+        }
+        return gamificationService.getEarnedBadgesForUsername(username);
+    }
+
+    private boolean usernameEquals(UserEntity viewer, String username) {
+        String profile = viewer.getProfilName();
+        return profile != null && profile.equalsIgnoreCase(username);
     }
 
     @GetMapping("/challenges")

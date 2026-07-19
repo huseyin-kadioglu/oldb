@@ -69,6 +69,10 @@ public class UserEntity implements UserDetails {
     @Column(name = "yearly_book_goal")
     private Integer yearlyBookGoal;
 
+    /** Profilde sergilenen tek rozet kodu (null = yok); yalnızca kazanılmış rozetler seçilebilir */
+    @Column(name = "featured_badge_code", length = 64)
+    private String featuredBadgeCode;
+
     @Column(name = "status", nullable = false)
     private boolean status = false;
 

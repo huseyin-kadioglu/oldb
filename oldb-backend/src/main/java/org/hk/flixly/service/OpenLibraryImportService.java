@@ -2,6 +2,7 @@ package org.hk.flixly.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hk.flixly.model.IsbnLookupDto;
 import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.repository.AuthorRepository;
@@ -14,7 +15,9 @@ import org.springframework.web.client.RestClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -304,6 +307,178 @@ public class OpenLibraryImportService {
 
     private static String text(JsonNode node, String field) {
         return node.hasNonNull(field) ? node.get(field).asText() : null;
+    }
+
+    /**
+     * ISBN ile Open Library'den metadata çeker; kataloga yazmaz.
+     * API erişilemezse found=false + mesaj döner (güvenli fallback).
+     */
+    public IsbnLookupDto lookupByIsbn(String rawIsbn) {
+        String isbn = CatalogGenreCatalog.normalizeIsbn(rawIsbn);
+        if (isbn.length() != 10 && isbn.length() != 13) {
+            return IsbnLookupDto.builder()
+                    .found(false)
+                    .message("ISBN 10 veya 13 haneli olmalıdır.")
+                    .isbn(isbn.isEmpty() ? null : isbn)
+                    .build();
+        }
+        try {
+            JsonNode edition = fetchJson("https://openlibrary.org/isbn/" + isbn + ".json");
+            if (edition == null || edition.has("error")) {
+                JsonNode docs = fetchSearchDocs("isbn=" + isbn, 1);
+                if (docs != null && docs.isArray() && !docs.isEmpty()) {
+                    return fromSearchDoc(docs.get(0), isbn);
+                }
+                return IsbnLookupDto.builder()
+                        .found(false)
+                        .message("Open Library'de bu ISBN bulunamadı.")
+                        .isbn(isbn)
+                        .build();
+            }
+            return fromEdition(edition, isbn);
+        } catch (Exception e) {
+            log.warn("ISBN lookup başarısız ({}): {}", isbn, e.getMessage());
+            return IsbnLookupDto.builder()
+                    .found(false)
+                    .message("Open Library'ye şu an ulaşılamıyor. Alanları elle doldurabilirsiniz.")
+                    .isbn(isbn)
+                    .build();
+        }
+    }
+
+    private IsbnLookupDto fromEdition(JsonNode edition, String isbn) throws Exception {
+        String title = text(edition, "title");
+        Integer pages = edition.hasNonNull("number_of_pages") ? edition.get("number_of_pages").asInt() : null;
+        Integer year = parseYear(text(edition, "publish_date"));
+        String cover = null;
+        if (edition.has("covers") && edition.get("covers").isArray() && !edition.get("covers").isEmpty()) {
+            cover = COVERS + "/id/" + edition.get("covers").get(0).asInt() + "-L.jpg";
+        } else {
+            cover = COVERS + "/isbn/" + isbn + "-L.jpg";
+        }
+
+        String language = null;
+        JsonNode langs = edition.get("languages");
+        if (langs != null && langs.isArray() && !langs.isEmpty()) {
+            String key = langs.get(0).path("key").asText("");
+            language = key.replace("/languages/", "").trim().toLowerCase(java.util.Locale.ROOT);
+            if (language.isBlank()) language = null;
+        }
+
+        String description = null;
+        JsonNode desc = edition.get("description");
+        if (desc != null) {
+            description = desc.isTextual() ? desc.asText() : text(desc, "value");
+        }
+
+        String authorName = null;
+        Long matchedAuthorId = null;
+        JsonNode authors = edition.get("authors");
+        if (authors != null && authors.isArray() && !authors.isEmpty()) {
+            String authorKey = authors.get(0).path("key").asText(null);
+            if (authorKey != null) {
+                JsonNode authorNode = fetchJson("https://openlibrary.org" + authorKey + ".json");
+                if (authorNode != null) {
+                    authorName = text(authorNode, "name");
+                }
+            }
+        }
+        if (authorName != null) {
+            matchedAuthorId = authorRepository.findByName(authorName).map(AuthorEntity::getId).orElse(null);
+        }
+
+        List<String> genreSuggestions = new ArrayList<>();
+        JsonNode subjects = edition.get("subjects");
+        if (subjects != null && subjects.isArray()) {
+            LinkedHashSet<String> set = new LinkedHashSet<>();
+            for (JsonNode s : subjects) {
+                String v = s.isTextual() ? s.asText() : text(s, "name");
+                if (v == null || v.isBlank() || v.length() > 40) continue;
+                String canon = CatalogGenreCatalog.canonicalizeOne(v);
+                if (canon != null) set.add(canon);
+                if (set.size() >= 5) break;
+            }
+            genreSuggestions.addAll(set);
+        }
+
+        if (title == null || title.isBlank()) {
+            return IsbnLookupDto.builder()
+                    .found(false)
+                    .message("Open Library kaydında başlık yok.")
+                    .isbn(isbn)
+                    .build();
+        }
+
+        return IsbnLookupDto.builder()
+                .found(true)
+                .title(title)
+                .originalTitle(title)
+                .authorName(authorName)
+                .matchedAuthorId(matchedAuthorId)
+                .year(year)
+                .pageCount(pages)
+                .language(language)
+                .coverUrl(cover)
+                .description(description)
+                .isbn(isbn)
+                .genreSuggestions(genreSuggestions)
+                .build();
+    }
+
+    private IsbnLookupDto fromSearchDoc(JsonNode doc, String isbn) {
+        String title = text(doc, "title");
+        String authorName = null;
+        JsonNode names = doc.get("author_name");
+        if (names != null && names.isArray() && !names.isEmpty()) {
+            authorName = names.get(0).asText();
+        }
+        Long matchedAuthorId = authorName != null
+                ? authorRepository.findByName(authorName).map(AuthorEntity::getId).orElse(null)
+                : null;
+        Integer year = doc.hasNonNull("first_publish_year") ? doc.get("first_publish_year").asInt() : null;
+        Integer pages = doc.hasNonNull("number_of_pages_median")
+                ? doc.get("number_of_pages_median").asInt() : null;
+        String cover = coverUrl(doc, isbn);
+        String language = extractLanguage(doc);
+        List<String> genres = new ArrayList<>();
+        String rawGenres = extractGenres(doc);
+        if (rawGenres != null) {
+            String canon = CatalogGenreCatalog.canonicalizeCsv(rawGenres);
+            if (canon != null) {
+                for (String g : canon.split(",")) {
+                    genres.add(g.trim());
+                }
+            }
+        }
+        return IsbnLookupDto.builder()
+                .found(title != null && !title.isBlank())
+                .message(title == null || title.isBlank() ? "Open Library'de bu ISBN bulunamadı." : null)
+                .title(title)
+                .originalTitle(title)
+                .authorName(authorName)
+                .matchedAuthorId(matchedAuthorId)
+                .year(year)
+                .pageCount(pages)
+                .language(language)
+                .coverUrl(cover)
+                .isbn(isbn)
+                .genreSuggestions(genres)
+                .build();
+    }
+
+    private JsonNode fetchJson(String url) throws Exception {
+        String body = restClient.get().uri(url).retrieve().body(String.class);
+        if (body == null || body.isBlank()) return null;
+        return objectMapper.readTree(body);
+    }
+
+    private static Integer parseYear(String publishDate) {
+        if (publishDate == null || publishDate.isBlank()) return null;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(19|20)\\d{2}").matcher(publishDate);
+        if (m.find()) {
+            return Integer.parseInt(m.group());
+        }
+        return null;
     }
 
     public record ImportResult(int authorsAdded, int booksAdded, int booksUpdated, long totalBooks, long totalAuthors) {

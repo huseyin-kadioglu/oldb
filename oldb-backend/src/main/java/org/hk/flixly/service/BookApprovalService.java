@@ -74,10 +74,22 @@ public class BookApprovalService {
     public void approve(BookApprovalDto dto, UserDetails userDetails) {
         bookService.createApprovedBook(dto);
 
-        UserEntity contributedUser = userService.loadUserByUsername(userDetails.getUsername());
-        contributedUser.setContributionPoint(contributedUser.getContributionPoint() + 1);
-        userService.save(contributedUser);
+        if (dto.getId() != null) {
+            bookApprovalRepository.findById(dto.getId()).ifPresent(approval -> {
+                awardContributionPoint(approval.getContributedUser());
+                bookApprovalRepository.deleteById(dto.getId());
+            });
+        }
+    }
 
-        // burada bilgileri return edebiliriz.
+    private void awardContributionPoint(String username) {
+        if (username == null || username.isBlank()) {
+            return;
+        }
+        UserEntity contributedUser = userService.loadUserByUsername(username);
+        if (contributedUser != null) {
+            contributedUser.setContributionPoint(contributedUser.getContributionPoint() + 1);
+            userService.save(contributedUser);
+        }
     }
 }
