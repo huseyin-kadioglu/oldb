@@ -16,6 +16,7 @@ import Activies from "./components/content/Activities";
 import AuthorContributeForm from "./components/author/AuthorContributeForm";
 import AuthorApproval from "./components/pages/AuthorApproval";
 import BookApproval from "./components/pages/BookApproval";
+import CatalogEditor from "./components/pages/CatalogEditor";
 import ProfileApproval from "./components/pages/ProfileApproval";
 import BookContributeForm from "./components/pages/BookContributeForm";
 import SettingsView from "./components/profile/SettingsView";
@@ -116,6 +117,8 @@ const App = () => {
           <Route path="/author/:authorId" element={<Author />} />
           <Route path="/addAuthor" element={<AuthorContributeForm />} />
           <Route path="/bookContribute" element={<BookContributeForm />} />
+          <Route path="/catalogEditor" element={<CatalogEditor />} />
+          <Route path="/catalogEditor/books/:id" element={<CatalogEditor />} />
           <Route path="/authorApproval" element={<AuthorApproval />} />
           <Route path="/bookApproval" element={<BookApproval />} />
           <Route path="/profileApproval" element={<ProfileApproval />} />

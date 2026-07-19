@@ -3,49 +3,16 @@
   max-width: 1100px;
 }
 
-/* —— Living hero: soft cover atmosphere —— */
+/* —— Flat editorial hero (Figma) —— */
 .book-page-hero-shell {
-  position: relative;
-  margin: 0 0 22px;
-  padding: 18px 18px 16px;
-  border-radius: 14px;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.book-page-hero-backdrop {
-  position: absolute;
-  inset: -28px;
-  background-size: cover;
-  background-position: center 20%;
-  filter: blur(42px) saturate(1.05);
-  opacity: 0.28;
-  transform: scale(1.08);
-  z-index: 0;
-  pointer-events: none;
-}
-
-.book-page-hero-scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(10, 10, 15, 0.72) 0%,
-      rgba(10, 10, 15, 0.88) 55%,
-      rgba(10, 10, 15, 0.96) 100%
-    ),
-    linear-gradient(105deg, rgba(10, 10, 15, 0.55) 0%, rgba(10, 10, 15, 0.2) 50%, rgba(10, 10, 15, 0.7) 100%);
+  margin: 8px 0 28px;
+  padding: 0;
 }
 
 .book-page-hero {
-  position: relative;
-  z-index: 2;
   display: grid;
-  grid-template-columns: 160px minmax(0, 1fr);
-  gap: 16px 24px;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 16px 32px;
   align-items: start;
   margin: 0;
   padding: 0;
@@ -54,13 +21,13 @@
 
 .book-page-cover-wrap {
   flex-shrink: 0;
-  width: 160px;
-  max-width: 160px;
+  width: 168px;
+  max-width: 168px;
 }
 
 .book-page-cover-img {
-  width: 160px;
-  height: 240px;
+  width: 168px;
+  height: 252px;
   object-fit: cover;
   border-radius: var(--radius-md, 8px);
   box-shadow: var(--shadow-cover, 0 8px 20px rgba(0, 0, 0, 0.35));
@@ -140,29 +107,34 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
-}
-
-.book-page-identity {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 4px;
-}
-
-/* Editorial rhythm — spacing only, no extra boxes or rules */
-.book-hero-block {
-  margin-top: 22px;
+  gap: 10px;
   padding-top: 2px;
 }
 
-.book-hero-block-label {
-  margin: 0 0 10px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  color: rgba(255, 255, 255, 0.55);
+/* Küçük tür etiketi — başlığın üstünde (Figma kicker) */
+.book-page-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.48);
+}
+
+/* Bölüm ayracı + başlığı (OKUMA DURUMU / KİTAP HAKKINDA / PUANIN) */
+.book-flow-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.book-flow-kicker {
+  margin: 0 0 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.48);
 }
 
 .book-award-row {
@@ -204,14 +176,29 @@
   letter-spacing: -0.015em;
 }
 
+.book-page-staff-edit {
+  display: inline-block;
+  margin-left: 14px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+}
+
+.book-page-staff-edit:hover {
+  color: var(--color-primary-button, #d4af37);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .book-page-byline {
-  font-size: 1rem;
+  font-size: 1.02rem;
   color: rgba(255, 255, 255, 0.62);
   margin: 0;
 }
 
 .book-page-author {
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--color-primary-button, #d4af37);
   text-decoration: none;
   font-weight: 550;
   transition: color 0.15s ease-out;
@@ -230,22 +217,16 @@
 
 .book-page-community-rating {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   flex-wrap: wrap;
-  gap: 10px 12px;
+  gap: 8px 10px;
   margin-top: 2px;
 }
 
 .book-page-stars {
   color: var(--color-primary-button, #d4af37);
-  letter-spacing: 1px;
-  font-size: 1rem;
-}
-
-.book-page-rating-meta {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
+  letter-spacing: 2px;
+  font-size: 1.08rem;
 }
 
 .book-page-rating-val {
@@ -255,20 +236,21 @@
 }
 
 .book-page-rating-count {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .book-page-meta-line {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   color: rgba(255, 255, 255, 0.68);
 }
 
-.book-page-meta-dot {
-  color: rgba(255, 255, 255, 0.35);
+.book-page-meta-divider {
+  margin: 0 12px;
+  color: rgba(255, 255, 255, 0.22);
 }
 
 .book-page-year-link {
@@ -283,50 +265,75 @@
   text-underline-offset: 3px;
 }
 
-.book-page-tags {
+/* Hızlı işlem çipleri — Beğen / Favori / Kütüphanemde… (Figma action row) */
+.book-action-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.book-page-tags span {
-  font-size: 0.72rem;
-  padding: 4px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  color: rgba(240, 236, 220, 0.82);
-  background: transparent;
-  letter-spacing: 0.01em;
+.book-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
   transition:
-    border-color 0.14s ease-out,
-    background 0.14s ease-out,
-    color 0.14s ease-out,
-    box-shadow 0.14s ease-out;
+    border-color 0.15s ease-out,
+    background 0.15s ease-out,
+    color 0.15s ease-out;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .book-page-tags span:hover {
-    color: rgba(250, 240, 200, 0.98);
-    border-color: rgba(212, 175, 55, 0.5);
-    background: rgba(212, 175, 55, 0.1);
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.12);
-  }
+.book-action-btn svg {
+  font-size: 16px !important;
+}
+
+.book-action-btn:hover:not(:disabled) {
+  border-color: rgba(212, 175, 55, 0.45);
+  color: #fff;
+  background: rgba(212, 175, 55, 0.07);
+}
+
+.book-action-btn.is-active {
+  border-color: rgba(212, 175, 55, 0.55);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--color-primary-button, #d4af37);
+}
+
+.book-action-btn.is-active.is-filled {
+  background: var(--color-primary-button, #d4af37);
+  border-color: var(--color-primary-button, #d4af37);
+  color: #141414;
+}
+
+.book-action-btn.is-active.liked {
+  border-color: rgba(224, 112, 128, 0.55);
+  background: rgba(224, 112, 128, 0.1);
+  color: #e07080;
+}
+
+.book-action-btn.is-active.dropped {
+  border-color: rgba(199, 92, 111, 0.5);
+  background: rgba(199, 92, 111, 0.1);
+  color: var(--color-like, #c75c6f);
+}
+
+.book-action-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 /* Kitap hakkında — hero'nun doğal devamı, kart değil */
 .book-about {
   max-width: 80ch;
   width: 100%;
-}
-
-.book-about-heading {
-  margin: 0 0 12px;
-  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
-  font-size: 1.15rem;
-  font-weight: 550;
-  letter-spacing: -0.01em;
-  text-transform: none;
-  color: rgba(245, 245, 247, 0.92);
 }
 
 .book-about-collapse {
@@ -374,18 +381,23 @@
 .book-about-more {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin-top: 12px;
   padding: 0;
   border: none;
   background: none;
   font-family: var(--font-sans, Inter, sans-serif);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 650;
   letter-spacing: 0.01em;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--color-primary-button, #d4af37);
   cursor: pointer;
   transition: color 0.15s ease-out;
+}
+
+.book-about-more-arrow {
+  font-size: 0.8rem;
+  line-height: 1;
 }
 
 .book-about-more:hover {
@@ -412,23 +424,23 @@
   }
 }
 
-/* Primary exclusive status */
+/* Okuma durumu — pill'ler (Figma) */
 .book-page-primary-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
 .book-primary-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.028);
+  padding: 11px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.02);
   color: rgba(255, 255, 255, 0.84);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   cursor: pointer;
   transition:
@@ -437,6 +449,10 @@
     color 0.15s ease-out,
     box-shadow 0.15s ease-out,
     transform 0.15s ease-out;
+}
+
+.book-primary-btn svg {
+  font-size: 17px !important;
 }
 
 .book-primary-btn:hover:not(:disabled) {
@@ -448,71 +464,20 @@
 }
 
 .book-primary-btn.is-active {
-  border-color: rgba(212, 175, 55, 0.55);
-  background: rgba(212, 175, 55, 0.13);
-  color: var(--color-primary-button, #d4af37);
-  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.12), 0 0 20px rgba(212, 175, 55, 0.08);
+  border-color: var(--color-primary-button, #d4af37);
+  background: var(--color-primary-button, #d4af37);
+  color: #141414;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.22);
+}
+
+.book-primary-btn.is-active:hover:not(:disabled) {
+  color: #141414;
+  background: var(--color-button-hover, #e8c860);
+  border-color: var(--color-button-hover, #e8c860);
 }
 
 .book-primary-btn:disabled {
   opacity: 0.5;
-  cursor: default;
-}
-
-.book-primary-mark {
-  font-size: 0.85rem;
-  line-height: 1;
-}
-
-/* Secondary — lighter weight */
-.book-page-secondary-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 4px;
-}
-
-.book-secondary-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 0.74rem;
-  font-weight: 550;
-  cursor: pointer;
-  transition: color 0.15s ease-out, background 0.15s ease-out;
-}
-
-.book-secondary-btn svg {
-  font-size: 15px !important;
-}
-
-.book-secondary-btn:hover:not(:disabled) {
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.book-secondary-btn.is-active {
-  color: var(--color-primary-button, #d4af37);
-}
-
-.book-secondary-btn.is-active.liked {
-  color: #e07080;
-}
-
-.book-secondary-btn.is-active.liked svg {
-  color: #e07080;
-}
-
-.book-secondary-btn.is-active.dropped {
-  color: var(--color-like, #c75c6f);
-}
-
-.book-secondary-btn:disabled {
-  opacity: 0.45;
   cursor: default;
 }
 
@@ -537,7 +502,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 12px;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
 .book-tool-link {
@@ -641,6 +606,15 @@
 .book-page .folios-section-title,
 .book-page .comment-section-title {
   color: rgba(255, 255, 255, 0.94);
+}
+
+/* Yorum başlığı — bölüm kicker'larıyla aynı dil (OKUR YORUMLARI) */
+.book-page .comment-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.48);
 }
 
 .book-page .folios-see-all {
@@ -1194,7 +1168,7 @@
 @media (max-width: 1024px) {
   .book-page-hero {
     grid-template-columns: 140px minmax(0, 1fr);
-    gap: 14px 18px;
+    gap: 14px 20px;
   }
 
   .book-page-cover-wrap {
@@ -1216,11 +1190,10 @@
   }
 }
 
-/* Mobile: title → yazar → etiketler → Kitap hakkında → özet → durum… */
+/* Mobile: kapak → başlık → aksiyonlar → bölümler */
 @media (max-width: 720px) {
   .book-page-hero-shell {
-    padding: 14px 12px 12px;
-    border-radius: 12px;
+    margin-top: 0;
   }
 
   .book-page-hero {
@@ -1266,11 +1239,12 @@
     line-height: 1.72;
   }
 
-  .book-page-primary {
-    width: 100%;
+  .book-primary-btn {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 
-  .book-primary-btn {
+  .book-action-btn {
     flex: 1 1 auto;
     justify-content: center;
   }

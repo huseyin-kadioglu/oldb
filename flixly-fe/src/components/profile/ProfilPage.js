@@ -13,9 +13,13 @@ import Review from "./Review";
 import BookFilter from "../common/BookFilter";
 import CoverImage from "../ui/CoverImage";
 import SectionHeader from "../ui/SectionHeader";
+import BadgeTile from "../badges/BadgeTile";
 import {
   createUserActivityFromGhostMenu,
   getProfileSummaryByUsername,
+  getBadges,
+  setFeaturedBadge,
+  clearFeaturedBadge,
 } from "../../service/APIService";
 import {
   buildReadingIdentity,
@@ -24,6 +28,7 @@ import {
 import "../ui/folios-ui.css";
 import "./ProfilePage.css";
 import "./Profile.css";
+import "../badges/BadgeTile.css";
 import COPY from "../../copy";
 import "./ProfileCoverStrip.css";
 import "./YearlyGoalCard.css";
@@ -66,6 +71,9 @@ const ProfilePage = ({ books = [] }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [favoritePickerOpen, setFavoritePickerOpen] = useState(false);
+  const [badgeCatalog, setBadgeCatalog] = useState([]);
+  const [badgeBusy, setBadgeBusy] = useState(false);
+  const [badgeFeedback, setBadgeFeedback] = useState(null);
   const isOwnProfile = sessionStorage.getItem("username") === username;
 
   const loadProfile = useCallback(() => {
@@ -111,6 +119,51 @@ const ProfilePage = ({ books = [] }) => {
     [profileSummary]
   );
 
+  useEffect(() => {
+    if (activeTab !== "badges" || !username) return;
+    getBadges(username)
+      .then((data) => setBadgeCatalog(Array.isArray(data) ? data : []))
+      .catch(() => setBadgeCatalog([]));
+  }, [activeTab, username, profileSummary?.featuredBadge?.code, profileSummary?.earnedBadgeCount]);
+
+  const showBadgeFeedback = (msg) => {
+    setBadgeFeedback(msg);
+    window.clearTimeout(showBadgeFeedback._t);
+    showBadgeFeedback._t = window.setTimeout(() => setBadgeFeedback(null), 2200);
+  };
+
+  const handleFeatureBadge = async (badge) => {
+    if (!isOwnProfile || badgeBusy) return;
+    setBadgeBusy(true);
+    try {
+      await setFeaturedBadge(badge.code);
+      loadProfile();
+      const data = await getBadges(username);
+      setBadgeCatalog(Array.isArray(data) ? data : []);
+      showBadgeFeedback("Profil rozeti güncellendi.");
+    } catch (err) {
+      showBadgeFeedback(err?.response?.data?.message || "Seçim başarısız.");
+    } finally {
+      setBadgeBusy(false);
+    }
+  };
+
+  const handleUnfeatureBadge = async () => {
+    if (!isOwnProfile || badgeBusy) return;
+    setBadgeBusy(true);
+    try {
+      await clearFeaturedBadge();
+      loadProfile();
+      const data = await getBadges(username);
+      setBadgeCatalog(Array.isArray(data) ? data : []);
+      showBadgeFeedback("Profil rozeti kaldırıldı.");
+    } catch (err) {
+      showBadgeFeedback(err?.response?.data?.message || "Kaldırma başarısız.");
+    } finally {
+      setBadgeBusy(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="profile-page">
@@ -140,7 +193,8 @@ const ProfilePage = ({ books = [] }) => {
   const dropped = profileSummary.droppedBooks || [];
   const activities = profileSummary.recentActivity || [];
   const reviews = profileSummary.reviews || [];
-  const badges = profileSummary.earnedBadges || [];
+  const earnedBadgeCount = profileSummary.earnedBadgeCount ?? 0;
+  const featuredBadge = profileSummary.featuredBadge || null;
   const genres = profileSummary.genrePreferences || [];
   const actor = profileSummary.profileName || username;
 
@@ -380,33 +434,31 @@ const ProfilePage = ({ books = [] }) => {
         </div>
       )}
 
-      <div className="sidebar-block sidebar-block--soft">
-        <div className="sidebar-title-row">
-          <h3 className="sidebar-title">Rozetler</h3>
-          <button type="button" className="yg-edit" onClick={() => setTab("badges")}>
-            Tümü
-          </button>
-        </div>
-        {badges.length === 0 ? (
-          <p className="profile-empty profile-empty--compact">
-            {isOwnProfile ? "Henüz rozet yok — okumaya devam et." : "Rozet yok."}
-          </p>
-        ) : (
-          <div className="profile-badges-grid">
-            {badges.slice(0, 8).map((b) => (
-              <button
-                type="button"
-                key={b.id || b.code}
-                className="profile-badge-item"
-                title={b.title}
-                onClick={() => setTab("badges")}
-              >
-                <span>{b.icon}</span>
-              </button>
-            ))}
+      {(earnedBadgeCount > 0 || featuredBadge) ? (
+        <div className="sidebar-block sidebar-block--soft">
+          <div className="sidebar-title-row">
+            <h3 className="sidebar-title">Rozetler</h3>
+            <button type="button" className="yg-edit" onClick={() => setTab("badges")}>
+              Tümü
+            </button>
           </div>
-        )}
-      </div>
+          {isOwnProfile && earnedBadgeCount > 0 && !featuredBadge ? (
+            <div className="profile-badge-cta">
+              <p>Profilinde bir rozet sergile</p>
+              <button type="button" className="yg-edit" onClick={() => setTab("badges")}>
+                Rozet seç
+              </button>
+            </div>
+          ) : (
+            <p className="profile-badge-count">
+              {earnedBadgeCount} rozet kazanıldı ·{" "}
+              <button type="button" className="yg-edit" onClick={() => setTab("badges")}>
+                Tümünü gör
+              </button>
+            </p>
+          )}
+        </div>
+      ) : null}
 
       <div className="sidebar-block sidebar-block--soft">
         <div className="sidebar-title-row">
@@ -466,19 +518,29 @@ const ProfilePage = ({ books = [] }) => {
       );
       break;
     case "badges":
-      mainContent =
-        badges.length === 0 ? (
-          emptyGuest(isOwnProfile ? "Henüz rozet yok." : "Rozet yok.")
-        ) : (
-          <div className="profile-badges-full">
-            {badges.map((b) => (
-              <Link to="/badges" key={b.id || b.code} className="profile-badge-full-item" title={b.title}>
-                <span className="profile-badge-full-icon">{b.icon}</span>
-                <span className="profile-badge-full-title">{b.title}</span>
-              </Link>
-            ))}
-          </div>
-        );
+      mainContent = (
+        <section className="profile-section">
+          {badgeFeedback && <p className="badges-feedback" role="status">{badgeFeedback}</p>}
+          {badgeCatalog.length === 0 ? (
+            emptyGuest(isOwnProfile ? "Henüz rozet yok." : "Rozet yok.")
+          ) : (
+            <div className="badges-grid profile-badges-catalog">
+              {(isOwnProfile
+                ? badgeCatalog
+                : badgeCatalog.filter((b) => b.earned)
+              ).map((badge) => (
+                <BadgeTile
+                  key={badge.code || badge.id}
+                  badge={badge}
+                  canSelect={isOwnProfile}
+                  onFeature={handleFeatureBadge}
+                  onUnfeature={handleUnfeatureBadge}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      );
       break;
     default:
       mainContent = overviewMain;

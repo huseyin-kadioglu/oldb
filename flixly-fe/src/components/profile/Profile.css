@@ -95,6 +95,44 @@
   color: var(--color-primary-button, #d4af37);
 }
 
+.profile-featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 160px;
+  padding: 2px 8px 2px 4px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--rarity, #8b929a) 45%, transparent);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.7rem;
+  font-weight: 650;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.profile-featured-badge-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.profile-featured-badge-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 560px) {
+  .profile-featured-badge-title {
+    display: none;
+  }
+
+  .profile-featured-badge {
+    max-width: none;
+    padding: 3px 6px;
+  }
+}
+
 .profile-location {
   display: inline-flex;
   align-items: center;

@@ -77,7 +77,10 @@ const BookContributeForm = () => {
     }
     (async () => {
       try {
-        await createBookContribution(form);
+        await createBookContribution({
+          ...form,
+          year: form.publicationYear ? Number(form.publicationYear) : 0,
+        });
         clearForm();
         setDialog({
           open: true,

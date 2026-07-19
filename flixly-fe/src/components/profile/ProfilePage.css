@@ -105,8 +105,26 @@
   margin-bottom: 10px;
 }
 
-.sidebar-block--soft {
-  padding: 11px 12px;
+.profile-badge-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-badge-cta p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.profile-badge-count {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.profile-badges-catalog {
+  margin-top: 8px;
 }
 
 .sidebar-title-row {

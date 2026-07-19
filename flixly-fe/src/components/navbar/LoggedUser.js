@@ -34,6 +34,7 @@ const LoggedUser = ({ onLogout }) => {
   };
 
   const adminMenuItems = [
+    { key: "catalogEditor", url: "/catalogEditor", label: "Katalog Editörü" },
     { key: "bookApproval", url: "/bookApproval", label: "Kitap Onayla" },
     { key: "authorApproval", url: "/authorApproval", label: "Yazar Onayla" },
     { key: "profileApproval", url: "/profileApproval", label: "Kullanıcıları Yönet" },

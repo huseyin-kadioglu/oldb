@@ -4,8 +4,11 @@ import { Rating } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarIcon from "@mui/icons-material/Star";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -27,6 +30,7 @@ import {
   getAuthorById,
   getBookById,
   getBookSocial,
+  isStaffRole,
 } from "../../service/APIService";
 import COPY from "../../copy";
 import { showToast } from "../../utils/uiEvents";
@@ -536,15 +540,6 @@ const BookSummaryView = ({ books = [] }) => {
       </button>
 
       <div className="book-page-hero-shell">
-        {book.coverUrl && (
-          <div
-            className="book-page-hero-backdrop"
-            style={{ backgroundImage: `url(${book.coverUrl})` }}
-            aria-hidden="true"
-          />
-        )}
-        <div className="book-page-hero-scrim" aria-hidden="true" />
-
         <header className="book-page-hero">
           <div className="book-page-cover-wrap">
             <CoverImage src={book.coverUrl} alt={book.title} className="book-page-cover-img" />
@@ -552,280 +547,282 @@ const BookSummaryView = ({ books = [] }) => {
           </div>
 
           <div className="book-page-hero-body">
-            <div className="book-page-identity">
-              {(book.wonNobelPrize ||
-                book.isEditorChoice ||
-                book.isWeeklyPick ||
-                book.isNewRelease) && (
-                <div className="book-award-row">
-                  {book.wonNobelPrize && <span className="book-award-badge">Nobel Ödüllü</span>}
-                  {book.isEditorChoice && (
-                    <span className="book-award-badge">Editörün Seçimi</span>
-                  )}
-                  {book.isWeeklyPick && (
-                    <span className="book-award-badge weekly">Haftanın Kitabı</span>
-                  )}
-                  {book.isNewRelease && <span className="book-award-badge new">Yeni Çıkan</span>}
-                </div>
-              )}
-
-              <h1 className="book-page-title">{book.title}</h1>
-
-              <p className="book-page-byline">
-                <Link
-                  to={`/author/${book.authorId}`}
-                  state={{ author: authorData }}
-                  className="book-page-author"
-                >
-                  {authorData.name || "Yazar"}
-                </Link>
-                {authorData.country && (
-                  <span className="book-page-author-country"> · {authorData.country}</span>
+            {(book.wonNobelPrize ||
+              book.isEditorChoice ||
+              book.isWeeklyPick ||
+              book.isNewRelease) && (
+              <div className="book-award-row">
+                {book.wonNobelPrize && <span className="book-award-badge">Nobel Ödüllü</span>}
+                {book.isEditorChoice && (
+                  <span className="book-award-badge">Editörün Seçimi</span>
                 )}
-              </p>
+                {book.isWeeklyPick && (
+                  <span className="book-award-badge weekly">Haftanın Kitabı</span>
+                )}
+                {book.isNewRelease && <span className="book-award-badge new">Yeni Çıkan</span>}
+              </div>
+            )}
 
-              {book.averageRating > 0 && (
-                <div className="book-page-community-rating" aria-label="Topluluk puanı">
-                  <span className="book-page-stars">{communityStars(book.averageRating)}</span>
-                  <div className="book-page-rating-meta">
-                    <span className="book-page-rating-val">
-                      {Number(book.averageRating).toFixed(1)}
-                    </span>
-                    {book.ratingCount > 0 && (
-                      <span className="book-page-rating-count">
-                        ({book.ratingCount} değerlendirme)
-                      </span>
+            {tags.length > 0 && (
+              <p className="book-page-kicker">{tags.slice(0, 2).join(" · ")}</p>
+            )}
+
+            <h1 className="book-page-title">{book.title}</h1>
+
+            <p className="book-page-byline">
+              <Link
+                to={`/author/${book.authorId}`}
+                state={{ author: authorData }}
+                className="book-page-author"
+              >
+                {authorData.name || "Yazar"}
+              </Link>
+              {authorData.country && (
+                <span className="book-page-author-country"> · {authorData.country}</span>
+              )}
+              {isStaffRole(sessionStorage.getItem("userRole")) && book?.id && (
+                <Link
+                  to={`/catalogEditor/books/${book.id}`}
+                  className="book-page-staff-edit"
+                >
+                  Kitabı düzenle
+                </Link>
+              )}
+            </p>
+
+            {metaBits.length > 0 && (
+              <p className="book-page-meta-line">
+                {metaBits.map((bit, i) => (
+                  <span key={bit}>
+                    {i > 0 && <span className="book-page-meta-divider">|</span>}
+                    {book.publicationYear > 0 && bit === String(book.publicationYear) ? (
+                      <Link
+                        to={`/books/year/${book.publicationYear}`}
+                        className="book-page-year-link"
+                      >
+                        {bit}
+                      </Link>
+                    ) : (
+                      bit
                     )}
-                  </div>
-                </div>
-              )}
+                  </span>
+                ))}
+              </p>
+            )}
 
-              {metaBits.length > 0 && (
-                <p className="book-page-meta-line">
-                  {metaBits.map((bit, i) => (
-                    <span key={bit}>
-                      {i > 0 && <span className="book-page-meta-dot"> • </span>}
-                      {book.publicationYear > 0 && bit === String(book.publicationYear) ? (
-                        <Link
-                          to={`/books/year/${book.publicationYear}`}
-                          className="book-page-year-link"
-                        >
-                          {bit}
-                        </Link>
-                      ) : (
-                        bit
-                      )}
-                    </span>
-                  ))}
-                </p>
-              )}
+            {book.averageRating > 0 && (
+              <div className="book-page-community-rating" aria-label="Topluluk puanı">
+                <span className="book-page-stars">{communityStars(book.averageRating)}</span>
+                <span className="book-page-rating-val">
+                  {Number(book.averageRating).toFixed(1)}
+                </span>
+                {book.ratingCount > 0 && (
+                  <span className="book-page-rating-count">
+                    ({Number(book.ratingCount).toLocaleString("tr-TR")} okuyucu)
+                  </span>
+                )}
+              </div>
+            )}
 
-              {tags.length > 0 && (
-                <div className="book-page-tags">
-                  {tags.map((g) => (
-                    <span key={g}>{g}</span>
-                  ))}
-                </div>
-              )}
+            <div className="book-action-row" role="group" aria-label="Hızlı işlemler">
+              <button
+                type="button"
+                className={`book-action-btn ${isLiked ? "is-active liked" : ""}`}
+                disabled={actionLoading}
+                onClick={() => handleGhostAction("LIKE", isLiked)}
+              >
+                {isLiked ? (
+                  <FavoriteIcon fontSize="inherit" />
+                ) : (
+                  <FavoriteBorderIcon fontSize="inherit" />
+                )}
+                {COPY.other.like}
+              </button>
+              <button
+                type="button"
+                className={`book-action-btn ${isFavourite ? "is-active" : ""}`}
+                disabled={actionLoading}
+                onClick={() => handleGhostAction("FAVOURITE", isFavourite)}
+              >
+                {isFavourite ? (
+                  <BookmarkIcon fontSize="inherit" />
+                ) : (
+                  <BookmarkBorderIcon fontSize="inherit" />
+                )}
+                {COPY.other.favourite}
+              </button>
+              <button
+                type="button"
+                className={`book-action-btn ${isInLibrary ? "is-active is-filled" : ""}`}
+                disabled={actionLoading}
+                onClick={() => handleGhostAction("LIBRARY", isInLibrary)}
+              >
+                {isInLibrary ? (
+                  <LibraryBooksIcon fontSize="inherit" />
+                ) : (
+                  <LibraryAddIcon fontSize="inherit" />
+                )}
+                {COPY.other.library}
+              </button>
+              <button
+                type="button"
+                className={`book-action-btn ${isInShopping ? "is-active" : ""}`}
+                disabled={actionLoading}
+                onClick={() => handleGhostAction("SHOPPING", isInShopping)}
+              >
+                {isInShopping ? (
+                  <ShoppingCartIcon fontSize="inherit" />
+                ) : (
+                  <ShoppingCartOutlinedIcon fontSize="inherit" />
+                )}
+                {COPY.other.shopping}
+              </button>
+              <button
+                type="button"
+                className={`book-action-btn ${isDropped ? "is-active dropped" : ""}`}
+                disabled={actionLoading}
+                onClick={() => handleGhostAction("DROPPED", isDropped)}
+              >
+                <DoNotDisturbAltIcon fontSize="inherit" />
+                {COPY.status.dropped}
+              </button>
             </div>
 
-            {description ? (
-              <section className="book-about book-hero-block" aria-label="Kitap Hakkında">
-                <h2 className="book-about-heading">Kitap Hakkında</h2>
-                <div
-                  className={`book-about-collapse ${synopsisOpen || !synopsisNeedsClamp ? "is-open" : ""}`}
-                  style={{ maxHeight: synopsisMaxHeight }}
+            <div className="book-page-tools">
+              {isLoggedIn && (
+                <button
+                  type="button"
+                  className="book-tool-link"
+                  disabled={actionLoading}
+                  onClick={() => setLogOpen(true)}
                 >
-                  <div ref={synopsisInnerRef} className="book-about-inner">
-                    <p className="book-about-text">
-                      <span className="book-about-lead">{synopsisLead}</span>
-                      {synopsisRest ? (
-                        <span className="book-about-rest"> {synopsisRest}</span>
-                      ) : null}
+                  <EditNoteIcon fontSize="small" />
+                  {COPY.book.saveReview}
+                </button>
+              )}
+              <button type="button" className="book-tool-link" onClick={handleShare}>
+                <ShareOutlinedIcon fontSize="small" />
+                {shareCopied ? "Kopyalandı" : "Paylaş"}
+              </button>
+              {!isLoggedIn && (
+                <span className="book-page-login-hint">İşlemler için giriş yapın.</span>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <section className="book-flow-section" role="group" aria-label="Okuma durumu">
+          <p className="book-flow-kicker">Okuma Durumu</p>
+          <div className="book-page-primary-row">
+            <button
+              type="button"
+              className={`book-primary-btn ${primaryKey === "want" ? "is-active" : ""}`}
+              disabled={actionLoading}
+              onClick={() => handlePrimary("want")}
+            >
+              <AccessTimeIcon fontSize="inherit" />
+              {COPY.status.want}
+            </button>
+            <button
+              type="button"
+              className={`book-primary-btn ${primaryKey === "reading" ? "is-active" : ""}`}
+              disabled={actionLoading}
+              onClick={() => handlePrimary("reading")}
+            >
+              <MenuBookIcon fontSize="inherit" />
+              {COPY.status.reading}
+            </button>
+            <button
+              type="button"
+              className={`book-primary-btn ${primaryKey === "read" ? "is-active" : ""}`}
+              disabled={actionLoading}
+              onClick={() => handlePrimary("read")}
+            >
+              <TaskAltIcon fontSize="inherit" />
+              {COPY.status.read}
+            </button>
+          </div>
+        </section>
+
+        {description ? (
+          <section className="book-flow-section book-about" aria-label="Kitap Hakkında">
+            <p className="book-flow-kicker">Kitap Hakkında</p>
+            <div
+              className={`book-about-collapse ${synopsisOpen || !synopsisNeedsClamp ? "is-open" : ""}`}
+              style={{ maxHeight: synopsisMaxHeight }}
+            >
+              <div ref={synopsisInnerRef} className="book-about-inner">
+                <p className="book-about-text">
+                  <span className="book-about-lead">{synopsisLead}</span>
+                  {synopsisRest ? (
+                    <span className="book-about-rest"> {synopsisRest}</span>
+                  ) : null}
+                </p>
+              </div>
+            </div>
+            {synopsisNeedsClamp && (
+              <button
+                type="button"
+                className="book-about-more"
+                aria-expanded={synopsisOpen}
+                onClick={() => setSynopsisOpen((v) => !v)}
+              >
+                <span className="book-about-more-arrow" aria-hidden="true">
+                  {synopsisOpen ? "▴" : "▾"}
+                </span>
+                {synopsisOpen ? "Daha az göster" : "Devamını oku"}
+              </button>
+            )}
+            {audienceHints && (
+              <div className="book-audience">
+                <p className="book-audience-title">Kimler için uygun?</p>
+                <ul className="book-audience-list">
+                  {audienceHints.for.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+                {audienceHints.against?.length > 0 && (
+                  <>
+                    <p className="book-audience-title book-audience-title--muted">
+                      Kimler için uygun olmayabilir?
                     </p>
-                  </div>
-                </div>
-                {synopsisNeedsClamp && (
-                  <button
-                    type="button"
-                    className="book-about-more"
-                    aria-expanded={synopsisOpen}
-                    onClick={() => setSynopsisOpen((v) => !v)}
-                  >
-                    {synopsisOpen ? "Daha az göster" : "Devamını oku →"}
-                  </button>
-                )}
-                {audienceHints && (
-                  <div className="book-audience">
-                    <p className="book-audience-title">Kimler için uygun?</p>
-                    <ul className="book-audience-list">
-                      {audienceHints.for.map((line) => (
+                    <ul className="book-audience-list book-audience-list--muted">
+                      {audienceHints.against.map((line) => (
                         <li key={line}>{line}</li>
                       ))}
                     </ul>
-                    {audienceHints.against?.length > 0 && (
-                      <>
-                        <p className="book-audience-title book-audience-title--muted">
-                          Kimler için uygun olmayabilir?
-                        </p>
-                        <ul className="book-audience-list book-audience-list--muted">
-                          {audienceHints.against.map((line) => (
-                            <li key={line}>{line}</li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
+                  </>
                 )}
-              </section>
-            ) : null}
-
-            <div className="book-page-primary book-hero-block" role="group" aria-label="Okuma durumu">
-              <p className="book-hero-block-label">Okuma durumu</p>
-              <div className="book-page-primary-row">
-                <button
-                  type="button"
-                  className={`book-primary-btn ${primaryKey === "want" ? "is-active" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handlePrimary("want")}
-                >
-                  <span className="book-primary-mark" aria-hidden="true">
-                    {primaryKey === "want" ? "●" : "○"}
-                  </span>
-                  {COPY.status.want}
-                </button>
-                <button
-                  type="button"
-                  className={`book-primary-btn ${primaryKey === "reading" ? "is-active" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handlePrimary("reading")}
-                >
-                  <span className="book-primary-mark" aria-hidden="true">
-                    📖
-                  </span>
-                  {COPY.status.reading}
-                </button>
-                <button
-                  type="button"
-                  className={`book-primary-btn ${primaryKey === "read" ? "is-active" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handlePrimary("read")}
-                >
-                  <span className="book-primary-mark" aria-hidden="true">
-                    {primaryKey === "read" ? "✓" : "○"}
-                  </span>
-                  {COPY.status.read}
-                </button>
               </div>
-            </div>
-
-            <div className="book-page-secondary book-hero-block" role="group" aria-label="Diğer">
-              <p className="book-hero-block-label">Diğer</p>
-              <div className="book-page-secondary-row">
-                <button
-                  type="button"
-                  className={`book-secondary-btn ${isLiked ? "is-active liked" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handleGhostAction("LIKE", isLiked)}
-                >
-                  {isLiked ? <FavoriteIcon fontSize="inherit" /> : <FavoriteBorderIcon fontSize="inherit" />}
-                  {COPY.other.like}
-                </button>
-                <button
-                  type="button"
-                  className={`book-secondary-btn ${isFavourite ? "is-active" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handleGhostAction("FAVOURITE", isFavourite)}
-                >
-                  {isFavourite ? <StarIcon fontSize="inherit" /> : <StarBorderIcon fontSize="inherit" />}
-                  {COPY.other.favourite}
-                </button>
-                <button
-                  type="button"
-                  className={`book-secondary-btn ${isInLibrary ? "is-active" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handleGhostAction("LIBRARY", isInLibrary)}
-                >
-                  {isInLibrary ? (
-                    <LibraryBooksIcon fontSize="inherit" />
-                  ) : (
-                    <LibraryAddIcon fontSize="inherit" />
-                  )}
-                  {COPY.other.library}
-                </button>
-                <button
-                  type="button"
-                  className={`book-secondary-btn ${isInShopping ? "is-active" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handleGhostAction("SHOPPING", isInShopping)}
-                >
-                  {isInShopping ? (
-                    <ShoppingCartIcon fontSize="inherit" />
-                  ) : (
-                    <ShoppingCartOutlinedIcon fontSize="inherit" />
-                  )}
-                  {COPY.other.shopping}
-                </button>
-                <button
-                  type="button"
-                  className={`book-secondary-btn ${isDropped ? "is-active dropped" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handleGhostAction("DROPPED", isDropped)}
-                >
-                  <DoNotDisturbAltIcon fontSize="inherit" />
-                  {COPY.status.dropped}
-                </button>
-              </div>
-            </div>
-
-            <div className="book-page-your-rating book-hero-block">
-              <p className="book-hero-block-label">Senin puanın</p>
-              <Rating
-                name="book-user-rating"
-                value={userRating}
-                precision={0.5}
-                size="large"
-                onChange={handleRate}
-                disabled={!isLoggedIn || actionLoading}
-                sx={{
-                  "& .MuiRating-iconFilled": { color: "var(--color-primary-button, #d4af37)" },
-                  "& .MuiRating-iconHover": {
-                    color: "var(--color-primary-button-hover, #e8c547)",
-                  },
-                  "& .MuiRating-iconEmpty": { color: "rgba(255,255,255,0.18)" },
-                }}
-              />
-              <p className="book-page-your-rating-caption">
-                {userRating > 0
-                  ? `Bu kitaba ${Number(userRating) % 1 === 0 ? Number(userRating) : Number(userRating).toFixed(1)} yıldız verdin.`
-                  : isLoggedIn
-                    ? "Bu kitaba kaç yıldız verirsin?"
-                    : "Puanlamak için giriş yap."}
-              </p>
-            </div>
-
-          <div className="book-page-tools">
-            {isLoggedIn && (
-              <button
-                type="button"
-                className="book-tool-link"
-                disabled={actionLoading}
-                onClick={() => setLogOpen(true)}
-              >
-                <EditNoteIcon fontSize="small" />
-                {COPY.book.saveReview}
-              </button>
             )}
-            <button type="button" className="book-tool-link" onClick={handleShare}>
-              <ShareOutlinedIcon fontSize="small" />
-              {shareCopied ? "Kopyalandı" : "Paylaş"}
-            </button>
-            {!isLoggedIn && (
-              <span className="book-page-login-hint">İşlemler için giriş yapın.</span>
-            )}
-          </div>
-          </div>
-        </header>
+          </section>
+        ) : null}
+
+        <section className="book-flow-section book-page-your-rating" aria-label="Puanın">
+          <p className="book-flow-kicker">Puanın</p>
+          <Rating
+            name="book-user-rating"
+            value={userRating}
+            precision={0.5}
+            size="large"
+            onChange={handleRate}
+            disabled={!isLoggedIn || actionLoading}
+            sx={{
+              "& .MuiRating-iconFilled": { color: "var(--color-primary-button, #d4af37)" },
+              "& .MuiRating-iconHover": {
+                color: "var(--color-primary-button-hover, #e8c547)",
+              },
+              "& .MuiRating-iconEmpty": { color: "rgba(255,255,255,0.18)" },
+            }}
+          />
+          <p className="book-page-your-rating-caption">
+            {userRating > 0
+              ? `Bu kitaba ${Number(userRating) % 1 === 0 ? Number(userRating) : Number(userRating).toFixed(1)} yıldız verdin.`
+              : isLoggedIn
+                ? "Bu kitabı okudun mu? Puanını ver."
+                : "Puanlamak için giriş yap."}
+          </p>
+        </section>
       </div>
 
       <div className="page-layout book-page-layout">

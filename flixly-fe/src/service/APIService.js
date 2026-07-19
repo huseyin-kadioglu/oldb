@@ -71,15 +71,19 @@ export const getAuthorApprovals = async () => {
 };
 
 export const approveAuthorApproval = async (author) => {
-  // artık editable olduğu için parametreler de değişebilir.
-  console.log("author params", author);
-  // const token = sessionStorage.getItem("token");
-  // await fetch(`http://localhost:8080/author-approvals/${author}/approve`, {
-  //   method: "POST",
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // });
+  const token = sessionStorage.getItem("token");
+  const response = await fetch("http://localhost:8080/author-approvals/approve", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(author),
+    mode: "cors",
+  });
+  if (!response.ok) {
+    throw new Error("Yazar onaylama başarısız: " + response.statusText);
+  }
 };
 
 export const approveBookApproval = async (book) => {
@@ -167,6 +171,55 @@ export const createAuthorContribution = async (payload) => {
 
   const text = await response.text(); // önce text al
   return text ? JSON.parse(text) : null; // içerik varsa parse et
+};
+
+// CATALOG EDITOR (staff — direkt katalog girişi, onay kuyruğu yok)
+const catalogRequest = async (method, path, payload) => {
+  const token = sessionStorage.getItem("token");
+  const response = await fetch(`http://localhost:8080/admin/catalog/${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(payload !== undefined ? { "Content-Type": "application/json" } : {}),
+    },
+    body: payload !== undefined ? JSON.stringify(payload) : undefined,
+    mode: "cors",
+  });
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!response.ok) {
+    const err = new Error(
+      data && data.message ? data.message : "İşlem başarısız oldu."
+    );
+    err.status = response.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+};
+
+export const createCatalogAuthor = (payload) =>
+  catalogRequest("POST", "authors", payload);
+
+export const createCatalogBook = (payload) =>
+  catalogRequest("POST", "books", payload);
+
+export const updateCatalogBook = (id, payload) =>
+  catalogRequest("PUT", `books/${id}`, payload);
+
+export const getCatalogBook = (id) => catalogRequest("GET", `books/${id}`);
+
+export const checkCatalogDuplicates = (payload, excludeId) => {
+  const q = excludeId != null ? `?excludeId=${excludeId}` : "";
+  return catalogRequest("POST", `duplicates${q}`, payload);
+};
+
+export const lookupCatalogIsbn = (isbn) =>
+  catalogRequest("GET", `isbn/${encodeURIComponent(isbn)}`);
+
+export const searchCatalogGenres = (q = "") => {
+  const qs = q ? `?q=${encodeURIComponent(q)}` : "";
+  return catalogRequest("GET", `genres${qs}`);
 };
 
 export const rejectBookApproval = async (id) => {
@@ -410,6 +463,24 @@ export const getBadges = async (username) => {
     : `${BASE_URL}gamification/badges`;
   const response = await axios.get(url, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
+export const setFeaturedBadge = async (badgeCode) => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.put(
+    `${BASE_URL}profile/featured-badge`,
+    { badgeCode },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const clearFeaturedBadge = async () => {
+  const token = sessionStorage.getItem("token");
+  const response = await axios.delete(`${BASE_URL}profile/featured-badge`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };

@@ -8,6 +8,7 @@ import IosShareOutlinedIcon from "@mui/icons-material/IosShareOutlined";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import InitialAvatar from "../common/InitialAvatar";
 import { UserDisplayName } from "../common/ProVerifiedBadge";
+import { rarityColor } from "../badges/BadgeTile";
 import { followUser, getFollowStats, unfollowUser, resolveMediaUrl } from "../../service/APIService";
 import "./Profile.css";
 
@@ -79,6 +80,7 @@ const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
   };
 
   const readingStreak = profileSummary?.readingStreak ?? 0;
+  const featured = profileSummary?.featuredBadge;
 
   const stats = [
     { value: profileSummary?.bookRead ?? 0, label: "Kitap", hideZero: false },
@@ -118,6 +120,22 @@ const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
                     <LocalFireDepartmentIcon fontSize="inherit" />
                     {readingStreak}g
                   </span>
+                )}
+                {featured && (
+                  <button
+                    type="button"
+                    className={`profile-featured-badge rarity-${String(featured.rarity || "common").toLowerCase()}`}
+                    style={{ "--rarity": rarityColor(featured.rarity) }}
+                    title={`${featured.title} — ${featured.description || ""}`}
+                    onClick={() =>
+                      navigate(`/badges?highlight=${encodeURIComponent(featured.code)}`)
+                    }
+                  >
+                    <span className="profile-featured-badge-icon" aria-hidden="true">
+                      {featured.icon || "🏅"}
+                    </span>
+                    <span className="profile-featured-badge-title">{featured.title}</span>
+                  </button>
                 )}
               </div>
 
