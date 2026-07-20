@@ -1278,3 +1278,135 @@
     gap: 14px;
   }
 }
+
+/* Dedicated mobile book layout: cover → actions → metadata */
+@media (max-width: 767.98px) {
+  .book-page {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .book-page-hero-shell {
+    margin: 0 0 20px;
+  }
+
+  .book-page-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .book-page-cover-wrap {
+    align-self: center;
+    width: min(180px, 48vw);
+    max-width: min(180px, 48vw);
+  }
+
+  .book-page-cover-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+
+  .book-cover-stats {
+    width: 100%;
+    max-width: none;
+    margin-top: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 14px;
+  }
+
+  .book-cover-stats__chip {
+    grid-template-columns: auto auto auto;
+  }
+
+  .book-page-hero-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .book-action-row {
+    order: 1;
+    margin-top: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .book-page-identity {
+    order: 2;
+    text-align: center;
+  }
+
+  .book-page-tools {
+    order: 3;
+    justify-content: center;
+  }
+
+  .book-page-title {
+    font-size: 1.55rem;
+    line-height: 1.25;
+  }
+
+  .book-page-byline,
+  .book-page-meta-line,
+  .book-page-community-rating {
+    justify-content: center;
+  }
+
+  .book-page-community-rating {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .book-action-btn {
+    min-height: 44px;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
+  .book-page-primary-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .book-primary-btn {
+    min-height: 44px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .book-page-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .book-page-sidebar {
+    order: 99;
+  }
+
+  .book-author-shelf,
+  .book-similar-shelf {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -14px;
+    padding: 0 14px 6px;
+  }
+
+  .book-author-shelf::-webkit-scrollbar,
+  .book-similar-shelf::-webkit-scrollbar {
+    display: none;
+  }
+}

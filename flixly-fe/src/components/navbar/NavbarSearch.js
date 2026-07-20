@@ -204,7 +204,7 @@ const NavbarSearch = () => {
           type="button"
           className="navbar-search-btn"
           onClick={() => {
-            if (expanded || window.matchMedia("(min-width: 901px)").matches) {
+            if (expanded || window.matchMedia("(min-width: 768px)").matches) {
               submitSearch();
             } else {
               expandAndFocus();

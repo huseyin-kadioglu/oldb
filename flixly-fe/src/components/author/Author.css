@@ -461,6 +461,76 @@
   }
 }
 
+/* Mobile: books first, author card/stats below */
+@media (max-width: 767.98px) {
+  .author-page {
+    overflow-x: hidden;
+  }
+
+  .author-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .author-main {
+    order: 1;
+  }
+
+  .author-sidebar {
+    order: 2;
+    max-width: none;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 16px;
+    background: var(--color-background-card);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .author-sidebar-portrait {
+    width: 112px;
+    max-width: 112px;
+    margin: 0 auto;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  .author-progress-block,
+  .author-sidebar-rating,
+  .author-share-row {
+    width: 100%;
+  }
+
+  .author-progress-block {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+  }
+
+  .author-book-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+
+  .author-toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .author-sort-trigger {
+    min-height: 44px;
+  }
+
+  .author-comments-wrap {
+    padding: 0;
+    margin-top: 8px;
+  }
+}
+
 .author-comments-wrap {
   max-width: 1100px;
   margin: 28px auto 48px;

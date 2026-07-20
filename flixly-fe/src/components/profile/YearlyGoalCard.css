@@ -105,3 +105,19 @@
   gap: 6px;
   margin-top: 8px;
 }
+
+@media (max-width: 767.98px) {
+  .yg-card {
+    padding: 14px 14px 16px;
+  }
+
+  .yg-title {
+    font-size: 0.78rem;
+  }
+
+  .yg-edit {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px;
+  }
+}

@@ -1,0 +1,130 @@
+.skel {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.2s ease-in-out infinite;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.skel--circle {
+  border-radius: 50%;
+}
+
+@keyframes skel-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skel {
+    animation: none;
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.skel-page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.skel-cover {
+  width: 110px;
+  aspect-ratio: 2 / 3;
+  height: auto;
+  border-radius: 4px;
+}
+
+.skel-cover--lg {
+  width: 140px;
+  max-width: 42vw;
+}
+
+.skel-home-hero {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.skel-rail {
+  margin-bottom: 28px;
+}
+
+.skel-rail-row {
+  display: flex;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.skel-rail-row--wrap {
+  flex-wrap: wrap;
+}
+
+.skel-book-hero {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.skel-book-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.skel-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.skel-author-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  background: var(--color-background-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.skel-discover-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 18px 12px;
+}
+
+.skel-discover-cell {
+  min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+  .skel-book-hero {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .skel-book-meta {
+    width: 100%;
+  }
+
+  .skel-cover--lg {
+    width: 160px;
+  }
+
+  .skel-discover-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .skel-actions {
+    justify-content: center;
+  }
+}

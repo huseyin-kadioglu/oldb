@@ -12,6 +12,7 @@ import CreateAccountModal from "./CreateAccountModal";
 import LoggedUser from "./LoggedUser";
 import NotificationsBell from "./NotificationsBell";
 import NavbarSearch from "./NavbarSearch";
+import MobileBottomNav from "./MobileBottomNav";
 import COPY from "../../copy";
 
 const NAV_ITEMS = [
@@ -107,7 +108,7 @@ const NavigationBar = ({
             </button>
           </div>
 
-          <div className="navbar-zone navbar-zone-center">
+          <div className="navbar-zone navbar-zone-center navbar-zone-center--desktop">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = isActive(item);
@@ -164,6 +165,12 @@ const NavigationBar = ({
       </nav>
 
       <div className="navbar-spacer" aria-hidden="true" />
+
+      <MobileBottomNav
+        token={token}
+        onOpenLog={() => handleDialog(true)}
+        onOpenSignIn={() => setShowSignInPanel(true)}
+      />
 
       {showSignInPanel && (
         <SignInPanel

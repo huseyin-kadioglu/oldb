@@ -20,6 +20,7 @@ import "../ui/folios-ui.css";
 import "./Content.css";
 import COPY from "../../copy";
 import PopularReviewCard from "./PopularReviewCard";
+import { HomeSkeleton } from "../common/Skeleton";
 
 const CHECKIN_HINT_KEY = "oldb_checkin_hint_seen";
 
@@ -302,9 +303,9 @@ const Content = ({ token }) => {
         )}
       </header>
 
-      {feedLoading && <p className="lb-empty">Raflar yükleniyor…</p>}
+      {feedLoading && <HomeSkeleton />}
 
-      {token &&
+      {!feedLoading && token &&
         renderBookRail(
           mostReadAuthorName
             ? `${mostReadAuthorName} — daha fazla`
@@ -319,7 +320,7 @@ const Content = ({ token }) => {
             }),
           }
         )}
-      {token &&
+      {!feedLoading && token &&
         renderBookRail(
           favoriteGenreLabel
             ? `Sevdiğin tür: ${favoriteGenreLabel}`
@@ -333,25 +334,25 @@ const Content = ({ token }) => {
             }),
           }
         )}
-      {token &&
+      {!feedLoading && token &&
         renderBookRail("Okuma geçmişine göre", becauseYouRead, {
           linkLabel: "Keşfet",
           to: discoverTo({ sort: "mostRead" }),
         })}
 
-      {renderBookRail("stoa önerdi", stoaPicks, {
+      {!feedLoading && renderBookRail("stoa önerdi", stoaPicks, {
         linkLabel: "Keşfet",
         to: discoverTo({ editorChoice: "true", sort: "newest" }),
       })}
-      {renderBookRail("Yeni çıkanlar", newReleases, {
+      {!feedLoading && renderBookRail("Yeni çıkanlar", newReleases, {
         linkLabel: "Daha fazla",
         to: discoverTo({ newRelease: "true", sort: "newest" }),
       })}
-      {renderBookRail("Konuşulanlar", discussed, {
+      {!feedLoading && renderBookRail("Konuşulanlar", discussed, {
         linkLabel: "Daha fazla",
         to: discoverTo({ sort: "mostFavorited" }),
       })}
-      {renderBookRail("Tüm zamanların en çok okunanları", allTimeMostRead, {
+      {!feedLoading && renderBookRail("Tüm zamanların en çok okunanları", allTimeMostRead, {
         linkLabel: "Daha fazla",
         to: discoverTo({ sort: "mostRead" }),
       })}

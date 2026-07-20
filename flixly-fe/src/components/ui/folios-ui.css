@@ -46,6 +46,23 @@
   text-decoration: underline;
 }
 
+@media (max-width: 767.98px) {
+  .folios-see-all {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 4px;
+  }
+
+  .folios-section-title {
+    font-size: 1.1rem;
+  }
+
+  .folios-book-card {
+    max-width: none;
+  }
+}
+
 .folios-book-card {
   display: flex;
   flex-direction: column;

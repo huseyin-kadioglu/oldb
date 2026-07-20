@@ -493,3 +493,65 @@
     gap: 18px 12px;
   }
 }
+
+/* Mobile discover — filter sheet above bottom nav, 2-col grid, touch targets */
+@media (max-width: 767.98px) {
+  .discover-page {
+    padding: 4px 0 24px;
+    width: 100%;
+  }
+
+  .discover-toolbar {
+    gap: 10px;
+  }
+
+  .discover-tools-mobile {
+    width: 100%;
+  }
+
+  .discover-tool-btn,
+  .discover-tools-mobile select {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 0.84rem;
+  }
+
+  .discover-search input {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  .discover-drawer {
+    z-index: 320;
+  }
+
+  .discover-drawer-panel {
+    max-height: min(88vh, 720px);
+    padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + 20px + env(safe-area-inset-bottom));
+  }
+
+  .discover-drawer-head button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .discover-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+
+  .discover-skel {
+    aspect-ratio: 2 / 3;
+    border-radius: 4px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.04)
+    );
+    background-size: 200% 100%;
+    animation: skel-shimmer 1.2s ease-in-out infinite;
+  }
+}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Menu, MenuItem, Divider } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import TimelineIcon from "@mui/icons-material/Timeline";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import "./NavigationBar.css";
@@ -87,6 +88,13 @@ const LoggedUser = ({ onLogout }) => {
         >
           <TimelineIcon sx={{ fontSize: 18, mr: 1, color: "var(--color-text-muted)" }} />
           Aktiviteler
+        </MenuItem>
+        <MenuItem
+          onClick={() => { handleClose(); navigate("/badges"); }}
+          sx={{ fontSize: "13px", "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" } }}
+        >
+          <EmojiEventsOutlinedIcon sx={{ fontSize: 18, mr: 1, color: "var(--color-text-muted)" }} />
+          Rozetler
         </MenuItem>
         <LoggedUserMenuItem
           navigateUrl="/settings"

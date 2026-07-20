@@ -7,6 +7,7 @@ import CoverImage from "../ui/CoverImage";
 import ExpandableText from "../ui/ExpandableText";
 import PhotoFrame from "../frame/PhotoFrame";
 import CommentSection from "../common/CommentSection";
+import { AuthorPageSkeleton } from "../common/Skeleton";
 import { getAuthorById, rateAuthor, updateCatalogAuthor, isStaffRole } from "../../service/APIService";
 import { showToast } from "../../utils/uiEvents";
 import "../ui/folios-ui.css";
@@ -144,7 +145,7 @@ const Author = () => {
     return sortBooks(list, sortId);
   }, [author, sortId]);
 
-  if (loading) return <div className="page-loading">Yükleniyor…</div>;
+  if (loading) return <AuthorPageSkeleton />;
   if (error) return <div className="page-error">{error}</div>;
   if (!author) return <div className="page-error">Yazar bulunamadı.</div>;
 

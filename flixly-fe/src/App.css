@@ -25,6 +25,12 @@
   --radius-lg: 14px;
   --radius-pill: 999px;
   --navbar-height: 64px;
+  --mobile-bottom-nav-height: 64px;
+  --touch-min: 44px;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 body,
@@ -136,6 +142,43 @@ hr {
 @media (max-width: 640px) {
   .app-content {
     padding: 20px 16px 32px;
+  }
+}
+
+/* Mobile app shell — desktop layout untouched */
+@media (max-width: 767.98px) {
+  .app-content {
+    padding: 16px 14px calc(var(--mobile-bottom-nav-height) + 28px + env(safe-area-inset-bottom));
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .page-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .page-sidebar {
+    position: static;
+    top: auto;
+    width: 100%;
+  }
+
+  .sidebar-block {
+    padding: 16px;
+  }
+
+  /* Touch-friendly press feedback (hover preserved on fine pointers) */
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .app-content {
+    padding: 24px 20px 40px;
   }
 }
 

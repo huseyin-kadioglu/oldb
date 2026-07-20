@@ -23,6 +23,7 @@ import BookCoverCommunityStats from "./BookCoverCommunityStats";
 import SelectedBookDialog from "../common/SelectedBookDialog";
 import CommentSection from "../common/CommentSection";
 import InitialAvatar from "../common/InitialAvatar";
+import { BookPageSkeleton } from "../common/Skeleton";
 import { UserDisplayName } from "../common/ProVerifiedBadge";
 import {
   createUserActivity,
@@ -415,7 +416,7 @@ const BookSummaryView = ({ books = [] }) => {
       ? `${Math.max(synopsisHeights.full, synopsisHeights.collapsed) + 8}px`
       : `${synopsisHeights.collapsed || 112}px`;
 
-  if (loading) return <div className="page-loading">Yükleniyor…</div>;
+  if (loading) return <BookPageSkeleton />;
   if (!book) return <div className="page-error">Kitap bulunamadı.</div>;
   if (error) return <div className="page-error">{error}</div>;
 
@@ -547,6 +548,7 @@ const BookSummaryView = ({ books = [] }) => {
           </div>
 
           <div className="book-page-hero-body">
+            <div className="book-page-identity">
             {(book.wonNobelPrize ||
               book.isEditorChoice ||
               book.isWeeklyPick ||
@@ -623,6 +625,7 @@ const BookSummaryView = ({ books = [] }) => {
                 )}
               </div>
             )}
+            </div>
 
             <div className="book-action-row" role="group" aria-label="Hızlı işlemler">
               <button

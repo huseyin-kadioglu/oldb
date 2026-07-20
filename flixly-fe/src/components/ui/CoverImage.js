@@ -24,6 +24,7 @@ const CoverImage = ({ src, alt, className, style, variant = "cover" }) => {
       className={`cover-image ${className || ""}`}
       style={style}
       loading="lazy"
+      decoding="async"
       onError={() => {
         if (url !== fallback) setUrl(fallback);
       }}

@@ -415,11 +415,19 @@
     opacity: 1;
     transform: none;
     visibility: visible;
-    min-height: 32px;
+    min-height: 44px;
+    padding: 4px;
   }
 
   .qa-btn {
-    height: 28px;
-    font-size: 16px;
+    min-width: 44px;
+    min-height: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .frame-cover-link:active .cover-image,
+  .frame-cover-wrap:active .cover-image {
+    opacity: 0.88;
   }
 }

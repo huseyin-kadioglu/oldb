@@ -122,6 +122,13 @@
   transition: color 160ms ease-out, background 160ms ease-out;
 }
 
+@media (max-width: 767.98px) {
+  .navbar-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 .navbar-icon-btn:hover {
   color: var(--color-text);
   background: rgba(255, 255, 255, 0.05);
@@ -311,5 +318,52 @@
 
   .navbar-zone-center {
     gap: 2px;
+  }
+}
+
+/* Mobile shell: compact top bar + bottom nav (desktop unchanged) */
+@media (max-width: 767.98px) {
+  :root {
+    --navbar-height: 56px;
+  }
+
+  .navbar-zone-center--desktop {
+    display: none;
+  }
+
+  .navbar-inner {
+    grid-template-columns: auto 1fr auto;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .navbar-logo-text {
+    display: inline;
+    font-size: 1.1rem;
+  }
+
+  .navbar-zone-actions {
+    gap: 6px;
+  }
+
+  .navbar-auth-guest .navbar-cta-btn {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
+
+  .logged-user {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 4px;
+  }
+
+  .logged-user .navbar-username,
+  .logged-user .navbar-user-chevron {
+    display: none;
+  }
+
+  .navbar-auth-user .navbar-log-btn {
+    display: none;
   }
 }
