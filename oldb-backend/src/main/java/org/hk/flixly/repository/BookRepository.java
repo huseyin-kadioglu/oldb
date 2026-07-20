@@ -94,4 +94,21 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
             LIMIT :limit
             """, nativeQuery = true)
     List<BookEntity> findNewReleases(@Param("limit") int limit);
+
+    @Query(value = """
+            SELECT * FROM books
+            WHERE author_id = :authorId
+            ORDER BY publication_year DESC NULLS LAST, id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<BookEntity> findRecentByAuthorId(@Param("authorId") Long authorId, @Param("limit") int limit);
+
+    @Query(value = """
+            SELECT * FROM books
+            WHERE genres IS NOT NULL
+              AND lower(genres) LIKE lower(concat('%', :genre, '%'))
+            ORDER BY publication_year DESC NULLS LAST, id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<BookEntity> findByGenreContaining(@Param("genre") String genre, @Param("limit") int limit);
 }

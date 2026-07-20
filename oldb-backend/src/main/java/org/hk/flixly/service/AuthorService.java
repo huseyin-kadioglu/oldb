@@ -85,6 +85,9 @@ public class AuthorService {
         List<BookDto> readByUser = bookDtos.stream()
                 .filter(BookDto::isRead)
                 .toList();
+        long libraryByUser = bookDtos.stream()
+                .filter(BookDto::isInLibrary)
+                .count();
 
         AuthorDto authorResponse = new AuthorDto();
         authorResponse.setId(authorEntity.getId());
@@ -103,6 +106,7 @@ public class AuthorService {
                 }).toList()
         );
         authorResponse.setUserReadCount(readByUser.size());
+        authorResponse.setUserLibraryCount((int) libraryByUser);
         authorResponse.setTotalBookCount(bookDtos.size());
 
         applyRatingStats(authorResponse, id);

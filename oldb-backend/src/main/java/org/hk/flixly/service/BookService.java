@@ -241,23 +241,27 @@ public class BookService {
                     dto.setOriginalTitle(book.getOriginalTitle());
                     dto.setWonNobelPrize(book.isWonNobelPrize());
                     dto.setPageCount(book.getPageCount());
-                    if (book.isWonNobelPrize()) {
-                        result.setNobelPrizeWinner(dto);
-                    }
                     double[] rating = ratingMap.getOrDefault(book.getId(), new double[]{0.0, 0L});
                     dto.setAverageRating(rating[0]);
                     dto.setRatingCount((long) rating[1]);
                     applyAuthorInfo(dto, book.getAuthorId(), authorMap);
                     return dto;
                 })
+                // Nobel-flagged books first
+                .sorted((a, b) -> Boolean.compare(b.isWonNobelPrize(), a.isWonNobelPrize()))
                 .collect(Collectors.toList());
         result.setBooks(bookDTOs);
 
-        if (result.getNobelPrizeWinner() != null) {
-            Long authorId = result.getNobelPrizeWinner().getAuthorId();
-            AuthorEntity author = authorRepository.findById(authorId).orElse(null);
-            result.setAuthor(author);
-        }
+        bookDTOs.stream()
+                .filter(BookDto::isWonNobelPrize)
+                .findFirst()
+                .ifPresent(dto -> {
+                    result.setNobelPrizeWinner(dto);
+                    if (dto.getAuthorId() != null) {
+                        AuthorEntity author = authorRepository.findById(dto.getAuthorId()).orElse(null);
+                        result.setAuthor(author);
+                    }
+                });
         return result;
     }
 

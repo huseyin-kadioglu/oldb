@@ -22,6 +22,8 @@ public class AuthorDto {
     private List<BookDto> books;
     private List<BookEntity> haveBeenReadByTheUser;
     private int userReadCount;
+    /** Kullanıcının kütüphanesindeki (LIBRARY) kitap sayısı */
+    private int userLibraryCount;
     private int totalBookCount;
 
     private double averageRating;

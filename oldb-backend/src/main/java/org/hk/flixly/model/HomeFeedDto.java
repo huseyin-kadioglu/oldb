@@ -30,4 +30,22 @@ public class HomeFeedDto {
     private List<CommunityReviewDto> popularReviews = new ArrayList<>();
 
     private CommunityStatsDto communityStats;
+
+    /** Personalized rails — empty when guest or insufficient reading history. */
+    @Builder.Default
+    private List<CommunityBookDto> fromMostReadAuthor = new ArrayList<>();
+
+    /** Display name for fromMostReadAuthor section, e.g. author name. */
+    private String mostReadAuthorName;
+
+    private Long mostReadAuthorId;
+
+    @Builder.Default
+    private List<CommunityBookDto> fromFavoriteGenres = new ArrayList<>();
+
+    /** Top genre label used for fromFavoriteGenres section. */
+    private String favoriteGenreLabel;
+
+    @Builder.Default
+    private List<CommunityBookDto> becauseYouRead = new ArrayList<>();
 }

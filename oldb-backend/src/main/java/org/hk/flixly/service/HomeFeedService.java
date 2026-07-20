@@ -2,24 +2,30 @@ package org.hk.flixly.service;
 
 import org.hk.flixly.model.CommunityBookDto;
 import org.hk.flixly.model.CommunityReviewDto;
+import org.hk.flixly.model.GenrePreferenceDto;
 import org.hk.flixly.model.HomeFeedDto;
 import org.hk.flixly.model.UserEntity;
 import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
+import org.hk.flixly.model.entity.UserBookMapEntity;
+import org.hk.flixly.model.enums.BookActivityStatus;
 import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.CommentRepository;
+import org.hk.flixly.repository.UserBookMapRepository;
 import org.hk.flixly.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,12 +38,17 @@ public class HomeFeedService {
     private static final int MIN_POPULAR_REVIEW_CHARS = 80;
     private static final int MIN_POPULAR_REVIEW_LIKES = 1;
     private static final int POPULAR_LOOKBACK_DAYS = 90;
+    /** Minimum completed/read books before personalized rails appear. */
+    private static final int MIN_READS_FOR_PERSONALIZATION = 3;
+    private static final int MIN_AUTHOR_READS = 2;
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final ActivityRepository activityRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final UserBookMapRepository userBookMapRepository;
+    private final GenrePreferenceService genrePreferenceService;
     private final CommunityService communityService;
 
     public HomeFeedService(
@@ -46,16 +57,24 @@ public class HomeFeedService {
             ActivityRepository activityRepository,
             CommentRepository commentRepository,
             UserRepository userRepository,
+            UserBookMapRepository userBookMapRepository,
+            GenrePreferenceService genrePreferenceService,
             CommunityService communityService) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.activityRepository = activityRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+        this.userBookMapRepository = userBookMapRepository;
+        this.genrePreferenceService = genrePreferenceService;
         this.communityService = communityService;
     }
 
     public HomeFeedDto getFeed() {
+        return getFeed(null);
+    }
+
+    public HomeFeedDto getFeed(Long userId) {
         LocalDate today = LocalDate.now();
         LocalDate monthStart = today.withDayOfMonth(1);
         LocalDate talkFrom = today.minusDays(30);
@@ -72,14 +91,103 @@ public class HomeFeedService {
         );
         List<CommunityReviewDto> popularReviews = loadPopularReviews(monthStart, monthStartTs, today);
 
-        return HomeFeedDto.builder()
+        HomeFeedDto.HomeFeedDtoBuilder builder = HomeFeedDto.builder()
                 .stoaPicks(stoa)
                 .newReleases(neu)
                 .discussed(discussed)
                 .allTimeMostRead(allTime)
                 .popularReviews(popularReviews)
-                .communityStats(communityService.getStats())
-                .build();
+                .communityStats(communityService.getStats());
+
+        if (userId != null) {
+            applyPersonalization(builder, userId);
+        }
+
+        return builder.build();
+    }
+
+    private void applyPersonalization(HomeFeedDto.HomeFeedDtoBuilder builder, Long userId) {
+        List<UserBookMapEntity> maps = userBookMapRepository.findByUserId(userId);
+        Set<Long> readIds = maps.stream()
+                .filter(m -> BookActivityStatus.READ.equals(m.getStatus())
+                        || BookActivityStatus.COMPLETED.equals(m.getStatus()))
+                .map(UserBookMapEntity::getBookId)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        if (readIds.size() < MIN_READS_FOR_PERSONALIZATION) {
+            return;
+        }
+
+        List<BookEntity> readBooks = bookRepository.findAllById(readIds);
+        Map<Long, Long> authorReadCounts = readBooks.stream()
+                .filter(b -> b.getAuthorId() != null)
+                .collect(Collectors.groupingBy(BookEntity::getAuthorId, Collectors.counting()));
+
+        Long topAuthorId = authorReadCounts.entrySet().stream()
+                .filter(e -> e.getValue() >= MIN_AUTHOR_READS)
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        List<CommunityBookDto> fromMostReadAuthor = List.of();
+        if (topAuthorId != null) {
+            List<BookEntity> unreadFromAuthor = bookRepository.findRecentByAuthorId(topAuthorId, RAIL_BOOKS * 3)
+                    .stream()
+                    .filter(b -> !readIds.contains(b.getId()))
+                    .limit(RAIL_BOOKS)
+                    .toList();
+            if (!unreadFromAuthor.isEmpty()) {
+                fromMostReadAuthor = mapBooks(unreadFromAuthor, null);
+                builder.fromMostReadAuthor(fromMostReadAuthor);
+                builder.mostReadAuthorId(topAuthorId);
+                authorRepository.findById(topAuthorId)
+                        .ifPresent(a -> builder.mostReadAuthorName(a.getName()));
+            }
+        }
+
+        List<GenrePreferenceDto> genres = genrePreferenceService.forUserId(userId);
+        if (!genres.isEmpty() && genres.get(0).getCount() >= 2) {
+            String topGenre = genres.get(0).getGenre();
+            List<BookEntity> genreBooks = bookRepository.findByGenreContaining(topGenre, RAIL_BOOKS * 3)
+                    .stream()
+                    .filter(b -> !readIds.contains(b.getId()))
+                    .limit(RAIL_BOOKS)
+                    .toList();
+            if (!genreBooks.isEmpty()) {
+                builder.fromFavoriteGenres(mapBooks(genreBooks, null));
+                builder.favoriteGenreLabel(topGenre);
+            }
+        }
+
+        // History-based: other unread books from authors the user has already read
+        Set<Long> usedIds = new HashSet<>(readIds);
+        fromMostReadAuthor.forEach(b -> usedIds.add(b.getId()));
+
+        List<Long> authorIds = authorReadCounts.keySet().stream()
+                .filter(id -> !Objects.equals(id, topAuthorId))
+                .sorted((a, b) -> Long.compare(authorReadCounts.get(b), authorReadCounts.get(a)))
+                .limit(5)
+                .toList();
+
+        List<BookEntity> historyPool = new ArrayList<>();
+        for (Long authorId : authorIds) {
+            historyPool.addAll(bookRepository.findRecentByAuthorId(authorId, 6));
+        }
+        if (historyPool.size() < RAIL_BOOKS && !genres.isEmpty()) {
+            for (GenrePreferenceDto g : genres.stream().limit(3).toList()) {
+                historyPool.addAll(bookRepository.findByGenreContaining(g.getGenre(), 6));
+            }
+        }
+
+        List<BookEntity> because = historyPool.stream()
+                .filter(b -> b.getId() != null && !usedIds.contains(b.getId()))
+                .collect(Collectors.toMap(BookEntity::getId, Function.identity(), (a, b) -> a, LinkedHashMap::new))
+                .values().stream()
+                .limit(RAIL_BOOKS)
+                .toList();
+        if (!because.isEmpty()) {
+            builder.becauseYouRead(mapBooks(because, null));
+        }
     }
 
     private List<CommunityReviewDto> loadPopularReviews(
