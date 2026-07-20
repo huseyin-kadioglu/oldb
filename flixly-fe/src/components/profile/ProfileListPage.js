@@ -5,7 +5,7 @@ import FrameBlock from "../common/FrameBlock";
 import "./ProfilePage.css";
 
 const LIST_TITLES = {
-  library: "Kütüphanem (sahip olduklarım)",
+  library: "Kütüphane",
   shopping: "Alınacaklar",
   readlist: "Okuma Listesi",
   read: "Okunanlar",
@@ -20,7 +20,12 @@ const ProfileListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const title = LIST_TITLES[listType?.toLowerCase()] ?? "Kitap Listesi";
+  const baseTitle = LIST_TITLES[listType?.toLowerCase()] ?? "Kitap Listesi";
+  const isLibrary = listType?.toLowerCase() === "library";
+  const title =
+    isLibrary || books.length > 0
+      ? `${baseTitle} (${books.length})`
+      : baseTitle;
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -44,11 +49,16 @@ const ProfileListPage = () => {
   if (error) return <div className="profile-list-page">{error}</div>;
 
   return (
-    <div className="profile-list-page">
+    <div className={`profile-list-page${isLibrary ? " profile-list-page--compact" : ""}`}>
       <Link to={`/profile/${username}`} className="profile-list-back">
         ← Profile dön
       </Link>
-      <FrameBlock title={title} books={books} showGhostMenu={false} />
+      <FrameBlock
+        title={title}
+        books={books}
+        showGhostMenu={false}
+        compact={isLibrary}
+      />
     </div>
   );
 };

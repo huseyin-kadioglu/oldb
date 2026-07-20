@@ -325,7 +325,7 @@ const ProfilePage = ({ books = [] }) => {
         empty={emptyGuest("Favori yok.")}
       />
       <ProfileShelf
-        title="Kütüphane"
+        title={`Kütüphane (${library.length})`}
         to={`/profile/${username}/list/library`}
         books={library}
         limit={24}
@@ -359,7 +359,7 @@ const ProfilePage = ({ books = [] }) => {
         empty={emptyGuest(isOwnProfile ? "Okuma listen boş." : "Okuma listesi boş.")}
       />
       <ProfileShelf
-        title="Kütüphane"
+        title={`Kütüphane (${library.length})`}
         to={`/profile/${username}/list/library`}
         books={library}
         limit={24}
@@ -462,7 +462,7 @@ const ProfilePage = ({ books = [] }) => {
 
       <div className="sidebar-block sidebar-block--soft">
         <div className="sidebar-title-row">
-          <h3 className="sidebar-title">Kütüphane</h3>
+          <h3 className="sidebar-title">Kütüphane ({library.length})</h3>
           <Link to={`/profile/${username}/list/library`} className="yg-edit">
             Tümü
           </Link>

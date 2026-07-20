@@ -355,12 +355,31 @@
   border-top: 1px solid var(--color-border-subtle);
 }
 
-.author-progress-top {
+.author-progress-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.author-progress-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.author-progress-meta {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.author-progress-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .author-progress-text {
@@ -371,15 +390,22 @@
 }
 
 .author-progress-pct {
-  font-size: 1.75rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--color-text);
   line-height: 1;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.author-progress-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .author-progress-bar {
-  height: 4px;
+  height: 3px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   overflow: hidden;
@@ -387,9 +413,16 @@
 
 .author-progress-fill {
   height: 100%;
-  background: #00c030;
   border-radius: 2px;
   transition: width 0.3s ease;
+}
+
+.author-progress-fill--read {
+  background: #00c030;
+}
+
+.author-progress-fill--library {
+  background: #e8c547;
 }
 
 @media (max-width: 900px) {

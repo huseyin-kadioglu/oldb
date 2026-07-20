@@ -66,15 +66,6 @@ const Content = ({ token }) => {
     () => localStorage.getItem(CHECKIN_HINT_KEY) !== "1"
   );
 
-  const community = feed?.communityStats;
-  // Avoid weak social proof while the community is still small.
-  const showCommunityProof = (community?.activeMembers ?? 0) >= 25;
-  const stoaPicks = feed?.stoaPicks || [];
-  const newReleases = feed?.newReleases || [];
-  const discussed = feed?.discussed || [];
-  const allTimeMostRead = feed?.allTimeMostRead || [];
-  const popularReviews = feed?.popularReviews || [];
-
   useEffect(() => {
     setFeedLoading(true);
     getHomeFeed()
@@ -82,7 +73,7 @@ const Content = ({ token }) => {
       .catch(() => setFeed(null))
       .finally(() => setFeedLoading(false));
     getActivityRecent(12).then(setRecentActivity).catch(() => setRecentActivity([]));
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     if (token && username) {
@@ -97,6 +88,20 @@ const Content = ({ token }) => {
   }, [token, username]);
 
   const displayName = profile?.profileName || username;
+
+  const community = feed?.communityStats;
+  // Avoid weak social proof while the community is still small.
+  const showCommunityProof = (community?.activeMembers ?? 0) >= 25;
+  const stoaPicks = feed?.stoaPicks || [];
+  const newReleases = feed?.newReleases || [];
+  const discussed = feed?.discussed || [];
+  const allTimeMostRead = feed?.allTimeMostRead || [];
+  const popularReviews = feed?.popularReviews || [];
+  const fromMostReadAuthor = feed?.fromMostReadAuthor || [];
+  const fromFavoriteGenres = feed?.fromFavoriteGenres || [];
+  const becauseYouRead = feed?.becauseYouRead || [];
+  const mostReadAuthorName = feed?.mostReadAuthorName;
+  const favoriteGenreLabel = feed?.favoriteGenreLabel;
 
   const toggleCheckin = async () => {
     if (!token || checkinBusy || !checkin) return;
@@ -136,11 +141,11 @@ const Content = ({ token }) => {
     }
   };
 
-  const renderBookRail = (title, list, linkLabel = "Daha fazla") => {
+  const renderBookRail = (title, list, { linkLabel = "Daha fazla", to = "/discover" } = {}) => {
     if (!list || list.length === 0) return null;
     return (
       <section className="lb-section">
-        <SectionHeader title={title} to="/books" linkLabel={linkLabel} />
+        <SectionHeader title={title} to={to} linkLabel={linkLabel} />
         <div className="lb-poster-row lb-poster-row--large">
           {list.map((book) => (
             <div key={book.id} className="lb-popular-item">
@@ -151,6 +156,14 @@ const Content = ({ token }) => {
       </section>
     );
   };
+
+  const discoverTo = (params) => {
+    const q = new URLSearchParams(params);
+    const s = q.toString();
+    return s ? `/discover?${s}` : "/discover";
+  };
+
+  const mostReadAuthorId = feed?.mostReadAuthorId || fromMostReadAuthor[0]?.authorId;
 
   return (
     <div className="lb-home">
@@ -291,10 +304,57 @@ const Content = ({ token }) => {
 
       {feedLoading && <p className="lb-empty">Raflar yükleniyor…</p>}
 
-      {renderBookRail("stoa önerdi", stoaPicks, "Keşfet")}
-      {renderBookRail("Yeni çıkanlar", newReleases)}
-      {renderBookRail("Konuşulanlar", discussed)}
-      {renderBookRail("Tüm zamanların en çok okunanları", allTimeMostRead)}
+      {token &&
+        renderBookRail(
+          mostReadAuthorName
+            ? `${mostReadAuthorName} — daha fazla`
+            : "En çok okuduğun yazardan",
+          fromMostReadAuthor,
+          {
+            linkLabel: "Keşfet",
+            to: discoverTo({
+              ...(mostReadAuthorId ? { authorId: String(mostReadAuthorId) } : {}),
+              ...(mostReadAuthorName ? { author: mostReadAuthorName } : {}),
+              sort: "mostRead",
+            }),
+          }
+        )}
+      {token &&
+        renderBookRail(
+          favoriteGenreLabel
+            ? `Sevdiğin tür: ${favoriteGenreLabel}`
+            : "Sevdiğin türlerden",
+          fromFavoriteGenres,
+          {
+            linkLabel: "Keşfet",
+            to: discoverTo({
+              ...(favoriteGenreLabel ? { genre: favoriteGenreLabel } : {}),
+              sort: "mostRead",
+            }),
+          }
+        )}
+      {token &&
+        renderBookRail("Okuma geçmişine göre", becauseYouRead, {
+          linkLabel: "Keşfet",
+          to: discoverTo({ sort: "mostRead" }),
+        })}
+
+      {renderBookRail("stoa önerdi", stoaPicks, {
+        linkLabel: "Keşfet",
+        to: discoverTo({ editorChoice: "true", sort: "newest" }),
+      })}
+      {renderBookRail("Yeni çıkanlar", newReleases, {
+        linkLabel: "Daha fazla",
+        to: discoverTo({ newRelease: "true", sort: "newest" }),
+      })}
+      {renderBookRail("Konuşulanlar", discussed, {
+        linkLabel: "Daha fazla",
+        to: discoverTo({ sort: "mostFavorited" }),
+      })}
+      {renderBookRail("Tüm zamanların en çok okunanları", allTimeMostRead, {
+        linkLabel: "Daha fazla",
+        to: discoverTo({ sort: "mostRead" }),
+      })}
 
       <section className="lb-section">
         <SectionHeader

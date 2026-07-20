@@ -457,7 +457,10 @@ export const getCommunityReviews = async (limit = 10) => {
 };
 
 export const getHomeFeed = async () => {
-  const response = await axios.get(`${BASE_URL}home`);
+  const token = sessionStorage.getItem("token");
+  const response = await axios.get(`${BASE_URL}home`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
   return response.data;
 };
 

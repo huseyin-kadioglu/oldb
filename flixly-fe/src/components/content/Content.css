@@ -45,42 +45,43 @@
 }
 
 .lb-checkin {
-  margin: 14px 0 6px;
+  margin: 10px 0 4px;
 }
 
 .lb-checkin-block {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  max-width: 420px;
+  gap: 6px;
+  max-width: 360px;
 }
 
 .lb-checkin-prompt {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .lb-checkin-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .lb-checkin-btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 14px 8px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  gap: 8px;
+  padding: 5px 10px 5px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.88);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
+  line-height: 1.2;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -91,28 +92,29 @@
 }
 
 .lb-checkin-btn.is-action {
-  border-color: rgba(212, 175, 55, 0.55);
-  background: rgba(212, 175, 55, 0.16);
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.14);
   color: #fff;
   font-weight: 600;
 }
 
 .lb-checkin-btn.is-action:hover:not(:disabled) {
-  border-color: rgba(212, 175, 55, 0.75);
-  background: rgba(212, 175, 55, 0.24);
+  border-color: rgba(212, 175, 55, 0.7);
+  background: rgba(212, 175, 55, 0.22);
 }
 
 .lb-checkin-btn.is-checked {
-  border-color: rgba(52, 168, 110, 0.55);
-  background: rgba(52, 168, 110, 0.14);
-  color: rgba(220, 245, 230, 0.95);
+  border-color: rgba(52, 168, 110, 0.45);
+  background: rgba(52, 168, 110, 0.12);
+  color: rgba(220, 245, 230, 0.92);
   font-weight: 500;
   box-shadow: none;
+  padding: 4px 9px 4px 6px;
 }
 
 .lb-checkin-btn.is-checked:hover:not(:disabled) {
-  border-color: rgba(52, 168, 110, 0.7);
-  background: rgba(52, 168, 110, 0.2);
+  border-color: rgba(52, 168, 110, 0.65);
+  background: rgba(52, 168, 110, 0.18);
 }
 
 .lb-checkin-btn:disabled,
@@ -125,11 +127,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
   border: 1.5px solid rgba(255, 255, 255, 0.28);
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: transparent;
   flex-shrink: 0;
@@ -145,30 +147,35 @@
   color: #dff7e8;
 }
 
+.lb-checkin-label {
+  white-space: nowrap;
+}
+
 .lb-checkin-streak {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.84rem;
+  gap: 4px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #e8b86d;
 }
 
 .lb-checkin-streak svg {
   color: #e09a3e;
+  font-size: 14px !important;
 }
 
 .lb-checkin-hint {
   margin: 0;
-  font-size: 0.78rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.38);
 }
 
 .lb-checkin-error {
   margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.4;
+  font-size: 0.75rem;
+  line-height: 1.35;
   color: #f0a0a0;
 }
 

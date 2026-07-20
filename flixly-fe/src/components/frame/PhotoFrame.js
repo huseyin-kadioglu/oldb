@@ -163,6 +163,7 @@ const PhotoFrame = ({
   const ratingValue = formatRatingValue(book.averageRating);
   const readerLabel = formatReaderLabel(book.readCount ?? book.howManyPplRead ?? 0);
   const isEditorPick = !!(book.isEditorChoice || book.editorChoice);
+  const isNobel = !!(book.wonNobelPrize || book.isWonNobelPrize);
   const showEditorBadge = showMeta && isEditorPick;
 
   const metaBlock = showMeta && (ratingValue || readerLabel) && (
@@ -214,7 +215,7 @@ const PhotoFrame = ({
   );
 
   return (
-    <div className={`photo-frame${showMeta ? " photo-frame--rich" : ""}`}>
+    <div className={`photo-frame${showMeta ? " photo-frame--rich" : ""}${isNobel ? " photo-frame--nobel" : ""}`}>
       <div className="frame-cover-wrap">
         {justShowCover === true ? (
           cover
@@ -222,6 +223,11 @@ const PhotoFrame = ({
           <Link to={`/book/${book.id}`} state={{ book }} className="frame-cover-link">
             {cover}
           </Link>
+        )}
+        {isNobel && (
+          <span className="frame-nobel-badge" title="Nobel Edebiyat Ödülü" aria-label="Nobel Edebiyat Ödülü">
+            Nobel
+          </span>
         )}
         {showEditorBadge && (
           <span className="frame-editor-badge" aria-label="Editörün Önerisi">

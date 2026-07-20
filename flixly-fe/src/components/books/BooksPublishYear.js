@@ -32,8 +32,11 @@ const BooksPublishYear = () => {
   if (loading) return <div className="page-loading">Yükleniyor…</div>;
   if (error) return <div className="page-error">{error}</div>;
 
-  const otherBooks = nobelWinnerBook
-    ? books.filter((b) => b.id !== nobelWinnerBook.id)
+  const nobelBooks = books.filter((b) => b.wonNobelPrize || b.isWonNobelPrize);
+  const restBooks = books.filter((b) => !(b.wonNobelPrize || b.isWonNobelPrize));
+  // Nobel kitapları üstte; highlight'taki kitap grid'de tekrarlanmasın
+  const gridBooks = nobelWinnerBook
+    ? [...nobelBooks.filter((b) => b.id !== nobelWinnerBook.id), ...restBooks]
     : books;
 
   return (
@@ -107,9 +110,9 @@ const BooksPublishYear = () => {
         <h2 className="books-year-section-title">
           {publishYear} yılında yayımlanan kitaplar
         </h2>
-        {otherBooks.length > 0 || (!nobelWinnerBook && books.length > 0) ? (
+        {gridBooks.length > 0 ? (
           <div className="books-year-grid">
-            {(nobelWinnerBook ? otherBooks : books).map((book) => (
+            {gridBooks.map((book) => (
               <PhotoFrame
                 key={book.id}
                 book={book}
@@ -124,7 +127,7 @@ const BooksPublishYear = () => {
             <p className="books-year-empty">Bu yıla ait kitap bulunamadı.</p>
           )
         )}
-        {nobelWinnerBook && otherBooks.length === 0 && (
+        {nobelWinnerBook && gridBooks.length === 0 && (
           <p className="books-year-empty">Bu yılda listelenen başka kitap yok.</p>
         )}
       </section>

@@ -150,7 +150,10 @@ const Author = () => {
 
   const totalBooks = author.totalBookCount ?? books.length;
   const readCount = author.userReadCount ?? books.filter((b) => b.read).length;
-  const completionPct = totalBooks > 0 ? Math.round((readCount / totalBooks) * 100) : 0;
+  const libraryCount =
+    author.userLibraryCount ?? books.filter((b) => b.inLibrary).length;
+  const readPct = totalBooks > 0 ? Math.round((readCount / totalBooks) * 100) : 0;
+  const libraryPct = totalBooks > 0 ? Math.round((libraryCount / totalBooks) * 100) : 0;
   const activeSort = SORT_OPTIONS.find((o) => o.id === sortId) || SORT_OPTIONS[0];
 
   return (
@@ -329,23 +332,41 @@ const Author = () => {
 
           {totalBooks > 0 && (
             <div className="author-progress-box">
-              <div className="author-progress-top">
-                <p className="author-progress-text">
-                  {isLoggedIn
-                    ? `${totalBooks} kitaptan ${readCount} tanesini okudunuz`
-                    : `${totalBooks} eser`}
-                </p>
-                {isLoggedIn && (
-                  <span className="author-progress-pct">{completionPct}%</span>
-                )}
-              </div>
-              {isLoggedIn && (
-                <div className="author-progress-bar">
-                  <div
-                    className="author-progress-fill"
-                    style={{ width: `${completionPct}%` }}
-                  />
+              {isLoggedIn ? (
+                <div className="author-progress-stack">
+                  <div className="author-progress-row">
+                    <div className="author-progress-meta">
+                      <span className="author-progress-label">Okunan</span>
+                      <span className="author-progress-pct">{readPct}%</span>
+                    </div>
+                    <div className="author-progress-bar" aria-hidden="true">
+                      <div
+                        className="author-progress-fill author-progress-fill--read"
+                        style={{ width: `${readPct}%` }}
+                      />
+                    </div>
+                    <p className="author-progress-hint">
+                      {readCount}/{totalBooks} kitap
+                    </p>
+                  </div>
+                  <div className="author-progress-row">
+                    <div className="author-progress-meta">
+                      <span className="author-progress-label">Kütüphane</span>
+                      <span className="author-progress-pct">{libraryPct}%</span>
+                    </div>
+                    <div className="author-progress-bar" aria-hidden="true">
+                      <div
+                        className="author-progress-fill author-progress-fill--library"
+                        style={{ width: `${libraryPct}%` }}
+                      />
+                    </div>
+                    <p className="author-progress-hint">
+                      {libraryCount}/{totalBooks} kitap
+                    </p>
+                  </div>
                 </div>
+              ) : (
+                <p className="author-progress-text">{totalBooks} eser</p>
               )}
             </div>
           )}

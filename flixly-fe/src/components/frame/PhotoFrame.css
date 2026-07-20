@@ -318,6 +318,34 @@
   pointer-events: none;
 }
 
+.frame-nobel-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 3;
+  padding: 2px 6px;
+  border: 1px solid rgba(232, 197, 71, 0.85);
+  border-radius: var(--radius-sm, 4px);
+  background: linear-gradient(135deg, rgba(232, 197, 71, 0.95), rgba(180, 140, 40, 0.92));
+  color: #1a1408;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.photo-frame--nobel .frame-cover-wrap {
+  box-shadow: 0 0 0 1px rgba(232, 197, 71, 0.45), var(--shadow-cover);
+}
+
+.frame-editor-badge:not(:only-of-type),
+.frame-cover-wrap:has(.frame-nobel-badge) .frame-editor-badge {
+  top: 26px;
+}
+
 .frame-logged-chip {
   display: inline-block;
   margin-top: 4px;
