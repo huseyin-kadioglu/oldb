@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/"; // Backend URL
+const rawBase = (process.env.REACT_APP_API_URL || "http://localhost:8080").trim();
+const BASE_URL = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
 /** Relative /uploads/... yollarını absolute URL'e çevirir */
 export const resolveMediaUrl = (url) => {
@@ -62,7 +63,7 @@ export const logout = () => {
 // APPROVAL SERVICES
 export const getAuthorApprovals = async () => {
   const token = sessionStorage.getItem("token");
-  const response = await fetch("http://localhost:8080/author-approvals", {
+  const response = await fetch(`${BASE_URL}author-approvals`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -72,7 +73,7 @@ export const getAuthorApprovals = async () => {
 
 export const approveAuthorApproval = async (author) => {
   const token = sessionStorage.getItem("token");
-  const response = await fetch("http://localhost:8080/author-approvals/approve", {
+  const response = await fetch(`${BASE_URL}author-approvals/approve`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -93,7 +94,7 @@ export const approveBookApproval = async (book) => {
 
   try {
     const response = await fetch(
-      "http://localhost:8080/book-approvals/approve",
+      `${BASE_URL}book-approvals/approve`,
       {
         method: "POST",
         headers: {
@@ -118,7 +119,7 @@ export const approveBookApproval = async (book) => {
 
 export const rejectAuthorApproval = async (id) => {
   const token = sessionStorage.getItem("token");
-  await fetch(`http://localhost:8080/author-approvals/reject/${id}`, {
+  await fetch(`${BASE_URL}author-approvals/reject/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -130,7 +131,7 @@ export const createBookContribution = async (data) => {
   const token = sessionStorage.getItem("token");
 
   try {
-    const response = await fetch("http://localhost:8080/book-approvals", {
+    const response = await fetch(`${BASE_URL}book-approvals`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -156,7 +157,7 @@ export const createBookContribution = async (data) => {
 export const createAuthorContribution = async (payload) => {
   const token = sessionStorage.getItem("token");
 
-  const response = await fetch("http://localhost:8080/author-approvals", {
+  const response = await fetch(`${BASE_URL}author-approvals`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -176,7 +177,7 @@ export const createAuthorContribution = async (payload) => {
 // CATALOG EDITOR (staff — direkt katalog girişi, onay kuyruğu yok)
 const catalogRequest = async (method, path, payload) => {
   const token = sessionStorage.getItem("token");
-  const response = await fetch(`http://localhost:8080/admin/catalog/${path}`, {
+  const response = await fetch(`${BASE_URL}admin/catalog/${path}`, {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -232,7 +233,7 @@ export const rejectBookApproval = async (id) => {
 
   try {
     const response = await fetch(
-      `http://localhost:8080/book-approvals/reject/${id}`,
+      `${BASE_URL}book-approvals/reject/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -519,7 +520,7 @@ export const createUserActivity = async (activityDto) => {
   const token = sessionStorage.getItem("token");
 
   try {
-    const response = await fetch("http://localhost:8080/userActivity/", {
+    const response = await fetch(`${BASE_URL}userActivity/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -545,7 +546,7 @@ export const createUserActivityFromGhostMenu = async (activityDto) => {
 
   try {
     const response = await fetch(
-      "http://localhost:8080/userActivity/ghostMenu",
+      `${BASE_URL}userActivity/ghostMenu`,
       {
         method: "POST",
         headers: {
@@ -721,7 +722,7 @@ export const loginAccount = async (param) => {
 
 export const extractApiErrorMessage = (error, fallback = "Bir hata oluştu.") => {
   if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
-    return "Sunucuya bağlanılamadı. Backend (localhost:8080) çalışıyor mu?";
+    return "Sunucuya bağlanılamadı. API sunucusu çalışıyor mu?";
   }
 
   const data = error.response?.data;

@@ -1,5 +1,6 @@
 package org.hk.flixly.controller;
 
+import org.hk.flixly.config.AppProperties;
 import org.hk.flixly.model.LoginResponse;
 import org.hk.flixly.model.LoginUserDto;
 import org.hk.flixly.model.RegisterUserDto;
@@ -16,18 +17,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    // Base URL config üzerinden de gelebilir
-    private static final String FRONTEND_URL = "http://localhost:3000";
-    private static final String LOGIN_URL = FRONTEND_URL + "/login";
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private final AppProperties appProperties;
 
     public AuthController(
             JwtService jwtService,
-            AuthenticationService authenticationService
+            AuthenticationService authenticationService,
+            AppProperties appProperties
     ) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
+        this.appProperties = appProperties;
     }
 
     @PostMapping("/signup")
@@ -64,23 +65,19 @@ public class AuthController {
     }
 
     private String successHtml() {
+        String loginUrl = appProperties.loginUrl();
         return new StringBuilder()
                 .append("<html><head>")
                 .append("<meta charset='UTF-8'/>")
                 .append("<title>Hesap Aktifleştirildi</title>")
                 .append("<style>")
-                // Genel stiller
                 .append("body { margin:0; font-family: Graphik-Light-Web, sans-serif; ")
                 .append("background-color:#1e242b; color:#ffffff; ")
                 .append("display:flex; justify-content:center; align-items:center; height:100vh; }")
-                // Kart
                 .append(".card { background:#2a2f38; padding:40px; border-radius:16px; ")
                 .append("width:420px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.4); }")
-                // Başlık
                 .append("h2 { color:#fbc401; font-weight:400; margin-bottom:20px; }")
-                // Açıklama
                 .append("p { color:#aaa; font-size:1.1rem; margin-bottom:28px; }")
-                // Buton
                 .append("a { display:inline-block; background:#fbc401; color:#000; ")
                 .append("padding:12px 20px; border-radius:8px; text-decoration:none; font-size:1rem; }")
                 .append("a:hover { background:#e0a800; }")
@@ -89,7 +86,7 @@ public class AuthController {
                 .append("<div class='card'>")
                 .append("<h2>🎉 Hesabınız Aktifleştirildi</h2>")
                 .append("<p>Artık giriş yapabilirsiniz.</p>")
-                .append("<a href='").append(LOGIN_URL).append("'>Giriş Yap</a>")
+                .append("<a href='").append(loginUrl).append("'>Giriş Yap</a>")
                 .append("</div>")
                 .append("</body></html>")
                 .toString();
@@ -104,14 +101,10 @@ public class AuthController {
                 .append("body { margin:0; font-family: Graphik-Light-Web, sans-serif; ")
                 .append("background-color:#1e242b; color:#ffffff; ")
                 .append("display:flex; justify-content:center; align-items:center; height:100vh; }")
-
                 .append(".card { background:#2a2f38; padding:40px; border-radius:16px; ")
                 .append("width:420px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.4); }")
-
                 .append("h2 { color:#ff5c5c; font-weight:400; margin-bottom:20px; }")
-
                 .append("p { color:#aaa; font-size:1.1rem; margin-bottom:10px; }")
-
                 .append("</style>")
                 .append("</head><body>")
                 .append("<div class='card'>")
@@ -121,5 +114,4 @@ public class AuthController {
                 .append("</body></html>")
                 .toString();
     }
-
 }

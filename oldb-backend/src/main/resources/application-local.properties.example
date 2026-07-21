@@ -1,0 +1,8 @@
+# Copy to application-local.properties (gitignored) for local secrets.
+# spring.profiles.include=local loads this automatically in application.properties.
+
+security.jwt.secret-key=REPLACE_WITH_A_LONG_RANDOM_SECRET
+
+spring.mail.username=your@gmail.com
+spring.mail.password=YOUR_GMAIL_APP_PASSWORD
+app.mail.from=OLDB <your@gmail.com>

@@ -111,6 +111,14 @@
   padding-top: 2px;
 }
 
+/* Keeps title / byline / meta spacing when wrapped for mobile order */
+.book-page-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
 /* Küçük tür etiketi — başlığın üstünde (Figma kicker) */
 .book-page-kicker {
   margin: 0;
