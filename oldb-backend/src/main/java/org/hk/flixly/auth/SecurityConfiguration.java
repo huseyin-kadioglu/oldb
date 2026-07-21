@@ -50,7 +50,8 @@ public class SecurityConfiguration {
                                 "/gamification/badges/**",
                                 "/gamification/challenges/**",
                                 "/genres/**",
-                                "/actuator/health"
+                                "/actuator/health",
+                                "/actuator/health/**"
                         ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/comments", "/comments/**").permitAll()

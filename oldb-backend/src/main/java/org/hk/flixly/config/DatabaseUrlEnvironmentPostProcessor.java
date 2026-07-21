@@ -6,84 +6,108 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Prefer Railway/Heroku {@code DATABASE_URL=postgresql://user:pass@host:port/db}
- * over local jdbc defaults when the env var is present.
+ * Maps Railway/Heroku style DB env vars onto {@code spring.datasource.*}.
+ * Supports {@code DATABASE_URL}, {@code SPRING_DATASOURCE_URL}, and discrete {@code PG*} vars.
  */
 public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
+    private static final Pattern URL_PATTERN = Pattern.compile(
+            "^(jdbc:)?postgres(?:ql)?://([^:@/]+)(?::([^@/]*))?@([^:/]+)(?::(\\d+))?/([^?]+)(?:\\?(.*))?$",
+            Pattern.CASE_INSENSITIVE
+    );
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+        Map<String, Object> map = new HashMap<>();
+
         String raw = firstNonBlank(
                 System.getenv("SPRING_DATASOURCE_URL"),
                 System.getenv("DATABASE_URL"),
+                System.getenv("DATABASE_PRIVATE_URL"),
+                System.getenv("POSTGRES_URL"),
                 environment.getProperty("SPRING_DATASOURCE_URL"),
-                environment.getProperty("DATABASE_URL")
+                environment.getProperty("DATABASE_URL"),
+                environment.getProperty("DATABASE_PRIVATE_URL")
         );
-        if (raw == null || raw.isBlank()) {
-            return;
+
+        if (raw != null && !raw.isBlank()) {
+            if (raw.startsWith("jdbc:postgresql://") || raw.startsWith("jdbc:postgres://")) {
+                map.put("spring.datasource.url", ensureSsl(raw.replace("jdbc:postgres://", "jdbc:postgresql://")));
+                putEnv(map, "spring.datasource.username", "SPRING_DATASOURCE_USERNAME", "PGUSER", "POSTGRES_USER");
+                putEnv(map, "spring.datasource.password", "SPRING_DATASOURCE_PASSWORD", "PGPASSWORD", "POSTGRES_PASSWORD");
+            } else {
+                Matcher m = URL_PATTERN.matcher(raw.trim());
+                if (m.matches()) {
+                    String user = decode(m.group(2));
+                    String pass = m.group(3) != null ? decode(m.group(3)) : "";
+                    String host = m.group(4);
+                    String port = m.group(5) != null ? m.group(5) : "5432";
+                    String db = m.group(6);
+                    String query = m.group(7);
+                    String jdbc = "jdbc:postgresql://" + host + ":" + port + "/" + db;
+                    if (query != null && !query.isBlank()) {
+                        jdbc = jdbc + "?" + query;
+                    }
+                    jdbc = ensureSsl(jdbc);
+                    map.put("spring.datasource.url", jdbc);
+                    map.put("spring.datasource.username", user);
+                    map.put("spring.datasource.password", pass);
+                }
+            }
         }
 
-        Map<String, Object> map = new HashMap<>();
-        if (raw.startsWith("jdbc:")) {
-            map.put("spring.datasource.url", raw);
-            putEnv(map, "spring.datasource.username", "SPRING_DATASOURCE_USERNAME");
-            putEnv(map, "spring.datasource.password", "SPRING_DATASOURCE_PASSWORD");
-            environment.getPropertySources().addFirst(new MapPropertySource("databaseUrlJdbc", map));
-            return;
+        if (!map.containsKey("spring.datasource.url")) {
+            String host = firstNonBlank(System.getenv("PGHOST"), System.getenv("POSTGRES_HOST"));
+            String db = firstNonBlank(System.getenv("PGDATABASE"), System.getenv("POSTGRES_DB"));
+            String user = firstNonBlank(System.getenv("PGUSER"), System.getenv("POSTGRES_USER"));
+            String pass = firstNonBlank(System.getenv("PGPASSWORD"), System.getenv("POSTGRES_PASSWORD"));
+            String port = firstNonBlank(System.getenv("PGPORT"), System.getenv("POSTGRES_PORT"), "5432");
+            if (host != null && db != null && user != null && pass != null) {
+                String jdbc = ensureSsl("jdbc:postgresql://" + host + ":" + port + "/" + db);
+                map.put("spring.datasource.url", jdbc);
+                map.put("spring.datasource.username", user);
+                map.put("spring.datasource.password", pass);
+            }
         }
 
-        try {
-            URI uri = new URI(raw);
-            String scheme = uri.getScheme();
-            if (scheme == null) {
-                return;
-            }
-            if (!scheme.equals("postgres") && !scheme.equals("postgresql")) {
-                return;
-            }
-            String userInfo = uri.getUserInfo();
-            if (userInfo == null || !userInfo.contains(":")) {
-                return;
-            }
-            int colon = userInfo.indexOf(':');
-            String user = decode(userInfo.substring(0, colon));
-            String pass = decode(userInfo.substring(colon + 1));
-            String host = uri.getHost();
-            int port = uri.getPort() > 0 ? uri.getPort() : 5432;
-            String path = uri.getPath();
-            if (path == null || path.length() < 2) {
-                return;
-            }
-            String db = path.startsWith("/") ? path.substring(1) : path;
-            String query = uri.getQuery();
-            String jdbc = "jdbc:postgresql://" + host + ":" + port + "/" + db
-                    + (query != null && !query.isBlank() ? "?" + query : "");
-
-            map.put("spring.datasource.url", jdbc);
-            map.put("spring.datasource.username", user);
-            map.put("spring.datasource.password", pass);
+        if (!map.isEmpty()) {
             environment.getPropertySources().addFirst(new MapPropertySource("databaseUrlParsed", map));
-        } catch (URISyntaxException ignored) {
-            // leave application defaults
         }
     }
 
-    private static void putEnv(Map<String, Object> map, String key, String envName) {
-        String value = System.getenv(envName);
-        if (value != null && !value.isBlank()) {
-            map.put(key, value);
+    /** Railway public Postgres typically requires SSL. */
+    private static String ensureSsl(String jdbc) {
+        if (jdbc.contains("localhost") || jdbc.contains("127.0.0.1")) {
+            return jdbc;
+        }
+        if (jdbc.contains("sslmode=")) {
+            return jdbc;
+        }
+        return jdbc + (jdbc.contains("?") ? "&" : "?") + "sslmode=require";
+    }
+
+    private static void putEnv(Map<String, Object> map, String key, String... envNames) {
+        for (String name : envNames) {
+            String v = System.getenv(name);
+            if (v != null && !v.isBlank()) {
+                map.put(key, v);
+                return;
+            }
         }
     }
 
     private static String firstNonBlank(String... values) {
+        if (values == null) {
+            return null;
+        }
         for (String v : values) {
             if (v != null && !v.isBlank()) {
                 return v;
