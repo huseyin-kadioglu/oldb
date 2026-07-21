@@ -37,13 +37,13 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
         Map<String, Object> map = new HashMap<>();
 
         String raw = firstNonBlank(
-                System.getenv("SPRING_DATASOURCE_URL"),
                 System.getenv("DATABASE_URL"),
                 System.getenv("DATABASE_PRIVATE_URL"),
                 System.getenv("POSTGRES_URL"),
-                environment.getProperty("SPRING_DATASOURCE_URL"),
+                System.getenv("SPRING_DATASOURCE_URL"),
                 environment.getProperty("DATABASE_URL"),
-                environment.getProperty("DATABASE_PRIVATE_URL")
+                environment.getProperty("DATABASE_PRIVATE_URL"),
+                environment.getProperty("SPRING_DATASOURCE_URL")
         );
 
         if (raw != null && !raw.isBlank()) {
@@ -51,8 +51,14 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
             if (raw.startsWith("jdbc:postgresql://") || raw.startsWith("jdbc:postgres://")) {
                 String jdbc = raw.replace("jdbc:postgres://", "jdbc:postgresql://");
                 map.put("spring.datasource.url", jdbc);
-                putEnv(map, "spring.datasource.username", "SPRING_DATASOURCE_USERNAME", "PGUSER", "POSTGRES_USER");
-                putEnv(map, "spring.datasource.password", "SPRING_DATASOURCE_PASSWORD", "PGPASSWORD", "POSTGRES_PASSWORD");
+                // Prefer credentials from DATABASE_URL when present (avoids leftover myuser/mypassword)
+                String dbUrl = firstNonBlank(System.getenv("DATABASE_URL"), System.getenv("DATABASE_PRIVATE_URL"));
+                if (dbUrl != null && applyCredentialsFromPostgresUrl(map, dbUrl)) {
+                    System.out.println("[oldb-db] credentials taken from DATABASE_URL");
+                } else {
+                    putEnv(map, "spring.datasource.username", "SPRING_DATASOURCE_USERNAME", "PGUSER", "POSTGRES_USER");
+                    putEnv(map, "spring.datasource.password", "SPRING_DATASOURCE_PASSWORD", "PGPASSWORD", "POSTGRES_PASSWORD");
+                }
             } else {
                 Matcher m = URL_PATTERN.matcher(raw);
                 if (m.matches()) {
@@ -96,6 +102,16 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
         } else {
             System.out.println("[oldb-db] WARNING: no cloud DB env detected; Spring may fall back to localhost");
         }
+    }
+
+    private static boolean applyCredentialsFromPostgresUrl(Map<String, Object> map, String raw) {
+        Matcher m = URL_PATTERN.matcher(raw.trim());
+        if (!m.matches()) {
+            return false;
+        }
+        map.put("spring.datasource.username", decode(m.group(2)));
+        map.put("spring.datasource.password", m.group(3) != null ? decode(m.group(3)) : "");
+        return true;
     }
 
     private static boolean notBlank(String v) {
