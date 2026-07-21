@@ -97,6 +97,8 @@ public class AuthorService {
         authorResponse.setDescription(authorEntity.getDescription());
         authorResponse.setPortrait(authorEntity.getPortrait());
         authorResponse.setCountry(authorEntity.getCountry());
+        authorResponse.setWonNobelPrize(authorEntity.isWonNobelPrize());
+        authorResponse.setNobelYear(authorEntity.getNobelYear());
         authorResponse.setBooks(bookDtos);
         authorResponse.setBookWrittenBy(writtenByAuthor);
         authorResponse.setHaveBeenReadByTheUser(
@@ -130,6 +132,8 @@ public class AuthorService {
         dto.setPublicationYear(book.getPublicationYear());
         dto.setPageCount(book.getPageCount());
         dto.setWonNobelPrize(book.isWonNobelPrize());
+        dto.setAuthorWonNobelPrize(author != null && author.isWonNobelPrize());
+        dto.setAuthorNobelYear(author != null ? author.getNobelYear() : null);
         dto.setPageCount(book.getPageCount());
         dto.setIsbn(book.getIsbn());
         dto.setEditorChoice(book.isEditorChoice());

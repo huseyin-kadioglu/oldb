@@ -16,6 +16,10 @@ public class AuthorDto {
     private Integer deathYear;
     private String description;
     private String country;
+    /** Nobel Edebiyat Ödülü sahibi */
+    private boolean wonNobelPrize;
+    /** Nobel aldığı yıl */
+    private Integer nobelYear;
     /** Ham kitap listesi (geriye uyumluluk) */
     private List<BookEntity> bookWrittenBy;
     /** Kullanıcı durumlarıyla zenginleştirilmiş kitaplar */

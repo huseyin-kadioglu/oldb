@@ -63,8 +63,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
     @Query("SELECT b FROM BookEntity b WHERE b.weeklyPick = true")
     List<BookEntity> findAllWeeklyPicks();
 
-    @Query("SELECT b FROM BookEntity b WHERE " +
-           "(:nobelOnly = false OR b.isWonNobelPrize = true) AND " +
+    @Query("SELECT b FROM BookEntity b, AuthorEntity a WHERE b.authorId = a.id AND " +
+           "(:nobelOnly = false OR a.wonNobelPrize = true) AND " +
            "(:yearFrom IS NULL OR b.publicationYear >= :yearFrom) AND " +
            "(:yearTo IS NULL OR b.publicationYear <= :yearTo)")
     List<BookEntity> findFiltered(@Param("nobelOnly") boolean nobelOnly,

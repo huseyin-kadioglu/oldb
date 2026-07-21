@@ -28,6 +28,13 @@ public class AuthorEntity {
 
     private String country;
 
+    /** Nobel Edebiyat Ödülü sahibi mi (ödül yazara verilir, kitaba değil) */
+    @Column(nullable = false)
+    private boolean wonNobelPrize = false;
+
+    /** Nobel aldığı yıl, örn. 1957 */
+    private Integer nobelYear;
+
     /** Open Library author key, e.g. /authors/OL23919A */
     @Column(unique = true)
     private String openLibraryKey;
