@@ -1,9 +1,0 @@
-target/
-.idea/
-*.iml
-uploads/
-src/main/resources/application-local.properties
-.git/
-*.md
-.env
-.env.*

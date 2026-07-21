@@ -1,8 +1,0 @@
-# Root ignores
-.env
-.env.*
-!.env.example
-*.sql
-!oldb-backend/scripts/**/*.sql
-.idea/
-backup_before_wipe_*.sql

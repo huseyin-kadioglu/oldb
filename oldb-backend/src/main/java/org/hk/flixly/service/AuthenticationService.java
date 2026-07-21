@@ -6,7 +6,6 @@ import org.hk.flixly.model.MailRequest;
 import org.hk.flixly.model.RegisterUserDto;
 import org.hk.flixly.model.SignupResponse;
 import org.hk.flixly.model.UserEntity;
-import org.hk.flixly.config.AppProperties;
 import org.hk.flixly.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,20 +33,16 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     private final MailService mailService;
-    private final AppProperties appProperties;
 
     public AuthenticationService(
             UserRepository userRepository,
             AuthenticationManager authenticationManager,
-            BCryptPasswordEncoder passwordEncoder,
-            MailService mailService,
-            AppProperties appProperties
+            BCryptPasswordEncoder passwordEncoder, MailService mailService
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
-        this.appProperties = appProperties;
     }
 
     public SignupResponse signup(RegisterUserDto dto) {
@@ -105,7 +100,7 @@ public class AuthenticationService {
         userRepository.save(user);
 
         String encodedToken = URLEncoder.encode(user.getActivationToken(), StandardCharsets.UTF_8);
-        String activationLink = appProperties.activationUrl(encodedToken);
+        String activationLink = "http://localhost:8080/api/auth/activate?token=" + encodedToken;
         String mailBody = buildActivationEmail(user.getFullName(), activationLink);
 
         MailRequest emailRequest = new MailRequest();
