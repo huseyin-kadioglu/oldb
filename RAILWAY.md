@@ -45,24 +45,28 @@ railway link   # projeyi seç
 railway up
 ```
 
-## 4. Environment variables (API servisi)
+## 4. Environment variables (API / **oldb** servisi)
 
-API servisi → **Variables** → şunları ekle:
+Değişkenler **Postgres’te değil, oldb (API) servisinde** olmalı.
 
-| Variable | Değer |
-|----------|--------|
+### En güvenilir yöntem (önerilen)
+
+`postgresql://...` Spring’e doğrudan gitmez. JDBC formu kullan:
+
+| Key | Value |
+|-----|--------|
 | `SPRING_PROFILES_ACTIVE` | `prod` |
-| `DATABASE_URL` | Postgres’ten **Variable Reference** → `${{Postgres.DATABASE_URL}}` |
-| `SECURITY_JWT_SECRET_KEY` | uzun rastgele string (32+ byte) |
-| `APP_BACKEND_URL` | Deploy sonrası public URL (önce placeholder, sonra güncelle) |
-| `APP_FRONTEND_URL` | Şimdilik `http://localhost:3000` (FE deploy edilene kadar) |
-| `APP_CORS_ORIGINS` | `http://localhost:3000` (FE URL’i gelince güncelle) |
-| `APP_MAIL_FROM` | `OLDB <senin@gmail.com>` (mail sağlayıcıya geçene kadar) |
-| `SPRING_MAIL_HOST` | `smtp.gmail.com` |
-| `SPRING_MAIL_PORT` | `587` |
-| `SPRING_MAIL_USERNAME` | mail adresin |
-| `SPRING_MAIL_PASSWORD` | **yeni** app password |
-| `APP_UPLOAD_DIR` | `/data/uploads` |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://postgres.railway.internal:5432/railway` |
+| `SPRING_DATASOURCE_USERNAME` | `postgres` |
+| `SPRING_DATASOURCE_PASSWORD` | Postgres şifren |
+| `SECURITY_JWT_SECRET_KEY` | uzun rastgele string |
+| `APP_FRONTEND_URL` | `http://localhost:3000` |
+| `APP_CORS_ORIGINS` | `http://localhost:3000` |
+
+Boş `DATABASE_URL=` satırı varsa **sil**. İstersen ayrıca Variable Reference ile `DATABASE_URL` ekleyebilirsin; asıl çalışan genelde `SPRING_DATASOURCE_*` üçlüsüdür.
+
+Deploy log’da şunu gör: `[oldb-db] DATABASE_URL set=... SPRING_DATASOURCE_URL set=...`  
+İkisi de `false` ise değişkenler yanlış serviste demektir.
 
 JWT üretmek (PowerShell):
 

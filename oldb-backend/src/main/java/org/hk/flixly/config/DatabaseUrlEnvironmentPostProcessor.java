@@ -26,6 +26,14 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+        boolean hasDatabaseUrl = notBlank(System.getenv("DATABASE_URL"));
+        boolean hasSpringUrl = notBlank(System.getenv("SPRING_DATASOURCE_URL"));
+        boolean hasPgHost = notBlank(System.getenv("PGHOST"));
+        // Visible in Railway deploy logs — no secrets
+        System.out.println("[oldb-db] DATABASE_URL set=" + hasDatabaseUrl
+                + " SPRING_DATASOURCE_URL set=" + hasSpringUrl
+                + " PGHOST set=" + hasPgHost);
+
         Map<String, Object> map = new HashMap<>();
 
         String raw = firstNonBlank(
@@ -39,12 +47,14 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
         );
 
         if (raw != null && !raw.isBlank()) {
+            raw = raw.trim();
             if (raw.startsWith("jdbc:postgresql://") || raw.startsWith("jdbc:postgres://")) {
-                map.put("spring.datasource.url", ensureSsl(raw.replace("jdbc:postgres://", "jdbc:postgresql://")));
+                String jdbc = raw.replace("jdbc:postgres://", "jdbc:postgresql://");
+                map.put("spring.datasource.url", jdbc);
                 putEnv(map, "spring.datasource.username", "SPRING_DATASOURCE_USERNAME", "PGUSER", "POSTGRES_USER");
                 putEnv(map, "spring.datasource.password", "SPRING_DATASOURCE_PASSWORD", "PGPASSWORD", "POSTGRES_PASSWORD");
             } else {
-                Matcher m = URL_PATTERN.matcher(raw.trim());
+                Matcher m = URL_PATTERN.matcher(raw);
                 if (m.matches()) {
                     String user = decode(m.group(2));
                     String pass = m.group(3) != null ? decode(m.group(3)) : "";
@@ -56,10 +66,12 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
                     if (query != null && !query.isBlank()) {
                         jdbc = jdbc + "?" + query;
                     }
-                    jdbc = ensureSsl(jdbc);
                     map.put("spring.datasource.url", jdbc);
                     map.put("spring.datasource.username", user);
                     map.put("spring.datasource.password", pass);
+                    System.out.println("[oldb-db] parsed host=" + host + " db=" + db + " user=" + user);
+                } else {
+                    System.out.println("[oldb-db] DATABASE_URL present but did not match expected postgres URL pattern");
                 }
             }
         }
@@ -71,27 +83,23 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
             String pass = firstNonBlank(System.getenv("PGPASSWORD"), System.getenv("POSTGRES_PASSWORD"));
             String port = firstNonBlank(System.getenv("PGPORT"), System.getenv("POSTGRES_PORT"), "5432");
             if (host != null && db != null && user != null && pass != null) {
-                String jdbc = ensureSsl("jdbc:postgresql://" + host + ":" + port + "/" + db);
+                String jdbc = "jdbc:postgresql://" + host + ":" + port + "/" + db;
                 map.put("spring.datasource.url", jdbc);
                 map.put("spring.datasource.username", user);
                 map.put("spring.datasource.password", pass);
+                System.out.println("[oldb-db] using PG* host=" + host + " db=" + db);
             }
         }
 
         if (!map.isEmpty()) {
             environment.getPropertySources().addFirst(new MapPropertySource("databaseUrlParsed", map));
+        } else {
+            System.out.println("[oldb-db] WARNING: no cloud DB env detected; Spring may fall back to localhost");
         }
     }
 
-    /** Railway public Postgres typically requires SSL. */
-    private static String ensureSsl(String jdbc) {
-        if (jdbc.contains("localhost") || jdbc.contains("127.0.0.1")) {
-            return jdbc;
-        }
-        if (jdbc.contains("sslmode=")) {
-            return jdbc;
-        }
-        return jdbc + (jdbc.contains("?") ? "&" : "?") + "sslmode=require";
+    private static boolean notBlank(String v) {
+        return v != null && !v.isBlank();
     }
 
     private static void putEnv(Map<String, Object> map, String key, String... envNames) {
