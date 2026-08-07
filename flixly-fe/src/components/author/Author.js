@@ -168,6 +168,14 @@ const Author = () => {
           <header className="author-main-header">
             <p className="author-main-label">Yazarın kitapları</p>
             <h1 className="author-main-name">{author.name}</h1>
+            {(author.wonNobelPrize || author.isWonNobelPrize) && (
+              <p className="author-nobel-badge">
+                Nobel Edebiyat Ödülü sahibi
+                {(author.nobelYear || author.nobel_year)
+                  ? ` · ${author.nobelYear || author.nobel_year}`
+                  : ""}
+              </p>
+            )}
             {author.country && (
               <p className="author-main-meta">{author.country}</p>
             )}

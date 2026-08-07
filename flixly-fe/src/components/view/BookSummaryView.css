@@ -107,8 +107,17 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 18px;
   padding-top: 2px;
+}
+
+/* Başlık / yazar / yıl — birbirine yapışmasın */
+.book-page-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
 }
 
 /* Küçük tür etiketi — başlığın üstünde (Figma kicker) */
@@ -141,7 +150,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 2px;
+  margin: 0 0 4px;
 }
 
 .book-award-badge {
@@ -172,13 +181,14 @@
   font-weight: 600;
   color: rgba(255, 255, 255, 0.96);
   margin: 0;
-  line-height: 1.15;
+  padding: 0;
+  line-height: 1.22;
   letter-spacing: -0.015em;
 }
 
 .book-page-staff-edit {
   display: inline-block;
-  margin-left: 14px;
+  margin: 2px 0 0;
   font-size: 0.76rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.45);
@@ -193,8 +203,9 @@
 
 .book-page-byline {
   font-size: 1.02rem;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.62);
-  margin: 0;
+  margin: 4px 0 0;
 }
 
 .book-page-author {
@@ -220,7 +231,7 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: 8px 10px;
-  margin-top: 2px;
+  margin: 6px 0 0;
 }
 
 .book-page-stars {
@@ -241,15 +252,16 @@
 }
 
 .book-page-meta-line {
-  margin: 0;
+  margin: 2px 0 0;
   font-size: 0.92rem;
   font-weight: 500;
   letter-spacing: 0.02em;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.68);
 }
 
 .book-page-meta-divider {
-  margin: 0 12px;
+  margin: 0 10px;
   color: rgba(255, 255, 255, 0.22);
 }
 
@@ -265,25 +277,32 @@
   text-underline-offset: 3px;
 }
 
-/* Hızlı işlem çipleri — Beğen / Favori / Kütüphanemde… (Figma action row) */
+/* Hızlı işlem çipleri — Beğen / Favori / Kütüphanemde… */
 .book-action-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.75rem, 1fr));
+  gap: 8px;
+  margin: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .book-action-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-  padding: 9px 16px;
+  min-height: 40px;
+  padding: 8px 12px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.02);
   color: rgba(255, 255, 255, 0.82);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-sizing: border-box;
   cursor: pointer;
   transition:
     border-color 0.15s ease-out,
@@ -424,24 +443,39 @@
   }
 }
 
-/* Okuma durumu — pill'ler (Figma) */
+/* Okuma durumu — hero içinde, kimlikten sonra */
+.book-status-block {
+  margin: 2px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.book-status-block .book-flow-kicker {
+  margin-bottom: 10px;
+}
+
 .book-page-primary-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .book-primary-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 11px 22px;
+  min-height: 42px;
+  padding: 10px 18px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.02);
   color: rgba(255, 255, 255, 0.84);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-sizing: border-box;
   cursor: pointer;
   transition:
     border-color 0.15s ease-out,
@@ -501,8 +535,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
-  margin-top: 6px;
+  gap: 4px 16px;
+  margin: 0;
+  padding-top: 2px;
 }
 
 .book-tool-link {
@@ -1279,7 +1314,7 @@
   }
 }
 
-/* Dedicated mobile book layout: cover → actions → metadata */
+/* Mobile: kapak → kimlik → durum → aksiyonlar (doğal sıra, order yok) */
 @media (max-width: 767.98px) {
   .book-page {
     max-width: 100%;
@@ -1324,27 +1359,23 @@
   }
 
   .book-page-hero-body {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     width: 100%;
   }
 
+  .book-page-identity {
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
   .book-action-row {
-    order: 1;
-    margin-top: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
 
-  .book-page-identity {
-    order: 2;
-    text-align: center;
-  }
-
   .book-page-tools {
-    order: 3;
     justify-content: center;
   }
 

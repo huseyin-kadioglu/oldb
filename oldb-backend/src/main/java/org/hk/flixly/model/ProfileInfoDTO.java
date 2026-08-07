@@ -24,6 +24,9 @@ public class ProfileInfoDTO {
     private Integer totalPagesReadThisYear;
     private Integer totalPagesReadThisMonth;
     private Double pagePerDayThisMonth;
+    /** Bu yıl / ay KPI'ya giren (tarihli) okuma sayısı */
+    private Integer datedReadCountThisYear;
+    private Integer datedReadCountThisMonth;
     /** Kullanıcının verdiği puanların ortalaması (0–5); puan yoksa null */
     private Double averageRating;
     /** Ardışık gün okuma/aktivite serisi */

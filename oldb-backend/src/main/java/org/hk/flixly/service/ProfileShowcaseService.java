@@ -8,9 +8,12 @@ import org.hk.flixly.model.entity.AuthorEntity;
 import org.hk.flixly.model.entity.BookEntity;
 import org.hk.flixly.model.entity.ProfileShowcaseBookEntity;
 import org.hk.flixly.model.entity.ProfileShowcaseEntity;
+import org.hk.flixly.model.entity.UserActivityEntity;
+import org.hk.flixly.model.entity.UserBookMapEntity;
 import org.hk.flixly.model.enums.BookActivityStatus;
 import org.hk.flixly.model.enums.ShowcaseType;
 import org.hk.flixly.model.enums.UserRole;
+import org.hk.flixly.repository.ActivityRepository;
 import org.hk.flixly.repository.AuthorRepository;
 import org.hk.flixly.repository.BookRepository;
 import org.hk.flixly.repository.ProfileShowcaseBookRepository;
@@ -21,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,8 +40,8 @@ public class ProfileShowcaseService {
 
     public static final int LIMIT_FREE = 1;
     public static final int LIMIT_PRO = 3;
-    public static final int FAV_BOOKS_FREE = 3;
-    public static final int FAV_BOOKS_PRO = 6;
+    public static final int FAV_BOOKS_FREE = 5;
+    public static final int FAV_BOOKS_PRO = 5;
     public static final String DEFAULT_FAVORITE_TITLE = "Favori kitaplarım";
 
     private static final int QUOTE_MAX = 500;
@@ -50,6 +54,7 @@ public class ProfileShowcaseService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final UserBookMapRepository userBookMapRepository;
+    private final ActivityRepository activityRepository;
 
     public ProfileShowcaseService(
             ProfileShowcaseRepository showcaseRepository,
@@ -57,13 +62,15 @@ public class ProfileShowcaseService {
             UserRepository userRepository,
             BookRepository bookRepository,
             AuthorRepository authorRepository,
-            UserBookMapRepository userBookMapRepository) {
+            UserBookMapRepository userBookMapRepository,
+            ActivityRepository activityRepository) {
         this.showcaseRepository = showcaseRepository;
         this.showcaseBookRepository = showcaseBookRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.userBookMapRepository = userBookMapRepository;
+        this.activityRepository = activityRepository;
     }
 
     @Transactional
@@ -228,32 +235,73 @@ public class ProfileShowcaseService {
             throw new IllegalArgumentException(
                     "Bu vitrinde en fazla " + maxBooks + " kitap gösterebilirsin.");
         }
-        Set<Long> favouriteIds = userBookMapRepository.findByUserId(user.getId()).stream()
-                .filter(m -> BookActivityStatus.FAVOURITE.equals(m.getStatus()))
-                .map(org.hk.flixly.model.entity.UserBookMapEntity::getBookId)
-                .collect(Collectors.toSet());
 
         for (Long bookId : ordered) {
-            if (!favouriteIds.contains(bookId)) {
-                throw new IllegalArgumentException("Yalnızca favori kitaplarını seçebilirsin.");
-            }
             if (!bookRepository.existsById(bookId)) {
                 throw new IllegalArgumentException("Kitap bulunamadı");
             }
+            ensureFavourite(user.getId(), bookId);
         }
 
-        showcaseBookRepository.deleteByShowcaseId(entity.getId());
-        int pos = 0;
-        List<ProfileShowcaseBookEntity> rows = new ArrayList<>();
-        for (Long bookId : ordered) {
-            rows.add(ProfileShowcaseBookEntity.builder()
-                    .showcaseId(entity.getId())
-                    .bookId(bookId)
-                    .position(pos++)
-                    .build());
+        List<ProfileShowcaseBookEntity> existing =
+                showcaseBookRepository.findByShowcaseIdOrderByPositionAscIdAsc(entity.getId());
+        Map<Long, ProfileShowcaseBookEntity> byBookId = new HashMap<>();
+        for (ProfileShowcaseBookEntity row : existing) {
+            byBookId.put(row.getBookId(), row);
         }
-        if (!rows.isEmpty()) {
-            showcaseBookRepository.saveAll(rows);
+
+        List<ProfileShowcaseBookEntity> toSave = new ArrayList<>();
+        int pos = 0;
+        for (Long bookId : ordered) {
+            ProfileShowcaseBookEntity row = byBookId.remove(bookId);
+            if (row == null) {
+                row = ProfileShowcaseBookEntity.builder()
+                        .showcaseId(entity.getId())
+                        .bookId(bookId)
+                        .position(pos)
+                        .build();
+            } else {
+                row.setPosition(pos);
+            }
+            pos++;
+            toSave.add(row);
+        }
+
+        if (!byBookId.isEmpty()) {
+            showcaseBookRepository.deleteAll(byBookId.values());
+        }
+        if (!toSave.isEmpty()) {
+            showcaseBookRepository.saveAll(toSave);
+        }
+        showcaseBookRepository.flush();
+    }
+
+    /** Vitrine seçilen kitabın favori rafta olduğundan emin ol (yoksa ekle). */
+    private void ensureFavourite(Long userId, Long bookId) {
+        boolean already = userBookMapRepository
+                .findByUserIdAndBookIdAndStatus(userId, bookId, BookActivityStatus.FAVOURITE)
+                .isPresent();
+        if (already) {
+            return;
+        }
+
+        UserBookMapEntity map = UserBookMapEntity.builder()
+                .userId(userId)
+                .bookId(bookId)
+                .status(BookActivityStatus.FAVOURITE)
+                .build();
+        userBookMapRepository.save(map);
+
+        boolean hasActivity = activityRepository
+                .findByUserIdAndBookIdAndStatus(userId, bookId, BookActivityStatus.FAVOURITE)
+                .isPresent();
+        if (!hasActivity) {
+            UserActivityEntity activity = new UserActivityEntity();
+            activity.setUserId(userId);
+            activity.setBookId(bookId);
+            activity.setStatus(BookActivityStatus.FAVOURITE);
+            activity.setUpdateDate(LocalDate.now());
+            activityRepository.save(activity);
         }
     }
 

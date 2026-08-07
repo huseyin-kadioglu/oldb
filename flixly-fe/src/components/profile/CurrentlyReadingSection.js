@@ -1,11 +1,62 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import dayjs from "dayjs";
 import CoverImage from "../ui/CoverImage";
+import MinimalDatePicker from "../common/MinimalDatePicker";
 import { createUserActivity } from "../../service/APIService";
 import { relativeTime } from "./profileUtils";
 import "./CurrentlyReadingSection.css";
 
-const ProgressForm = ({ book, onDone, onCancel }) => {
+const todayIso = () => dayjs().format("YYYY-MM-DD");
+
+const FinishDialog = ({ book, onConfirm, onCancel, saving }) => {
+  const defaultStart =
+    book.readingStartedAt || book.reading_started_at || todayIso();
+  const [startDate, setStartDate] = useState(() => dayjs(defaultStart));
+
+  const confirm = () => {
+    const start = startDate ? startDate.format("YYYY-MM-DD") : todayIso();
+    const end = todayIso();
+    if (dayjs(end).isBefore(dayjs(start), "day")) {
+      alert("Bitiş tarihi başlangıçtan önce olamaz.");
+      return;
+    }
+    onConfirm({ startDate: start, readDate: end });
+  };
+
+  return (
+    <div className="cr-finish" role="dialog" aria-labelledby="cr-finish-title">
+      <h4 id="cr-finish-title" className="cr-finish-title">
+        Bu kitabı bugün bitirdin mi?
+      </h4>
+      <p className="cr-finish-copy">
+        Onaylarsan okundu olarak işaretlenir; başlangıç ve bugünkü bitiş tarihi tempo
+        hesabına girer.
+      </p>
+      <MinimalDatePicker
+        label="Okumaya başlangıç"
+        value={startDate}
+        onChange={setStartDate}
+        maxDate={dayjs()}
+      />
+      <div className="cr-progress-actions">
+        <button
+          type="button"
+          className="profile-btn profile-btn--primary"
+          disabled={saving}
+          onClick={confirm}
+        >
+          {saving ? "Kaydediliyor…" : "Evet, bitirdim"}
+        </button>
+        <button type="button" className="profile-btn profile-btn--ghost" onClick={onCancel} disabled={saving}>
+          İptal
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const ProgressForm = ({ book, onDone, onCancel, onOfferFinish }) => {
   const [page, setPage] = useState(book.currentPage || "");
   const [saving, setSaving] = useState(false);
 
@@ -16,6 +67,15 @@ const ProgressForm = ({ book, onDone, onCancel }) => {
       alert("Geçerli bir sayfa girin.");
       return;
     }
+    const pageCount = book.pageCount;
+    const finished =
+      pageCount != null && pageCount > 0 && Math.floor(next) >= pageCount;
+
+    if (finished) {
+      onOfferFinish?.(Math.floor(next));
+      return;
+    }
+
     setSaving(true);
     try {
       await createUserActivity({
@@ -60,6 +120,8 @@ const ProgressForm = ({ book, onDone, onCancel }) => {
 
 const ReadingCard = ({ book, isOwnProfile, onUpdated }) => {
   const [editing, setEditing] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  const [savingFinish, setSavingFinish] = useState(false);
   const current = book.currentPage;
   const total = book.pageCount;
   const pct =
@@ -67,6 +129,27 @@ const ReadingCard = ({ book, isOwnProfile, onUpdated }) => {
     (current != null && total > 0 ? Math.min(100, Math.round((100 * current) / total)) : null);
   const hasProgress = current != null && current > 0;
   const last = relativeTime(book.lastUpdated);
+
+  const completeRead = async ({ startDate, readDate }) => {
+    setSavingFinish(true);
+    try {
+      await createUserActivity({
+        bookId: book.id,
+        authorId: book.authorId,
+        status: "READ",
+        startDate,
+        readDate,
+        currentPage: total || book.currentPage,
+      });
+      setFinishing(false);
+      setEditing(false);
+      onUpdated?.();
+    } catch {
+      alert("Bitirme kaydı oluşturulamadı.");
+    } finally {
+      setSavingFinish(false);
+    }
+  };
 
   return (
     <article className="cr-card">
@@ -82,10 +165,18 @@ const ReadingCard = ({ book, isOwnProfile, onUpdated }) => {
         </h3>
         {book.authorName && <p className="cr-author">{book.authorName}</p>}
 
-        {editing && isOwnProfile ? (
+        {finishing && isOwnProfile ? (
+          <FinishDialog
+            book={book}
+            saving={savingFinish}
+            onCancel={() => setFinishing(false)}
+            onConfirm={completeRead}
+          />
+        ) : editing && isOwnProfile ? (
           <ProgressForm
             book={book}
             onCancel={() => setEditing(false)}
+            onOfferFinish={() => setFinishing(true)}
             onDone={() => {
               setEditing(false);
               onUpdated?.();
@@ -117,13 +208,24 @@ const ReadingCard = ({ book, isOwnProfile, onUpdated }) => {
               </p>
             )}
             {isOwnProfile && (
-              <button
-                type="button"
-                className="profile-btn profile-btn--subtle cr-update-btn"
-                onClick={() => setEditing(true)}
-              >
-                İlerlemeyi güncelle
-              </button>
+              <div className="cr-card-actions">
+                <button
+                  type="button"
+                  className="profile-btn profile-btn--subtle cr-update-btn"
+                  onClick={() => setEditing(true)}
+                >
+                  İlerlemeyi güncelle
+                </button>
+                {pct != null && pct >= 100 && (
+                  <button
+                    type="button"
+                    className="profile-btn profile-btn--primary cr-update-btn"
+                    onClick={() => setFinishing(true)}
+                  >
+                    Bitirdim
+                  </button>
+                )}
+              </div>
             )}
           </>
         )}

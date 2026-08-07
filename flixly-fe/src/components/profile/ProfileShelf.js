@@ -9,6 +9,7 @@ const ProfileShelf = ({
   action,
   books,
   limit = 10,
+  singleRow = false,
   loading,
   empty,
 }) => {
@@ -21,9 +22,9 @@ const ProfileShelf = ({
         {action}
       </div>
       {loading ? (
-        <ProfileCoverStrip loading skeletonCount={6} />
+        <ProfileCoverStrip loading skeletonCount={singleRow ? Math.min(limit, 8) : 6} singleRow={singleRow} />
       ) : hasBooks ? (
-        <ProfileCoverStrip books={books} limit={limit} />
+        <ProfileCoverStrip books={books} limit={limit} singleRow={singleRow} />
       ) : (
         empty
       )}

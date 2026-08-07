@@ -582,15 +582,15 @@ const BookSummaryView = ({ books = [] }) => {
               {authorData.country && (
                 <span className="book-page-author-country"> · {authorData.country}</span>
               )}
-              {isStaffRole(sessionStorage.getItem("userRole")) && book?.id && (
-                <Link
-                  to={`/catalogEditor/books/${book.id}`}
-                  className="book-page-staff-edit"
-                >
-                  Kitabı düzenle
-                </Link>
-              )}
             </p>
+            {isStaffRole(sessionStorage.getItem("userRole")) && book?.id && (
+              <Link
+                to={`/catalogEditor/books/${book.id}`}
+                className="book-page-staff-edit"
+              >
+                Kitabı düzenle
+              </Link>
+            )}
 
             {metaBits.length > 0 && (
               <p className="book-page-meta-line">
@@ -626,6 +626,39 @@ const BookSummaryView = ({ books = [] }) => {
               </div>
             )}
             </div>
+
+            <section className="book-status-block" role="group" aria-label="Okuma durumu">
+              <p className="book-flow-kicker">Okuma Durumu</p>
+              <div className="book-page-primary-row">
+                <button
+                  type="button"
+                  className={`book-primary-btn ${primaryKey === "want" ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("want")}
+                >
+                  <AccessTimeIcon fontSize="inherit" />
+                  {COPY.status.want}
+                </button>
+                <button
+                  type="button"
+                  className={`book-primary-btn ${primaryKey === "reading" ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("reading")}
+                >
+                  <MenuBookIcon fontSize="inherit" />
+                  {COPY.status.reading}
+                </button>
+                <button
+                  type="button"
+                  className={`book-primary-btn ${primaryKey === "read" ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("read")}
+                >
+                  <TaskAltIcon fontSize="inherit" />
+                  {COPY.status.read}
+                </button>
+              </div>
+            </section>
 
             <div className="book-action-row" role="group" aria-label="Hızlı işlemler">
               <button
@@ -713,39 +746,6 @@ const BookSummaryView = ({ books = [] }) => {
             </div>
           </div>
         </header>
-
-        <section className="book-flow-section" role="group" aria-label="Okuma durumu">
-          <p className="book-flow-kicker">Okuma Durumu</p>
-          <div className="book-page-primary-row">
-            <button
-              type="button"
-              className={`book-primary-btn ${primaryKey === "want" ? "is-active" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handlePrimary("want")}
-            >
-              <AccessTimeIcon fontSize="inherit" />
-              {COPY.status.want}
-            </button>
-            <button
-              type="button"
-              className={`book-primary-btn ${primaryKey === "reading" ? "is-active" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handlePrimary("reading")}
-            >
-              <MenuBookIcon fontSize="inherit" />
-              {COPY.status.reading}
-            </button>
-            <button
-              type="button"
-              className={`book-primary-btn ${primaryKey === "read" ? "is-active" : ""}`}
-              disabled={actionLoading}
-              onClick={() => handlePrimary("read")}
-            >
-              <TaskAltIcon fontSize="inherit" />
-              {COPY.status.read}
-            </button>
-          </div>
-        </section>
 
         {description ? (
           <section className="book-flow-section book-about" aria-label="Kitap Hakkında">

@@ -82,6 +82,17 @@ const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
   const readingStreak = profileSummary?.readingStreak ?? 0;
   const featured = profileSummary?.featuredBadge;
 
+  const formatPace = (n) => {
+    if (n == null || Number.isNaN(Number(n))) return null;
+    const v = Number(n);
+    return v.toLocaleString("tr-TR", { maximumFractionDigits: 1, minimumFractionDigits: 0 });
+  };
+
+  const paceMonth = formatPace(profileSummary?.pagePerDayThisMonth);
+  const paceYear = formatPace(profileSummary?.pagePerDay);
+  const datedMonth = profileSummary?.datedReadCountThisMonth ?? 0;
+  const datedYear = profileSummary?.datedReadCountThisYear ?? 0;
+
   const stats = [
     { value: profileSummary?.bookRead ?? 0, label: "Kitap", hideZero: false },
     { value: profileSummary?.bookReadThisYear ?? 0, label: "Bu yıl", hideZero: false },
@@ -89,6 +100,24 @@ const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
       value: profileSummary?.totalPagesRead ?? 0,
       label: "Sayfa",
       hideZero: true,
+    },
+    {
+      value: paceMonth != null ? paceMonth : "0",
+      label: "Sayfa/gün · ay",
+      hideZero: false,
+      hint:
+        datedMonth > 0
+          ? `${datedMonth} tarihli okuma`
+          : "Yalnızca tarihli okumalar",
+    },
+    {
+      value: paceYear != null ? paceYear : "0",
+      label: "Sayfa/gün · yıl",
+      hideZero: false,
+      hint:
+        datedYear > 0
+          ? `${datedYear} tarihli okuma`
+          : "Yalnızca tarihli okumalar",
     },
     { value: follow.followerCount ?? 0, label: "Takipçi", hideZero: false },
     { value: follow.followingCount ?? 0, label: "Takip", hideZero: true },
@@ -189,16 +218,18 @@ const ProfileSummary = ({ profileSummary, isOwnProfile }) => {
           </div>
 
           <div className="profile-stats-grid" role="list">
-            {stats.map(({ value, label }) => (
+            {stats.map(({ value, label, hint }) => (
               <div
-                className={`profile-stat ${value === 0 ? "is-zero" : ""}`}
+                className={`profile-stat ${value === 0 || value === "0" ? "is-zero" : ""}`}
                 key={label}
                 role="listitem"
+                title={hint || undefined}
               >
                 <span className="profile-stat-value">
                   {typeof value === "number" ? value.toLocaleString("tr-TR") : value}
                 </span>
                 <span className="profile-stat-label">{label}</span>
+                {hint ? <span className="profile-stat-hint">{hint}</span> : null}
               </div>
             ))}
           </div>

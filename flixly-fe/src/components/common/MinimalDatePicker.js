@@ -41,15 +41,23 @@ const popperSx = {
   "& .MuiDayCalendar-weekDayLabel": { color: "var(--color-text-muted)" },
 };
 
-export default function MinimalDatePicker({ readDate, setReadDate }) {
+export default function MinimalDatePicker({
+  value,
+  onChange,
+  label = "Okuma tarihi",
+  maxDate,
+  minDate,
+}) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="log-field">
-        <p className="log-field-label">Okuma tarihi</p>
+        <p className="log-field-label">{label}</p>
         <DatePicker
-          value={readDate ? dayjs(readDate) : null}
-          onChange={(newValue) => setReadDate(newValue)}
+          value={value ? dayjs(value) : null}
+          onChange={(newValue) => onChange(newValue)}
           format="DD/MM/YYYY"
+          maxDate={maxDate ? dayjs(maxDate) : undefined}
+          minDate={minDate ? dayjs(minDate) : undefined}
           slotProps={{
             textField: {
               variant: "outlined",

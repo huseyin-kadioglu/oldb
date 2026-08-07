@@ -8,10 +8,11 @@ const ProfileCoverStrip = ({
   loading = false,
   skeletonCount = 6,
   showHoverMeta = true,
+  singleRow = false,
 }) => {
   if (loading) {
     return (
-      <div className="pcs-strip" aria-hidden="true">
+      <div className={`pcs-strip${singleRow ? " pcs-strip--row" : ""}`} aria-hidden="true">
         {Array.from({ length: skeletonCount }).map((_, i) => (
           <div className="pcs-item pcs-skeleton" key={i} />
         ))}
@@ -23,7 +24,7 @@ const ProfileCoverStrip = ({
   if (!items.length) return null;
 
   return (
-    <div className="pcs-strip">
+    <div className={`pcs-strip${singleRow ? " pcs-strip--row" : ""}`}>
       {items.map((book) => {
         const id = book.id || book.bookId;
         const title = book.title || book.bookTitle || "";

@@ -43,6 +43,12 @@ public class UserActivityService {
         Long bookId = activityDto.getBookId();
         String status = activityDto.getStatus();
 
+        // Exclusive temizlemeden önce oku — READLIST silinince readingStartedAt kaybolur
+        LocalDate readingStartedAt = userBookMapRepository
+                .findByUserIdAndBookIdAndStatus(userId, bookId, BookActivityStatus.READLIST)
+                .map(UserBookMapEntity::getReadingStartedAt)
+                .orElse(null);
+
         resolveStatusConflicts(userId, bookId, status);
 
         Optional<UserActivityEntity> existingActivity =
@@ -53,9 +59,21 @@ public class UserActivityService {
         entity.setBookId(bookId);
         entity.setRating(activityDto.getRating());
         entity.setComment(activityDto.getComment());
+        entity.setStartDate(activityDto.getStartDate());
         entity.setReadDate(activityDto.getReadDate());
         entity.setStatus(status);
         entity.setUpdateDate(LocalDate.now());
+
+        // Tarihli bitirme: start boşsa progress başlangıcını kullan; tarihsiz READ'e dokunma
+        if (isFinishedRead(status) && entity.getReadDate() != null) {
+            if (entity.getStartDate() == null && readingStartedAt != null) {
+                entity.setStartDate(readingStartedAt);
+            }
+            if (entity.getStartDate() != null && entity.getStartDate().isAfter(entity.getReadDate())) {
+                entity.setStartDate(entity.getReadDate());
+            }
+        }
+
         activityRepository.save(entity);
 
         Optional<UserBookMapEntity> existingMap =
@@ -71,15 +89,25 @@ public class UserActivityService {
         if (activityDto.getCurrentPage() != null) {
             map.setCurrentPage(activityDto.getCurrentPage());
         }
+        if (BookActivityStatus.READLIST.equals(status)
+                && activityDto.getCurrentPage() != null
+                && activityDto.getCurrentPage() > 0
+                && map.getReadingStartedAt() == null) {
+            map.setReadingStartedAt(LocalDate.now());
+        }
         userBookMapRepository.save(map);
 
-        if (BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status)) {
+        if (isFinishedRead(status)) {
             notificationService.notifySameBookReaders(userId, bookId);
         }
 
         gamificationService.evaluateAndPersist(userId);
 
         return entity;
+    }
+
+    private static boolean isFinishedRead(String status) {
+        return BookActivityStatus.READ.equals(status) || BookActivityStatus.COMPLETED.equals(status);
     }
 
     public UserActivityEntity createActivityFromGhostMenu(ActivityDto activityDto, UserDetails userDetails) {

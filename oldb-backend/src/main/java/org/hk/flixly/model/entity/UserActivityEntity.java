@@ -20,6 +20,9 @@ public class UserActivityEntity {
 
     private Long userId;
     private Long bookId;
+    /** Okumaya başlama tarihi (KPI için bitiş ile birlikte gerekir) */
+    private LocalDate startDate;
+    /** Okumayı bitirme tarihi */
     private LocalDate readDate;
     private double rating;
     private String comment;

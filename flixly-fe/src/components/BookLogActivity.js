@@ -11,8 +11,11 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
   const [activityStatus, setActivityStatus] = useState(null);
   const [libraryFormat, setLibraryFormat] = useState("PHYSICAL");
   const [rating, setRating] = useState(null);
+  const [startDate, setStartDate] = useState(null);
   const [readDate, setReadDate] = useState(null);
   const [comment, setComment] = useState("");
+
+  const isRead = activityStatus === "READ" || activityStatus === "COMPLETED";
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,12 +24,18 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
       return;
     }
 
+    if (isRead && startDate && readDate && readDate.isBefore(startDate, "day")) {
+      alert("Bitiş tarihi başlangıçtan önce olamaz.");
+      return;
+    }
+
     onSubmit({
       bookId: selectedBook?.id,
       authorId: selectedBook?.authorId,
       status: activityStatus,
       rating,
-      readDate: readDate ? readDate.format("YYYY-MM-DD") : null,
+      startDate: isRead && startDate ? startDate.format("YYYY-MM-DD") : null,
+      readDate: isRead && readDate ? readDate.format("YYYY-MM-DD") : null,
       comment,
       actionType: activityStatus,
       libraryFormat: activityStatus === "LIBRARY" ? libraryFormat : null,
@@ -57,7 +66,26 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
         onLibraryFormatChange={setLibraryFormat}
       />
 
-      <MinimalDatePicker readDate={readDate} setReadDate={setReadDate} />
+      {isRead && (
+        <div className="log-dates">
+          <MinimalDatePicker
+            label="Başlangıç tarihi (isteğe bağlı)"
+            value={startDate}
+            onChange={setStartDate}
+            maxDate={readDate || undefined}
+          />
+          <MinimalDatePicker
+            label="Bitiş tarihi (isteğe bağlı)"
+            value={readDate}
+            onChange={setReadDate}
+            minDate={startDate || undefined}
+          />
+          <p className="log-dates-hint">
+            İkisi de doluysa okuma temposuna (sayfa/gün) yansır. Boş bırakırsan rafta kalır,
+            tempo hesabına girmez.
+          </p>
+        </div>
+      )}
 
       <div className="log-field">
         <p className="log-field-label">Açıklama (isteğe bağlı)</p>

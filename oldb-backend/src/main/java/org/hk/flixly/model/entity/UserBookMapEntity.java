@@ -3,6 +3,7 @@ package org.hk.flixly.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -26,6 +27,8 @@ public class UserBookMapEntity {
     private String libraryFormat;
     /** Okuma ilerlemesi (sayfa) — READLIST / devam eden okumalar */
     private Integer currentPage;
+    /** İlk anlamlı READLIST ilerlemesi — bitirme onayında varsayılan başlangıç */
+    private LocalDate readingStartedAt;
 
     private LocalDateTime updatedAt;
 
