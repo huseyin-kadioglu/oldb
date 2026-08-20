@@ -17,15 +17,18 @@
 }
 
 .navbar-inner {
-  max-width: 1280px;
+  /* Wider than page content so 13–14" laptops (~1512–1710) don't crush the bar */
+  max-width: 1440px;
   height: 100%;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 32px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   box-sizing: border-box;
+  container-type: inline-size;
+  container-name: navbar;
 }
 
 .navbar-zone {
@@ -36,18 +39,22 @@
 
 .navbar-zone-logo {
   justify-content: flex-start;
+  flex-shrink: 0;
 }
 
 .navbar-zone-center {
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
+  overflow: hidden;
 }
 
 .navbar-zone-actions {
   justify-content: flex-end;
   align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
+  gap: 12px;
+  min-width: 0;
+  /* Allow search to shrink before center links overflow */
+  flex-shrink: 1;
 }
 
 
@@ -264,7 +271,9 @@
   letter-spacing: 0.04em;
 }
 
-@media (max-width: 1180px) {
+/* Viewport fallback for browsers without @container (bar max-width ≈ 1440).
+   Prefer @container rules below when supported. */
+@media (max-width: 1280px) {
   .navbar-link span {
     display: none;
   }
@@ -274,6 +283,28 @@
   }
 
   .navbar-logo-text {
+    display: none;
+  }
+}
+
+/* Prefer container width (actual bar) over viewport — fixes 1710×1112 crush
+   where viewport is wide but the capped inner bar is still tight. */
+@container navbar (max-width: 1200px) {
+  .navbar-link span {
+    display: none;
+  }
+
+  .navbar-link {
+    padding: 8px 12px;
+  }
+
+  .navbar-logo-text {
+    display: none;
+  }
+}
+
+@container navbar (max-width: 980px) {
+  .navbar-log-btn {
     display: none;
   }
 }

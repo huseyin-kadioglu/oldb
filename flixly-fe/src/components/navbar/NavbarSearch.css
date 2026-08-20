@@ -13,7 +13,8 @@
   display: flex;
   align-items: center;
   height: 38px;
-  width: clamp(180px, 22vw, 340px);
+  /* Cap lower so actions don't starve center nav on 13–14" screens */
+  width: clamp(140px, 14vw, 260px);
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
@@ -91,7 +92,7 @@
   top: calc(100% + 8px);
   left: 0;
   width: 100%;
-  min-width: clamp(180px, 22vw, 340px);
+  min-width: clamp(160px, 16vw, 280px);
   max-height: min(420px, 70vh);
   overflow-y: auto;
   z-index: 220;
