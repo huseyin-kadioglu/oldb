@@ -17,15 +17,20 @@
 }
 
 .navbar-inner {
-  max-width: 1280px;
+  /* Use full viewport width — capping at 1280/1440 crushed links into
+     logo/search on 13" CSS viewports (~1710) even when the window was wide. */
+  width: 100%;
+  max-width: none;
   height: 100%;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 28px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
   align-items: center;
-  gap: 20px;
+  column-gap: 20px;
   box-sizing: border-box;
+  container-type: inline-size;
+  container-name: navbar;
 }
 
 .navbar-zone {
@@ -36,18 +41,23 @@
 
 .navbar-zone-logo {
   justify-content: flex-start;
+  flex-shrink: 0;
+  z-index: 2;
 }
 
 .navbar-zone-center {
   justify-content: center;
-  gap: 6px;
+  gap: 2px;
+  overflow: hidden;
+  z-index: 1;
 }
 
 .navbar-zone-actions {
   justify-content: flex-end;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex-shrink: 0;
+  z-index: 2;
 }
 
 
@@ -79,8 +89,8 @@
 .navbar-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 5px;
+  padding: 8px 12px;
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
   background: transparent;
@@ -91,6 +101,7 @@
   cursor: pointer;
   transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .navbar-link-icon {
@@ -264,13 +275,35 @@
   letter-spacing: 0.04em;
 }
 
-@media (max-width: 1180px) {
+/* Hide labels when the bar itself is tight (not the viewport). */
+@container navbar (max-width: 1320px) {
   .navbar-link span {
     display: none;
   }
 
   .navbar-link {
-    padding: 8px 12px;
+    padding: 8px 10px;
+  }
+
+  .navbar-logo-text {
+    display: none;
+  }
+}
+
+@container navbar (max-width: 1080px) {
+  .navbar-log-btn {
+    display: none;
+  }
+}
+
+/* Viewport fallback without @container support */
+@media (max-width: 1400px) {
+  .navbar-link span {
+    display: none;
+  }
+
+  .navbar-link {
+    padding: 8px 10px;
   }
 
   .navbar-logo-text {
