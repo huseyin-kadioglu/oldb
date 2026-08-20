@@ -14,7 +14,7 @@
   align-items: center;
   height: 38px;
   /* Cap lower so actions don't starve center nav on 13–14" screens */
-  width: clamp(140px, 14vw, 260px);
+  width: clamp(132px, 12vw, 220px);
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
