@@ -62,12 +62,28 @@ Ayrıca kullanıcılar kitap ekleyerek community'e destek olabilir, bunun karş�
 docker compose up -d
 ```
 
+Aynı Postgres veritabanında ortamlar şema ile ayrılır (`init-schemas.sql`):
+
+| Profil | Şema | Ne zaman |
+|--------|------|----------|
+| `local` (varsayılan) | `oldb_local` | Geliştirme |
+| `test` | `oldb_test` | Test / staging |
+| `prod` | `oldb_prod` | Canlı |
+
+Profil dosyaları: `application-local.properties`, `application-test.properties`, `application-prod.properties`.
+
 ### Backend
 
 ```bash
 cd oldb-backend
 ./mvnw spring-boot:run
+# veya açık profil:
+SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
+SPRING_PROFILES_ACTIVE=test ./mvnw spring-boot:run
+SPRING_PROFILES_ACTIVE=prod ./mvnw spring-boot:run
 ```
+
+`prod` için `JWT_SECRET`, `DB_*` / `DATABASE_URL` ve mail ortam değişkenleri zorunludur.
 
 ### Frontend
 

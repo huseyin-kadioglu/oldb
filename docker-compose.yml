@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:latest
+    image: postgres:16
     container_name: my_postgres
     restart: always
     environment:
@@ -13,6 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./oldb-backend/src/main/resources/db/init-schemas.sql:/docker-entrypoint-initdb.d/01-init-schemas.sql:ro
 
 volumes:
   postgres_data:
