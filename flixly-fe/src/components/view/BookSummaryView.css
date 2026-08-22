@@ -186,6 +186,23 @@
   letter-spacing: -0.015em;
 }
 
+.book-page-title-year {
+  display: inline;
+  margin-left: 0.4em;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.55em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  vertical-align: baseline;
+  transition: color 0.12s ease;
+}
+
+.book-page-title-year:hover {
+  color: var(--color-primary-button, #d4af37);
+}
+
 .book-page-staff-edit {
   display: inline-block;
   margin: 2px 0 0;
@@ -504,10 +521,45 @@
   box-shadow: 0 4px 14px rgba(212, 175, 55, 0.22);
 }
 
+.book-primary-btn.is-active.liked {
+  color: #fff;
+  background: rgba(232, 90, 110, 0.88);
+  border-color: rgba(232, 90, 110, 0.95);
+  box-shadow: 0 4px 14px rgba(232, 90, 110, 0.25);
+}
+
 .book-primary-btn.is-active:hover:not(:disabled) {
   color: #141414;
   background: var(--color-button-hover, #e8c860);
   border-color: var(--color-button-hover, #e8c860);
+}
+
+.book-start-reading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px dashed rgba(212, 175, 55, 0.45);
+  background: transparent;
+  color: var(--color-primary-button, #d4af37);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.book-start-reading svg {
+  font-size: 1rem;
+}
+
+.book-start-reading:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.book-start-reading:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .book-primary-btn:disabled {

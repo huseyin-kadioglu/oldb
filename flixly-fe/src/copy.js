@@ -6,7 +6,7 @@
 export const COPY = {
   nav: {
     saveBook: "+ KAYDET",
-    saveBookAria: "Kitap kaydet",
+    saveBookAria: "Kitap logla",
     signIn: "Giriş yap",
     join: "Üye ol",
     activity: "Aktivite",
@@ -32,8 +32,8 @@ export const COPY = {
 
   save: {
     dialogSelectTitle: "Kitap seç",
-    dialogFormTitle: "Bu kitabı kaydet",
-    dialogRootTitle: "Kitap kaydet",
+    dialogFormTitle: "Kitabı logla",
+    dialogRootTitle: "Kitap logla",
     formName: "Okuma kaydı",
     changeBook: "Kitabı değiştir",
     searchPlaceholder: "Kitap adı veya yazar ara",
@@ -44,13 +44,16 @@ export const COPY = {
     needBook: "Önce bir kitap seç.",
     needStatus: "Bir okuma durumu seç.",
     errorGeneric: "Kayıt sırasında bir hata oluştu.",
+    saveReview: "İnceleme yaz",
+    editLog: "Kaydı düzenle",
   },
 
   status: {
     want: "Okuyacağım",
-    reading: "Şu an okuyorum",
+    reading: "Okuyorum",
     read: "Okudum",
     dropped: "Bıraktım",
+    startReading: "Okumaya başla",
     label: "Durum",
   },
 
@@ -70,7 +73,7 @@ export const COPY = {
   },
 
   other: {
-    title: "Diğer seçenekler",
+    title: "Koleksiyon",
     library: "Kütüphanemde",
     libraryHelp: "Fiziksel veya dijital olarak sahip olduğun kitaplar.",
     shopping: "Alınacaklar",
@@ -91,7 +94,8 @@ export const COPY = {
   },
 
   book: {
-    saveReview: "Kaydet / inceleme",
+    saveReview: "İnceleme yaz",
+    editLog: "Kaydı düzenle",
     detailSave: "Detaylı kayıt",
     savedChip: "Kaydedildi",
   },

@@ -20,7 +20,7 @@ import CoverImage from "../ui/CoverImage";
 import SectionHeader from "../ui/SectionHeader";
 import BookCoverCard from "../ui/BookCoverCard";
 import BookCoverCommunityStats from "./BookCoverCommunityStats";
-import SelectedBookDialog from "../common/SelectedBookDialog";
+import SelectedBookDialog, { persistBookLogPayload } from "../common/SelectedBookDialog";
 import CommentSection from "../common/CommentSection";
 import InitialAvatar from "../common/InitialAvatar";
 import { BookPageSkeleton } from "../common/Skeleton";
@@ -47,7 +47,7 @@ import "./BookSummaryView.css";
 const STATUS_LABELS = {
   READ: "Okudu",
   COMPLETED: "Okudu",
-  READLIST: "Şu an okuyor",
+  READLIST: "Okuyacak",
   LIBRARY: "Kütüphanede",
   LIKE: "Beğendi",
   SHOPPING: "Alınacaklarda",
@@ -364,7 +364,7 @@ const BookSummaryView = ({ books = [] }) => {
   };
 
   const handleLogSubmit = async (payload) => {
-    await createUserActivity(payload);
+    await persistBookLogPayload(payload);
     if (payload.rating) setUserRating(payload.rating);
     setLogOpen(false);
     await refreshBook(book.id);
@@ -486,7 +486,7 @@ const BookSummaryView = ({ books = [] }) => {
   const droppedCount = book.howManyPplDropped ?? 0;
   const communityRows = [
     likedCount > 0 && { label: "Beğeni", value: likedCount },
-    readlistCount > 0 && { label: "Okuma listesi", value: readlistCount },
+    readlistCount > 0 && { label: COPY.status.want, value: readlistCount },
     droppedCount > 0 && { label: "Bırakan", value: droppedCount },
   ].filter(Boolean);
   const hasCommunityStats = communityRows.length > 0;
@@ -520,6 +520,17 @@ const BookSummaryView = ({ books = [] }) => {
   if (isLiked) yourRecordLines.push({ key: "like", icon: "♥", label: "Beğendin" });
   const hasYourRecord = yourRecordLines.length > 0;
 
+  const logInitialExclusive =
+    primaryKey === "read"
+      ? "READ"
+      : primaryKey === "reading"
+        ? "READING"
+        : primaryKey === "want"
+          ? "WANT"
+          : isDropped
+            ? "DROPPED"
+            : "READ";
+
   const friendsReadCount = friendsReading.filter((f) =>
     ["READ", "COMPLETED"].includes(String(f.status || "").toUpperCase())
   ).length;
@@ -531,8 +542,9 @@ const BookSummaryView = ({ books = [] }) => {
 
   const metaBits = [
     book.pageCount > 0 ? `${book.pageCount} sayfa` : null,
-    book.publicationYear > 0 ? String(book.publicationYear) : null,
   ].filter(Boolean);
+
+  const pubYear = book.publicationYear > 0 ? book.publicationYear : null;
 
   return (
     <div className="book-page">
@@ -569,7 +581,18 @@ const BookSummaryView = ({ books = [] }) => {
               <p className="book-page-kicker">{tags.slice(0, 2).join(" · ")}</p>
             )}
 
-            <h1 className="book-page-title">{book.title}</h1>
+            <h1 className="book-page-title">
+              {book.title}
+              {pubYear != null && (
+                <Link
+                  to={`/books/year/${pubYear}`}
+                  className="book-page-title-year"
+                  title={`${pubYear} yılı kitapları`}
+                >
+                  {pubYear}
+                </Link>
+              )}
+            </h1>
 
             <p className="book-page-byline">
               <Link
@@ -594,20 +617,8 @@ const BookSummaryView = ({ books = [] }) => {
 
             {metaBits.length > 0 && (
               <p className="book-page-meta-line">
-                {metaBits.map((bit, i) => (
-                  <span key={bit}>
-                    {i > 0 && <span className="book-page-meta-divider">|</span>}
-                    {book.publicationYear > 0 && bit === String(book.publicationYear) ? (
-                      <Link
-                        to={`/books/year/${book.publicationYear}`}
-                        className="book-page-year-link"
-                      >
-                        {bit}
-                      </Link>
-                    ) : (
-                      bit
-                    )}
-                  </span>
+                {metaBits.map((bit) => (
+                  <span key={bit}>{bit}</span>
                 ))}
               </p>
             )}
@@ -627,26 +638,20 @@ const BookSummaryView = ({ books = [] }) => {
             )}
             </div>
 
-            <section className="book-status-block" role="group" aria-label="Okuma durumu">
-              <p className="book-flow-kicker">Okuma Durumu</p>
+            <section className="book-status-block" role="group" aria-label="Birincil aksiyonlar">
               <div className="book-page-primary-row">
                 <button
                   type="button"
-                  className={`book-primary-btn ${primaryKey === "want" ? "is-active" : ""}`}
+                  className={`book-primary-btn ${isLiked ? "is-active liked" : ""}`}
                   disabled={actionLoading}
-                  onClick={() => handlePrimary("want")}
+                  onClick={() => handleGhostAction("LIKE", isLiked)}
                 >
-                  <AccessTimeIcon fontSize="inherit" />
-                  {COPY.status.want}
-                </button>
-                <button
-                  type="button"
-                  className={`book-primary-btn ${primaryKey === "reading" ? "is-active" : ""}`}
-                  disabled={actionLoading}
-                  onClick={() => handlePrimary("reading")}
-                >
-                  <MenuBookIcon fontSize="inherit" />
-                  {COPY.status.reading}
+                  {isLiked ? (
+                    <FavoriteIcon fontSize="inherit" />
+                  ) : (
+                    <FavoriteBorderIcon fontSize="inherit" />
+                  )}
+                  {COPY.other.like}
                 </button>
                 <button
                   type="button"
@@ -657,22 +662,38 @@ const BookSummaryView = ({ books = [] }) => {
                   <TaskAltIcon fontSize="inherit" />
                   {COPY.status.read}
                 </button>
+                <button
+                  type="button"
+                  className={`book-primary-btn ${primaryKey === "want" ? "is-active" : ""}`}
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("want")}
+                >
+                  <AccessTimeIcon fontSize="inherit" />
+                  {COPY.status.want}
+                </button>
               </div>
+              {primaryKey === "want" && (
+                <button
+                  type="button"
+                  className="book-start-reading"
+                  disabled={actionLoading}
+                  onClick={() => handlePrimary("reading")}
+                >
+                  <MenuBookIcon fontSize="inherit" />
+                  {COPY.status.startReading}
+                </button>
+              )}
             </section>
 
-            <div className="book-action-row" role="group" aria-label="Hızlı işlemler">
+            <div className="book-action-row" role="group" aria-label="Koleksiyon">
               <button
                 type="button"
-                className={`book-action-btn ${isLiked ? "is-active liked" : ""}`}
+                className={`book-action-btn ${primaryKey === "reading" ? "is-active" : ""}`}
                 disabled={actionLoading}
-                onClick={() => handleGhostAction("LIKE", isLiked)}
+                onClick={() => handlePrimary("reading")}
               >
-                {isLiked ? (
-                  <FavoriteIcon fontSize="inherit" />
-                ) : (
-                  <FavoriteBorderIcon fontSize="inherit" />
-                )}
-                {COPY.other.like}
+                <MenuBookIcon fontSize="inherit" />
+                {COPY.status.reading}
               </button>
               <button
                 type="button"
@@ -733,7 +754,7 @@ const BookSummaryView = ({ books = [] }) => {
                   onClick={() => setLogOpen(true)}
                 >
                   <EditNoteIcon fontSize="small" />
-                  {COPY.book.saveReview}
+                  {hasYourRecord || primaryKey ? COPY.book.editLog : COPY.book.saveReview}
                 </button>
               )}
               <button type="button" className="book-tool-link" onClick={handleShare}>
@@ -1023,7 +1044,7 @@ const BookSummaryView = ({ books = [] }) => {
                     disabled={actionLoading}
                     onClick={() => setLogOpen(true)}
                   >
-                    Kaydı düzenle
+                    {COPY.book.editLog}
                   </button>
                 )}
               </>
@@ -1037,7 +1058,7 @@ const BookSummaryView = ({ books = [] }) => {
                     disabled={actionLoading}
                     onClick={() => setLogOpen(true)}
                   >
-                    Bu kitabı kaydet
+                    {COPY.book.saveReview}
                   </button>
                 ) : (
                   <p className="book-side-empty">Kayıt için giriş yap.</p>
@@ -1098,6 +1119,9 @@ const BookSummaryView = ({ books = [] }) => {
           selectedBook={book}
           selectedBookHandler={() => setLogOpen(false)}
           onSubmitCallback={handleLogSubmit}
+          initialExclusive={logInitialExclusive}
+          initialLibrary={isInLibrary}
+          initialShopping={isInShopping}
         />
       )}
 

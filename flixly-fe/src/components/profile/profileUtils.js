@@ -73,9 +73,9 @@ export const activityKindLabel = (kind) => {
     case "review":
       return "İnceleme yazdı";
     case "started":
-      return "Okumaya başladı";
+      return "Okuyacaklarına ekledi";
     case "progress":
-      return "İlerleme güncelledi";
+      return "Okuyor";
     case "library":
       return "Kütüphaneye ekledi";
     case "shopping":

@@ -1,0 +1,16 @@
+# Yerel geliştirme — bu dosyayı application-local.properties olarak kopyalayın (commit edilmez)
+# cp application-local.properties.example application-local.properties
+
+security.jwt.secret-key=local-dev-only-rotate-before-deploy
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/oldb_local
+
+spring.mail.host=smtp.gmail.com
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-app-password
+app.mail.from=OLDB <your-email@gmail.com>
+app.mail.enabled=true
+
+app.backend.url=http://localhost:8080
+app.frontend.url=http://localhost:3000
+app.cors.allowed-origins=http://localhost:3000

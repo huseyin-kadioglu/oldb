@@ -7,19 +7,49 @@ import MinimalDatePicker from "./common/MinimalDatePicker";
 import StatusSelector from "./common/StatusSelector";
 import COPY from "../copy";
 
-const BookLogActivity = ({ selectedBook, onSubmit }) => {
-  const [activityStatus, setActivityStatus] = useState(null);
+/** Map UI exclusive key → backend status + currentPage */
+export const mapExclusiveToPayload = (exclusiveKey) => {
+  switch (exclusiveKey) {
+    case "READ":
+      return { status: "READ", currentPage: null };
+    case "WANT":
+      return { status: "READLIST", currentPage: 0 };
+    case "READING":
+      return { status: "READLIST", currentPage: 1 };
+    case "DROPPED":
+      return { status: "DROPPED", currentPage: null };
+    default:
+      return null;
+  }
+};
+
+const BookLogActivity = ({
+  selectedBook,
+  onSubmit,
+  initialExclusive = null,
+  initialLibrary = false,
+  initialShopping = false,
+}) => {
+  const [exclusiveKey, setExclusiveKey] = useState(initialExclusive);
+  const [libraryChecked, setLibraryChecked] = useState(!!initialLibrary);
+  const [shoppingChecked, setShoppingChecked] = useState(!!initialShopping);
   const [libraryFormat, setLibraryFormat] = useState("PHYSICAL");
   const [rating, setRating] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [readDate, setReadDate] = useState(null);
   const [comment, setComment] = useState("");
 
-  const isRead = activityStatus === "READ" || activityStatus === "COMPLETED";
+  const isRead = exclusiveKey === "READ";
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!activityStatus) {
+    if (!exclusiveKey) {
+      alert(COPY.save.needStatus);
+      return;
+    }
+
+    const mapped = mapExclusiveToPayload(exclusiveKey);
+    if (!mapped) {
       alert(COPY.save.needStatus);
       return;
     }
@@ -32,13 +62,16 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
     onSubmit({
       bookId: selectedBook?.id,
       authorId: selectedBook?.authorId,
-      status: activityStatus,
+      status: mapped.status,
+      currentPage: mapped.currentPage,
       rating,
       startDate: isRead && startDate ? startDate.format("YYYY-MM-DD") : null,
       readDate: isRead && readDate ? readDate.format("YYYY-MM-DD") : null,
       comment,
-      actionType: activityStatus,
-      libraryFormat: activityStatus === "LIBRARY" ? libraryFormat : null,
+      actionType: mapped.status,
+      libraryFormat: libraryChecked ? libraryFormat : null,
+      alsoLibrary: libraryChecked,
+      alsoShopping: shoppingChecked,
     });
   };
 
@@ -60,8 +93,12 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
       </div>
 
       <StatusSelector
-        value={activityStatus}
-        onChange={setActivityStatus}
+        value={exclusiveKey}
+        onChange={setExclusiveKey}
+        libraryChecked={libraryChecked}
+        onLibraryChange={setLibraryChecked}
+        shoppingChecked={shoppingChecked}
+        onShoppingChange={setShoppingChecked}
         libraryFormat={libraryFormat}
         onLibraryFormatChange={setLibraryFormat}
       />
@@ -69,13 +106,13 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
       {isRead && (
         <div className="log-dates">
           <MinimalDatePicker
-            label="Başlangıç tarihi (isteğe bağlı)"
+            label={COPY.fields.startDateOptional}
             value={startDate}
             onChange={setStartDate}
             maxDate={readDate || undefined}
           />
           <MinimalDatePicker
-            label="Bitiş tarihi (isteğe bağlı)"
+            label={COPY.fields.readDateOptional}
             value={readDate}
             onChange={setReadDate}
             minDate={startDate || undefined}
@@ -88,7 +125,7 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
       )}
 
       <div className="log-field">
-        <p className="log-field-label">Açıklama (isteğe bağlı)</p>
+        <p className="log-field-label">{COPY.fields.noteOptional}</p>
         <TextField
           multiline
           minRows={3}
@@ -111,7 +148,7 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
       </div>
 
       <div className="log-field">
-        <p className="log-field-label">Kitap puanı</p>
+        <p className="log-field-label">{COPY.fields.rating}</p>
         <RatingUtil rating={rating} setRating={setRating} />
       </div>
 

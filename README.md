@@ -50,6 +50,16 @@ Ayrıca kullanıcılar kitap ekleyerek community'e destek olabilir, bunun karş�
 
 ## Kurulum
 
+### Ortam ayrımı (test / prod)
+
+Test ve prod **farklı branch** ve **farklı veritabanı** kullanır. Detay: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+| Ortam | Branch | DB | Spring profili |
+|-------|--------|-----|----------------|
+| Yerel | — | `oldb_local` | `local` |
+| Test | `test` | `oldb_test` | `test` |
+| Prod | `prod` | `oldb_prod` | `prod` |
+
 ### Gereksinimler
 
 - Node.js 18+
@@ -62,17 +72,28 @@ Ayrıca kullanıcılar kitap ekleyerek community'e destek olabilir, bunun karş�
 docker compose up -d
 ```
 
+İlk kurulumda `oldb_local`, `oldb_test` ve `oldb_prod` veritabanları oluşturulur.
+
 ### Backend
 
 ```bash
 cd oldb-backend
+cp src/main/resources/application-local.properties.example src/main/resources/application-local.properties
+# JWT ve mail bilgilerini düzenleyin
+
 ./mvnw spring-boot:run
+```
+
+Test profili ile (test DB):
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=test
 ```
 
 ### Frontend
 
 ```bash
-cd oldb-frontend   # geçiş sürecinde klasör adı flixly-fe olabilir
+cd flixly-fe
 npm install
 npm start
 ```

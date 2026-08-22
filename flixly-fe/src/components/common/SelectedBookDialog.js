@@ -5,7 +5,39 @@ import BookLogActivity from "../BookLogActivity";
 import { createUserActivity } from "../../service/APIService";
 import COPY from "../../copy";
 
-const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitCallback }) => {
+/** Persist exclusive log + optional independent library/shopping flags */
+export const persistBookLogPayload = async (payload) => {
+  const { alsoLibrary, alsoShopping, ...activity } = payload || {};
+  await createUserActivity(activity);
+
+  if (alsoLibrary) {
+    await createUserActivity({
+      bookId: activity.bookId,
+      authorId: activity.authorId,
+      status: "LIBRARY",
+      actionType: "LIBRARY",
+      libraryFormat: activity.libraryFormat || "PHYSICAL",
+    });
+  }
+  if (alsoShopping) {
+    await createUserActivity({
+      bookId: activity.bookId,
+      authorId: activity.authorId,
+      status: "SHOPPING",
+      actionType: "SHOPPING",
+    });
+  }
+};
+
+const SelectedBookDialog = ({
+  open,
+  selectedBook,
+  selectedBookHandler,
+  onSubmitCallback,
+  initialExclusive = null,
+  initialLibrary = false,
+  initialShopping = false,
+}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -16,7 +48,7 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitC
       if (onSubmitCallback) {
         await onSubmitCallback(payload);
       } else {
-        await createUserActivity(payload);
+        await persistBookLogPayload(payload);
       }
       selectedBookHandler(null);
     } catch (err) {
@@ -90,7 +122,13 @@ const SelectedBookDialog = ({ open, selectedBook, selectedBookHandler, onSubmitC
           pb: 3,
         }}
       >
-        <BookLogActivity selectedBook={selectedBook} onSubmit={handleSubmit} />
+        <BookLogActivity
+          selectedBook={selectedBook}
+          onSubmit={handleSubmit}
+          initialExclusive={initialExclusive}
+          initialLibrary={initialLibrary}
+          initialShopping={initialShopping}
+        />
         {loading && (
           <p style={{ color: "var(--color-text-muted)", marginTop: "1rem", fontSize: "0.9rem" }}>
             {COPY.save.submitting}
