@@ -115,6 +115,9 @@ public class AuthenticationService {
 
         try {
             mailService.sendHtmlEmail(emailRequest);
+        } catch (MailRateLimiter.MailRateLimitException ex) {
+            log.warn("Aktivasyon maili limiti: {}", user.getEmail(), ex);
+            throw new IllegalArgumentException(ex.getMessage());
         } catch (RuntimeException ex) {
             log.warn("Aktivasyon maili gönderilemedi: {}", user.getEmail(), ex);
             throw new IllegalArgumentException(

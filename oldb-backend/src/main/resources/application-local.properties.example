@@ -5,11 +5,17 @@ security.jwt.secret-key=local-dev-only-rotate-before-deploy
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/oldb_local
 
-spring.mail.host=smtp.gmail.com
-spring.mail.username=your-email@gmail.com
-spring.mail.password=your-app-password
-app.mail.from=OLDB <your-email@gmail.com>
+# Mailpit (docker compose mailpit servisi) — http://localhost:8025
+spring.mail.host=localhost
+spring.mail.port=1025
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=false
+spring.mail.properties.mail.smtp.starttls.enable=false
+spring.mail.properties.mail.smtp.starttls.required=false
+app.mail.from=OLDB Local <noreply@localhost>
 app.mail.enabled=true
+app.mail.daily-cap=0
 
 app.backend.url=http://localhost:8080
 app.frontend.url=http://localhost:3000

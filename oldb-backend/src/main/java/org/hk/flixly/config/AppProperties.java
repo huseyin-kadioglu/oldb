@@ -13,6 +13,7 @@ public class AppProperties {
     private String backendUrl = "http://localhost:8080";
     private String frontendUrl = "http://localhost:3000";
     private String corsAllowedOrigins = "http://localhost:3000";
+    private Mail mail = new Mail();
 
     public String getBackendUrl() {
         return backendUrl;
@@ -38,6 +39,14 @@ public class AppProperties {
         this.corsAllowedOrigins = corsAllowedOrigins;
     }
 
+    public Mail getMail() {
+        return mail;
+    }
+
+    public void setMail(Mail mail) {
+        this.mail = mail;
+    }
+
     public List<String> getCorsAllowedOriginsList() {
         return Arrays.stream(corsAllowedOrigins.split(","))
                 .map(String::trim)
@@ -45,6 +54,7 @@ public class AppProperties {
                 .toList();
     }
 
+    /** Aktivasyon linki backend API üzerinden açılır; ortam URL'si app.backend.url'den gelir. */
     public String activationUrl(String encodedToken) {
         return trimTrailingSlash(backendUrl) + "/api/auth/activate?token=" + encodedToken;
     }
@@ -58,5 +68,36 @@ public class AppProperties {
             return "";
         }
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    public static class Mail {
+        private boolean enabled = false;
+        private String from = "OLDB <noreply@localhost>";
+        /** 0 = sınırsız */
+        private int dailyCap = 0;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getFrom() {
+            return from;
+        }
+
+        public void setFrom(String from) {
+            this.from = from;
+        }
+
+        public int getDailyCap() {
+            return dailyCap;
+        }
+
+        public void setDailyCap(int dailyCap) {
+            this.dailyCap = dailyCap;
+        }
     }
 }
