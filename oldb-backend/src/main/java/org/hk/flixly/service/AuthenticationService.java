@@ -1,5 +1,6 @@
 package org.hk.flixly.service;
 
+import org.hk.flixly.config.AppProperties;
 import org.hk.flixly.exception.SignupConflictException;
 import org.hk.flixly.model.LoginUserDto;
 import org.hk.flixly.model.MailRequest;
@@ -33,16 +34,22 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     private final MailService mailService;
+    private final AppProperties appProperties;
+
+    private final AppProperties appProperties;
 
     public AuthenticationService(
             UserRepository userRepository,
             AuthenticationManager authenticationManager,
-            BCryptPasswordEncoder passwordEncoder, MailService mailService
+            BCryptPasswordEncoder passwordEncoder,
+            MailService mailService,
+            AppProperties appProperties
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
+        this.appProperties = appProperties;
     }
 
     public SignupResponse signup(RegisterUserDto dto) {
@@ -100,7 +107,7 @@ public class AuthenticationService {
         userRepository.save(user);
 
         String encodedToken = URLEncoder.encode(user.getActivationToken(), StandardCharsets.UTF_8);
-        String activationLink = "http://localhost:8080/api/auth/activate?token=" + encodedToken;
+        String activationLink = appProperties.activationUrl(encodedToken);
         String mailBody = buildActivationEmail(user.getFullName(), activationLink);
 
         MailRequest emailRequest = new MailRequest();
@@ -110,6 +117,9 @@ public class AuthenticationService {
 
         try {
             mailService.sendHtmlEmail(emailRequest);
+        } catch (MailRateLimiter.MailRateLimitException ex) {
+            log.warn("Aktivasyon maili limiti: {}", user.getEmail(), ex);
+            throw new IllegalArgumentException(ex.getMessage());
         } catch (RuntimeException ex) {
             log.warn("Aktivasyon maili gönderilemedi: {}", user.getEmail(), ex);
             throw new IllegalArgumentException(

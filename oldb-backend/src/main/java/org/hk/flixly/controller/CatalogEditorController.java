@@ -25,7 +25,6 @@ import java.util.Map;
  * Admin / moderatör katalog editörü. Community katkı akışının aksine
  * onay kuyruğu yoktur; kayıtlar doğrudan canlı katalog tablolarına yazılır.
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/admin/catalog")
 public class CatalogEditorController {

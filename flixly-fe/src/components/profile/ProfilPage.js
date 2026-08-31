@@ -262,7 +262,8 @@ const ProfilePage = ({ books = [] }) => {
         title="Son Okunanlar"
         to={`/profile/${username}/list/read`}
         books={recentReadCovers}
-        limit={16}
+        limit={8}
+        singleRow
         empty={
           isOwnProfile
             ? emptyOwn(COPY.empty.noReadsOwn)
@@ -279,7 +280,7 @@ const ProfilePage = ({ books = [] }) => {
         <ProfileActivityFeed
           activities={activities}
           actorName={actor}
-          limit={8}
+          limit={5}
           empty={
             isOwnProfile
               ? emptyOwn(COPY.empty.noActivityOwn)

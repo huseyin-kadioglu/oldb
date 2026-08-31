@@ -69,6 +69,8 @@ public class BookService {
         if (author != null) {
             dto.setAuthorName(author.getName());
             dto.setAuthorCountry(author.getCountry());
+            dto.setAuthorWonNobelPrize(author.isWonNobelPrize());
+            dto.setAuthorNobelYear(author.getNobelYear());
         }
     }
 
@@ -247,21 +249,44 @@ public class BookService {
                     applyAuthorInfo(dto, book.getAuthorId(), authorMap);
                     return dto;
                 })
-                // Nobel-flagged books first
+                // Nobel sahibi yazarların kitapları önce
                 .sorted((a, b) -> Boolean.compare(b.isWonNobelPrize(), a.isWonNobelPrize()))
                 .collect(Collectors.toList());
         result.setBooks(bookDTOs);
 
-        bookDTOs.stream()
-                .filter(BookDto::isWonNobelPrize)
-                .findFirst()
-                .ifPresent(dto -> {
+        // Yıl sayfasında: o yıl Nobel alan yazar varsa bir kitabını öne çıkar
+        if (publishYear != null && publishYear > 0) {
+            authorRepository.findFirstByNobelYear(publishYear).ifPresent(laureate -> {
+                BookEntity pick = entities.stream()
+                        .filter(b -> Objects.equals(b.getAuthorId(), laureate.getId()))
+                        .findFirst()
+                        .orElseGet(() -> {
+                            List<BookEntity> byAuthor = bookRepository.findAllByAuthorId(laureate.getId());
+                            return byAuthor.isEmpty() ? null : byAuthor.get(0);
+                        });
+                if (pick != null) {
+                    BookDto dto = bookDTOs.stream()
+                            .filter(b -> Objects.equals(b.getId(), pick.getId()))
+                            .findFirst()
+                            .orElseGet(() -> {
+                                BookDto d = new BookDto();
+                                d.setId(pick.getId());
+                                d.setTitle(pick.getTitle());
+                                d.setAuthorId(pick.getAuthorId());
+                                d.setCoverUrl(pick.getCoverUrl());
+                                d.setDescription(pick.getDescription());
+                                d.setPublicationYear(pick.getPublicationYear());
+                                d.setWonNobelPrize(true);
+                                d.setAuthorName(laureate.getName());
+                                d.setAuthorCountry(laureate.getCountry());
+                                return d;
+                            });
+                    dto.setWonNobelPrize(true);
                     result.setNobelPrizeWinner(dto);
-                    if (dto.getAuthorId() != null) {
-                        AuthorEntity author = authorRepository.findById(dto.getAuthorId()).orElse(null);
-                        result.setAuthor(author);
-                    }
-                });
+                    result.setAuthor(laureate);
+                }
+            });
+        }
         return result;
     }
 

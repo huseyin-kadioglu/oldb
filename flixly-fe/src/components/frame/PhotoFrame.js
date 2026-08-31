@@ -3,15 +3,15 @@ import "./PhotoFrame.css";
 import { Link } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CoverImage from "../ui/CoverImage";
 import SelectedBookDialog from "../common/SelectedBookDialog";
-import { createUserActivityFromGhostMenu } from "../../service/APIService";
-import COPY from "../../copy";
+import { createUserActivity, createUserActivityFromGhostMenu } from "../../service/APIService";
+import COPY, { ghostToastMessage } from "../../copy";
+import { showToast, toastProfileAction } from "../../utils/uiEvents";
 
 const formatStarRow = (avg) => {
   const n = Math.max(0, Math.min(5, Number(avg) || 0));
@@ -57,14 +57,17 @@ const PhotoFrame = ({
 }) => {
   const token = sessionStorage.getItem("token");
   const [isLiked, setIsLiked] = useState(!!book?.liked);
-  const [isInLibrary, setIsInLibrary] = useState(!!book?.inLibrary);
-  const [isRead, setIsRead] = useState(!!book?.read);
+  const [isWant, setIsWant] = useState(!!(book?.inReadList || book?.isInReadList) && !(book?.read || book?.isRead));
+  const [isRead, setIsRead] = useState(!!(book?.read || book?.isRead));
   const [detailOpen, setDetailOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     setIsLiked(!!book?.liked);
-    setIsInLibrary(!!book?.inLibrary);
-    setIsRead(!!book?.read);
+    const read = !!(book?.read || book?.isRead);
+    const readlist = !!(book?.inReadList || book?.isInReadList);
+    setIsRead(read);
+    setIsWant(readlist && !read);
   }, [book]);
 
   const imageClass = className ? className : "cover";
@@ -75,22 +78,84 @@ const PhotoFrame = ({
 
   const requireAuth = () => {
     if (!token) {
-      alert("Bu işlem için giriş yapın.");
+      showToast(COPY.toast.needLogin);
       return false;
     }
     return true;
   };
 
-  const toggleGhost = (actionType, current, setState) => {
-    if (!requireAuth()) return;
+  const toggleGhost = async (actionType, current, setState) => {
+    if (!requireAuth() || busy) return;
     const next = !current;
-    createUserActivityFromGhostMenu({
+    setBusy(true);
+    setState(next);
+    try {
+      await createUserActivityFromGhostMenu({
+        bookId: book.id,
+        authorId: book.authorId,
+        actionType,
+        action: next ? "ADD" : "REMOVE",
+      });
+      const msg = ghostToastMessage(actionType, next);
+      if (msg) {
+        showToast(
+          msg,
+          next && (actionType === "LIBRARY" || actionType === "READ")
+            ? toastProfileAction(actionType === "LIBRARY" ? "library" : undefined)
+            : {}
+        );
+      }
+    } catch {
+      setState(current);
+      showToast(COPY.toast.errorGeneric);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggleWant = () => {
+    if (!requireAuth()) return;
+    if (isWant) {
+      createUserActivityFromGhostMenu({
+        bookId: book.id,
+        authorId: book.authorId,
+        actionType: "READLIST",
+        action: "REMOVE",
+      });
+      setIsWant(false);
+      return;
+    }
+    createUserActivity({
       bookId: book.id,
       authorId: book.authorId,
-      actionType,
-      action: next ? "ADD" : "REMOVE",
+      status: "READLIST",
+      actionType: "READLIST",
+      currentPage: 0,
     });
-    setState(next);
+    setIsWant(true);
+    setIsRead(false);
+  };
+
+  const toggleRead = () => {
+    if (!requireAuth()) return;
+    if (isRead) {
+      createUserActivityFromGhostMenu({
+        bookId: book.id,
+        authorId: book.authorId,
+        actionType: "READ",
+        action: "REMOVE",
+      });
+      setIsRead(false);
+      return;
+    }
+    createUserActivity({
+      bookId: book.id,
+      authorId: book.authorId,
+      status: "READ",
+      actionType: "READ",
+    });
+    setIsRead(true);
+    setIsWant(false);
   };
 
   const stop = (e) => {
@@ -110,8 +175,9 @@ const PhotoFrame = ({
         type="button"
         className="qa-btn"
         data-active={isLiked}
-        title="Beğen"
-        aria-label="Beğen"
+        disabled={busy}
+        title={COPY.other.like}
+        aria-label={COPY.other.like}
         onClick={(e) => {
           stop(e);
           toggleGhost("LIKE", isLiked, setIsLiked);
@@ -123,29 +189,31 @@ const PhotoFrame = ({
       <button
         type="button"
         className="qa-btn"
-        data-active={isInLibrary}
-        title="Kütüphaneye ekle"
-        aria-label="Kütüphaneye ekle"
+        data-active={isRead}
+        disabled={busy}
+        title={COPY.status.read}
+        aria-label={COPY.status.read}
         onClick={(e) => {
           stop(e);
-          toggleGhost("LIBRARY", isInLibrary, setIsInLibrary);
+          toggleRead();
         }}
       >
-        {isInLibrary ? <LibraryBooksIcon fontSize="inherit" /> : <LibraryAddIcon fontSize="inherit" />}
+        {isRead ? <CheckCircleIcon fontSize="inherit" /> : <CheckCircleOutlineIcon fontSize="inherit" />}
       </button>
 
       <button
         type="button"
         className="qa-btn"
-        data-active={isRead}
-        title="Okundu"
-        aria-label="Okundu"
+        data-active={isWant}
+        disabled={busy}
+        title={COPY.status.want}
+        aria-label={COPY.status.want}
         onClick={(e) => {
           stop(e);
-          toggleGhost("READ", isRead, setIsRead);
+          toggleWant();
         }}
       >
-        {isRead ? <CheckCircleIcon fontSize="inherit" /> : <CheckCircleOutlineIcon fontSize="inherit" />}
+        <AccessTimeIcon fontSize="inherit" />
       </button>
 
       <button
@@ -214,6 +282,8 @@ const PhotoFrame = ({
     <CoverImage src={book.coverUrl} alt={book.title} className={imageClass} />
   );
 
+  const detailExclusive = isRead ? "READ" : isWant ? "WANT" : "READ";
+
   return (
     <div className={`photo-frame${showMeta ? " photo-frame--rich" : ""}${isNobel ? " photo-frame--nobel" : ""}`}>
       <div className="frame-cover-wrap">
@@ -243,6 +313,7 @@ const PhotoFrame = ({
           open
           selectedBook={book}
           selectedBookHandler={() => setDetailOpen(false)}
+          initialExclusive={detailExclusive}
         />
       )}
     </div>

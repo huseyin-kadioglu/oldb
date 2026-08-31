@@ -10,4 +10,6 @@ public interface AuthorRepository extends JpaRepository<AuthorEntity, Long> {
     Optional<AuthorEntity> findByName(String name);
 
     Optional<AuthorEntity> findByOpenLibraryKey(String openLibraryKey);
+
+    Optional<AuthorEntity> findFirstByNobelYear(Integer nobelYear);
 }

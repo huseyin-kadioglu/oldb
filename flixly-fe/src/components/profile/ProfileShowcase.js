@@ -18,7 +18,7 @@ import {
 import "../ui/folios-ui.css";
 import "./ProfileShowcase.css";
 
-const favoriteBookLimit = (role) => (isProPlanRole(role) ? 6 : 3);
+const favoriteBookLimit = () => 5;
 
 const ProfileShowcase = ({
   showcases = [],
@@ -30,7 +30,7 @@ const ProfileShowcase = ({
   onChanged,
 }) => {
   const limit = showcaseLimit || (isProPlanRole(role) ? 3 : 1);
-  const favLimit = favoriteBookLimit(role);
+  const favLimit = favoriteBookLimit();
   const items = useMemo(
     () => (Array.isArray(showcases) ? showcases : []),
     [showcases]
@@ -102,19 +102,31 @@ const ProfileShowcase = ({
     }
   }, [composerOpen, availableTypes]);
 
+  const normalizeId = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  };
+
   const selectedFavoriteBooks = useMemo(() => {
     const byId = new Map();
-    for (const book of favoritesForPicker) byId.set(book.id, book);
-    for (const book of localPickedBooks) byId.set(book.id, book);
+    for (const book of favoritesForPicker) {
+      const id = normalizeId(book.id);
+      if (id != null) byId.set(id, book);
+    }
+    for (const book of localPickedBooks) {
+      const id = normalizeId(book.id);
+      if (id != null) byId.set(id, book);
+    }
     for (const book of books || []) {
-      if (!byId.has(book.id)) byId.set(book.id, book);
+      const id = normalizeId(book.id);
+      if (id != null && !byId.has(id)) byId.set(id, book);
     }
     return selectedFavoriteIds
-      .map((id) => byId.get(id))
+      .map((id) => byId.get(normalizeId(id)))
       .filter(Boolean)
       .map((book) => ({
-        id: book.id,
-        bookId: book.id,
+        id: normalizeId(book.id),
+        bookId: normalizeId(book.id),
         title: book.title,
         authorName: book.authorName,
         coverUrl: book.coverUrl,
@@ -179,14 +191,15 @@ const ProfileShowcase = ({
     );
     setDescription(item.description || "");
     const bookRows = Array.isArray(item.books) ? item.books : [];
-    setSelectedFavoriteIds(bookRows.map((b) => b.bookId));
+    const ids = bookRows.map((b) => normalizeId(b.bookId ?? b.id)).filter((id) => id != null);
+    setSelectedFavoriteIds(ids);
     setLocalPickedBooks(
       bookRows.map((b) => ({
-        id: b.bookId,
+        id: normalizeId(b.bookId ?? b.id),
         title: b.title,
         authorName: b.authorName,
         coverUrl: b.coverUrl,
-      }))
+      })).filter((b) => b.id != null)
     );
     setComposerOpen(true);
     setManaging(true);
@@ -199,38 +212,39 @@ const ProfileShowcase = ({
   };
 
   const removeFavoriteId = (bookId) => {
-    setSelectedFavoriteIds((prev) => prev.filter((id) => id !== bookId));
-    setLocalPickedBooks((prev) => prev.filter((b) => b.id !== bookId));
+    const id = normalizeId(bookId);
+    setSelectedFavoriteIds((prev) => prev.filter((x) => normalizeId(x) !== id));
+    setLocalPickedBooks((prev) => prev.filter((b) => normalizeId(b.id) !== id));
     setInlineError("");
   };
 
   const selectFavoriteCandidate = async (book) => {
     if (!book?.id) return;
-    if (selectedFavoriteIds.includes(book.id)) return;
+    const bookId = normalizeId(book.id);
+    if (bookId == null) return;
+    if (selectedFavoriteIds.includes(bookId)) return;
     if (selectedFavoriteIds.length >= favLimit) {
       setInlineError(VITRINE_COPY.booksLimit(favLimit));
       return;
     }
 
-    const alreadyFavorite = favoritesForPicker.some((f) => f.id === book.id);
+    const alreadyFavorite = favoritesForPicker.some((f) => normalizeId(f.id) === bookId);
     setBusy(true);
     setInlineError("");
     try {
       if (!alreadyFavorite) {
         await createUserActivityFromGhostMenu({
-          bookId: book.id,
+          bookId,
           authorId: book.authorId,
           actionType: "FAVOURITE",
           action: "ADD",
         });
       }
       setLocalPickedBooks((prev) =>
-        prev.some((b) => b.id === book.id) ? prev : [...prev, book]
+        prev.some((b) => normalizeId(b.id) === bookId) ? prev : [...prev, { ...book, id: bookId }]
       );
-      setSelectedFavoriteIds((prev) =>
-        prev.includes(book.id) ? prev : [...prev, book.id]
-      );
-      onChanged?.();
+      setSelectedFavoriteIds((prev) => (prev.includes(bookId) ? prev : [...prev, bookId]));
+      // Profili kaydetmeden yenileme: seçim state'ini bozmamak için onChanged yok
     } catch (err) {
       setInlineError(extractApiErrorMessage(err, "Kitap favorilere eklenemedi."));
     } finally {
@@ -254,7 +268,7 @@ const ProfileShowcase = ({
               type: SHOWCASE_TYPE.FAVORITE_BOOKS,
               title: title.trim() || null,
               description: description.trim() || null,
-              bookIds: selectedFavoriteIds,
+              bookIds: selectedFavoriteIds.map(normalizeId).filter((id) => id != null),
             }
           : {
               type: SHOWCASE_TYPE.QUOTE,

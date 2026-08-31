@@ -123,6 +123,34 @@
   align-self: flex-start;
 }
 
+.cr-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.cr-finish {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.cr-finish-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #fff;
+}
+
+.cr-finish-copy {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.55);
+}
+
 .cr-progress-form {
   display: flex;
   flex-direction: column;

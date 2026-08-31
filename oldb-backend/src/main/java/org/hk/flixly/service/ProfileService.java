@@ -207,6 +207,7 @@ public class ProfileService {
                     .pageCount(total)
                     .currentPage(current)
                     .progressPercent(pct)
+                    .readingStartedAt(m.getReadingStartedAt())
                     .lastUpdated(lastUpdated)
                     .build());
         }
@@ -302,14 +303,29 @@ public class ProfileService {
         int currentYear = now.getYear();
         int currentMonth = now.getMonthValue();
 
-        Map<Long, UserActivityEntity> latestReadByBook = new LinkedHashMap<>();
+        Map<Long, UserActivityEntity> latestDatedByBook = new LinkedHashMap<>();
+        Map<Long, UserActivityEntity> latestFinishedByBook = new LinkedHashMap<>();
         for (UserActivityEntity activity : activities) {
-            if (!isReadStatus(activity.getStatus()) || activity.getReadDate() == null) {
+            if (!isReadStatus(activity.getStatus())) {
                 continue;
             }
-            UserActivityEntity existing = latestReadByBook.get(activity.getBookId());
-            if (existing == null || activity.getReadDate().isAfter(existing.getReadDate())) {
-                latestReadByBook.put(activity.getBookId(), activity);
+            LocalDate readDate = activity.getReadDate();
+            if (readDate == null) {
+                continue;
+            }
+
+            UserActivityEntity existingFinished = latestFinishedByBook.get(activity.getBookId());
+            if (existingFinished == null || readDate.isAfter(existingFinished.getReadDate())) {
+                latestFinishedByBook.put(activity.getBookId(), activity);
+            }
+
+            // KPI: yalnızca başlangıç + bitiş tarihi dolu kayıtlar
+            if (activity.getStartDate() == null || activity.getStartDate().isAfter(readDate)) {
+                continue;
+            }
+            UserActivityEntity existingDated = latestDatedByBook.get(activity.getBookId());
+            if (existingDated == null || readDate.isAfter(existingDated.getReadDate())) {
+                latestDatedByBook.put(activity.getBookId(), activity);
             }
         }
 
@@ -318,9 +334,21 @@ public class ProfileService {
         int pagesThisMonth = 0;
         int booksThisYear = 0;
         int booksThisMonth = 0;
+        int datedThisYear = 0;
+        int datedThisMonth = 0;
         LocalDate firstReadThisYear = null;
 
-        for (UserActivityEntity activity : latestReadByBook.values()) {
+        for (UserActivityEntity activity : latestFinishedByBook.values()) {
+            LocalDate readDate = activity.getReadDate();
+            if (readDate.getYear() == currentYear) {
+                booksThisYear++;
+            }
+            if (readDate.getYear() == currentYear && readDate.getMonthValue() == currentMonth) {
+                booksThisMonth++;
+            }
+        }
+
+        for (UserActivityEntity activity : latestDatedByBook.values()) {
             BookEntity book = bookMap.get(activity.getBookId());
             int pages = book != null && book.getPageCount() != null ? book.getPageCount() : 0;
             LocalDate readDate = activity.getReadDate();
@@ -328,14 +356,14 @@ public class ProfileService {
             pagesAll += pages;
 
             if (readDate.getYear() == currentYear) {
-                booksThisYear++;
+                datedThisYear++;
                 pagesThisYear += pages;
                 if (firstReadThisYear == null || readDate.isBefore(firstReadThisYear)) {
                     firstReadThisYear = readDate;
                 }
             }
             if (readDate.getYear() == currentYear && readDate.getMonthValue() == currentMonth) {
-                booksThisMonth++;
+                datedThisMonth++;
                 pagesThisMonth += pages;
             }
         }
@@ -346,6 +374,8 @@ public class ProfileService {
         response.setTotalPagesRead(pagesAll);
         response.setTotalPagesReadThisYear(pagesThisYear);
         response.setTotalPagesReadThisMonth(pagesThisMonth);
+        response.setDatedReadCountThisYear(datedThisYear);
+        response.setDatedReadCountThisMonth(datedThisMonth);
 
         long daysThisYear = ChronoUnit.DAYS.between(LocalDate.of(currentYear, 1, 1), now) + 1;
         if (firstReadThisYear != null) {

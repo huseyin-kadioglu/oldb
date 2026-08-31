@@ -63,14 +63,14 @@ const ShowcaseEditor = ({
   }, [availableTypes, type, typeLocked]);
 
   const searchOptions = useMemo(() => {
-    const favIds = new Set((favoriteBooks || []).map((b) => b.id));
-    const selected = new Set(selectedFavoriteIds || []);
+    const favIds = new Set((favoriteBooks || []).map((b) => Number(b.id)));
+    const selected = new Set((selectedFavoriteIds || []).map((id) => Number(id)));
     // Prefer showing favorites first when searching; still allow full catalog.
     return [...(catalogBooks || [])]
-      .filter((b) => b?.id && !selected.has(b.id))
+      .filter((b) => b?.id && !selected.has(Number(b.id)))
       .sort((a, b) => {
-        const af = favIds.has(a.id) ? 0 : 1;
-        const bf = favIds.has(b.id) ? 0 : 1;
+        const af = favIds.has(Number(a.id)) ? 0 : 1;
+        const bf = favIds.has(Number(b.id)) ? 0 : 1;
         if (af !== bf) return af - bf;
         return (a.title || "").localeCompare(b.title || "", "tr");
       });

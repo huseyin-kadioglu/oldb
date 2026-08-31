@@ -13,6 +13,7 @@ public class ActivityDto {
     private Long userId;
     private Long bookId;
     private Long authorId;
+    private LocalDate startDate;
     private LocalDate readDate;
     private double rating;
     private String comment;

@@ -56,6 +56,19 @@
   width: 100%;
 }
 
+.log-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.log-dates-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
 .status-option-wrap {
   display: flex;
   flex-direction: column;

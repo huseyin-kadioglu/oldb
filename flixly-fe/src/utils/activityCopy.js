@@ -18,7 +18,7 @@ export const formatActivitySentence = (status, bookTitle, actorName) => {
         <>
           {name}
           <em>{title}</em>
-          {" kitabını okuma listesine ekledi"}
+          {" kitabını okuyacaklarına ekledi"}
         </>
       );
     case "LIBRARY":
@@ -88,7 +88,7 @@ export const formatStatusVerb = (status, isYou = false) => {
     case "COMPLETED":
       return you ? "okudun" : "okudu";
     case "READLIST":
-      return you ? "listene ekledin" : "listesine ekledi";
+      return you ? "okuyacaklarına ekledin" : "okuyacaklarına ekledi";
     case "LIBRARY":
       return you ? "kütüphanene ekledin" : "kütüphanesine ekledi";
     case "SHOPPING":

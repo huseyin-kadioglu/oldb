@@ -1,6 +1,12 @@
 import axios from "axios";
+import { clearAuth, expireSession, getAuthToken, persistAuth, setAuthItem } from "../utils/authSession";
 
-const BASE_URL = "http://localhost:8080/"; // Backend URL
+const normalizeApiBase = (url) => {
+  const trimmed = (url || "http://localhost:8080").trim().replace(/\/$/, "");
+  return `${trimmed}/`;
+};
+
+const BASE_URL = normalizeApiBase(process.env.REACT_APP_API_URL);
 
 /** Relative /uploads/... yollarını absolute URL'e çevirir */
 export const resolveMediaUrl = (url) => {
@@ -27,7 +33,7 @@ const LOGIN_API = BASE_URL + "api/auth/login";
 const USER_ACTIVITY_API = BASE_URL + "userActivity/"; // Backend URL
 
   export const changePassword = async (payload) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
     const response = await fetch(`${BASE_URL}profile/change-password`, {
@@ -51,18 +57,27 @@ const USER_ACTIVITY_API = BASE_URL + "userActivity/"; // Backend URL
 };
 
 export const logout = () => {
-  // storage temizle
-  sessionStorage.clear();
-  localStorage.clear();
-
-  // axios header temizle
+  clearAuth();
   delete axios.defaults.headers.common["Authorization"];
+  window.dispatchEvent(new CustomEvent("oldb:logout"));
 };
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const url = String(error.config?.url || "");
+    const isLoginCall = url.includes("/api/auth/login") || url.includes("/api/auth/signup");
+    if (!isLoginCall && error.response?.status === 401 && (sessionStorage.getItem("token") || localStorage.getItem("token"))) {
+      expireSession();
+    }
+    return Promise.reject(error);
+  }
+);
 
 // APPROVAL SERVICES
 export const getAuthorApprovals = async () => {
-  const token = sessionStorage.getItem("token");
-  const response = await fetch("http://localhost:8080/author-approvals", {
+  const token = getAuthToken();
+  const response = await fetch(`${BASE_URL}author-approvals`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -71,8 +86,8 @@ export const getAuthorApprovals = async () => {
 };
 
 export const approveAuthorApproval = async (author) => {
-  const token = sessionStorage.getItem("token");
-  const response = await fetch("http://localhost:8080/author-approvals/approve", {
+  const token = getAuthToken();
+  const response = await fetch(`${BASE_URL}author-approvals/approve`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -89,11 +104,11 @@ export const approveAuthorApproval = async (author) => {
 export const approveBookApproval = async (book) => {
   console.log("book params", book);
 
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
     const response = await fetch(
-      "http://localhost:8080/book-approvals/approve",
+      `${BASE_URL}book-approvals/approve`,
       {
         method: "POST",
         headers: {
@@ -117,8 +132,8 @@ export const approveBookApproval = async (book) => {
 };
 
 export const rejectAuthorApproval = async (id) => {
-  const token = sessionStorage.getItem("token");
-  await fetch(`http://localhost:8080/author-approvals/reject/${id}`, {
+  const token = getAuthToken();
+  await fetch(`${BASE_URL}author-approvals/reject/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -127,10 +142,10 @@ export const rejectAuthorApproval = async (id) => {
 };
 
 export const createBookContribution = async (data) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
-    const response = await fetch("http://localhost:8080/book-approvals", {
+    const response = await fetch(`${BASE_URL}book-approvals`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -154,9 +169,9 @@ export const createBookContribution = async (data) => {
 };
 
 export const createAuthorContribution = async (payload) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
-  const response = await fetch("http://localhost:8080/author-approvals", {
+  const response = await fetch(`${BASE_URL}author-approvals`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -175,8 +190,8 @@ export const createAuthorContribution = async (payload) => {
 
 // CATALOG EDITOR (staff — direkt katalog girişi, onay kuyruğu yok)
 const catalogRequest = async (method, path, payload) => {
-  const token = sessionStorage.getItem("token");
-  const response = await fetch(`http://localhost:8080/admin/catalog/${path}`, {
+  const token = getAuthToken();
+  const response = await fetch(`${BASE_URL}admin/catalog/${path}`, {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -228,11 +243,11 @@ export const searchCatalogGenres = (q = "") => {
 };
 
 export const rejectBookApproval = async (id) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
     const response = await fetch(
-      `http://localhost:8080/book-approvals/reject/${id}`,
+      `${BASE_URL}book-approvals/reject/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -252,7 +267,7 @@ export const rejectBookApproval = async (id) => {
 };
 
 export const getBookApprovals = async () => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
     const response = await fetch(BOOK_APPROVAL_API, {
@@ -277,7 +292,7 @@ export const getBookApprovals = async () => {
 
 // BOOK SERVICE
 export const getFilteredBooks = async ({ nobelOnly, country, yearFrom, yearTo, minRating } = {}) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const params = new URLSearchParams();
   if (nobelOnly) params.append("nobelOnly", "true");
   if (country) params.append("country", country);
@@ -325,7 +340,7 @@ export const getDiscoverFeed = async ({ signal } = {}) => {
 };
 
 export const getBooks = async () => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   const response = await fetch(BOOKS_API, {
     headers: {
@@ -343,7 +358,7 @@ export const getBooks = async () => {
 
 export const getBookById = async (id) => {
   try {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
     const response = await axios.get(`${BOOKS_API}${id}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
@@ -356,7 +371,7 @@ export const getBookById = async (id) => {
 
 /** Kitap sosyal hub: friendsReading, topReviews, authorOtherBooks */
 export const getBookSocial = async (bookId) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(`${BOOKS_API}${bookId}/social`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
@@ -373,7 +388,7 @@ const localDateIso = () => {
 
 /** Günlük okuma check-in durumu */
 export const getDailyReadCheckin = async (date = localDateIso()) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(`${BASE_URL}profile/me/read-today`, {
     params: { date },
     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -383,7 +398,7 @@ export const getDailyReadCheckin = async (date = localDateIso()) => {
 
 /** Bugün okudum tik’i — checkedIn: true/false */
 export const setDailyReadCheckin = async (checkedIn, date = localDateIso()) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.put(
     `${BASE_URL}profile/me/read-today`,
     { checkedIn, date },
@@ -420,7 +435,7 @@ export const getBooksByPublishYear = async (publishYear) => {
 // AUTHOR SERVICE
 export const getAuthorById = async (id) => {
   try {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
     const response = await axios.get(`${AUTHOR_API}${id}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
@@ -457,7 +472,7 @@ export const getCommunityReviews = async (limit = 10) => {
 };
 
 export const getHomeFeed = async () => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(`${BASE_URL}home`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
@@ -465,7 +480,7 @@ export const getHomeFeed = async () => {
 };
 
 export const getBadges = async (username) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const url = username
     ? `${BASE_URL}gamification/badges/${encodeURIComponent(username)}`
     : `${BASE_URL}gamification/badges`;
@@ -476,7 +491,7 @@ export const getBadges = async (username) => {
 };
 
 export const setFeaturedBadge = async (badgeCode) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.put(
     `${BASE_URL}profile/featured-badge`,
     { badgeCode },
@@ -486,7 +501,7 @@ export const setFeaturedBadge = async (badgeCode) => {
 };
 
 export const clearFeaturedBadge = async () => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.delete(`${BASE_URL}profile/featured-badge`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -494,7 +509,7 @@ export const clearFeaturedBadge = async () => {
 };
 
 export const getChallenges = async (username) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const url = username
     ? `${BASE_URL}gamification/challenges/${encodeURIComponent(username)}`
     : `${BASE_URL}gamification/challenges`;
@@ -505,7 +520,7 @@ export const getChallenges = async (username) => {
 };
 
 export const importOpenLibraryCatalog = async () => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.post(
     `${BASE_URL}admin/catalog/import-open-library`,
     {},
@@ -516,10 +531,10 @@ export const importOpenLibraryCatalog = async () => {
 
 // PROFILE SERVICE
 export const createUserActivity = async (activityDto) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
-    const response = await fetch("http://localhost:8080/userActivity/", {
+    const response = await fetch(`${BASE_URL}userActivity/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -541,11 +556,11 @@ export const createUserActivity = async (activityDto) => {
 };
 
 export const createUserActivityFromGhostMenu = async (activityDto) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
     const response = await fetch(
-      "http://localhost:8080/userActivity/ghostMenu",
+      `${BASE_URL}userActivity/ghostMenu`,
       {
         method: "POST",
         headers: {
@@ -576,7 +591,7 @@ export const createUserActivityFromGhostMenu = async (activityDto) => {
 
 export const getProfileSummary = async () => {
   try {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
     const response = await fetch(PROFILE_API, {
       method: "GET",
       headers: {
@@ -596,7 +611,7 @@ export const getProfileSummary = async () => {
 
 export const getProfileSummaryByUsername = async (username) => {
   try {
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken();
     const headers = { "Content-Type": "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -616,7 +631,7 @@ export const getProfileSummaryByUsername = async (username) => {
 };
 
 export const getComments = async (targetType, targetId) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(`${BASE_URL}comments`, {
     params: { targetType, targetId },
     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -625,7 +640,7 @@ export const getComments = async (targetType, targetId) => {
 };
 
 export const createComment = async ({ targetType, targetId, body, spoiler = false }) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.post(
     `${BASE_URL}comments`,
     { targetType, targetId, body, spoiler: !!spoiler },
@@ -635,7 +650,7 @@ export const createComment = async ({ targetType, targetId, body, spoiler = fals
 };
 
 export const toggleCommentLike = async (commentId) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.post(
     `${BASE_URL}comments/${commentId}/like`,
     {},
@@ -657,7 +672,7 @@ export const getActivityRecent = async (limit = 12) => {
 };
 
 export const getActivityFeed = async (scope = "friends", limit = 40) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(`${BASE_URL}activity/feed`, {
     params: { scope, limit },
     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -666,7 +681,7 @@ export const getActivityFeed = async (scope = "friends", limit = 40) => {
 };
 
 export const followUser = async (username) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.post(
     `${BASE_URL}activity/follow/${encodeURIComponent(username)}`,
     {},
@@ -676,7 +691,7 @@ export const followUser = async (username) => {
 };
 
 export const unfollowUser = async (username) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.delete(
     `${BASE_URL}activity/follow/${encodeURIComponent(username)}`,
     { headers: { Authorization: `Bearer ${token}` } }
@@ -685,7 +700,7 @@ export const unfollowUser = async (username) => {
 };
 
 export const getFollowStats = async (username) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(
     `${BASE_URL}activity/follow/${encodeURIComponent(username)}/stats`,
     { headers: token ? { Authorization: `Bearer ${token}` } : {} }
@@ -696,22 +711,25 @@ export const getFollowStats = async (username) => {
 // AUTH
 export const loginAccount = async (param) => {
   try {
-    const response = await axios.post(LOGIN_API, param);
-    sessionStorage.setItem("token", response.data.token);
-    sessionStorage.setItem("username", response.data.username);
-    sessionStorage.setItem("profileName", response.data.profileName);
-    sessionStorage.setItem("userRole", response.data.role);
-    sessionStorage.setItem("emailAddress", param.email);
-    if (response.data.avatarUrl) {
-      sessionStorage.setItem("avatarUrl", response.data.avatarUrl);
-    } else {
-      sessionStorage.removeItem("avatarUrl");
-    }
-    if (response.data.contributionPoint != null) {
-      sessionStorage.setItem("contributionPoint", String(response.data.contributionPoint));
-    }
-    
-    console.log("loginAccount: ", response.data);
+    const rememberMe = param.rememberMe !== false;
+    const response = await axios.post(LOGIN_API, {
+      email: param.email,
+      password: param.password,
+      rememberMe,
+    });
+    persistAuth(
+      {
+        token: response.data.token,
+        username: response.data.username,
+        profileName: response.data.profileName,
+        userRole: response.data.role,
+        emailAddress: param.email,
+        avatarUrl: response.data.avatarUrl ? resolveMediaUrl(response.data.avatarUrl) : "",
+        contributionPoint:
+          response.data.contributionPoint != null ? String(response.data.contributionPoint) : "",
+      },
+      rememberMe
+    );
     return response.data;
   } catch (error) {
     console.error("Create error:", error);
@@ -721,7 +739,7 @@ export const loginAccount = async (param) => {
 
 export const extractApiErrorMessage = (error, fallback = "Bir hata oluştu.") => {
   if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
-    return "Sunucuya bağlanılamadı. Backend (localhost:8080) çalışıyor mu?";
+    return `Sunucuya bağlanılamadı. Backend (${BASE_URL.replace(/\/$/, "")}) çalışıyor mu?`;
   }
 
   const data = error.response?.data;
@@ -759,7 +777,7 @@ export const createAccount = async (param) => {
 };
 
 export const getProfileBookList = async (username, listType) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await fetch(`${BASE_URL}profile/${username}/list/${listType}`, {
     headers: {
       Authorization: token ? `Bearer ${token}` : "",
@@ -771,7 +789,7 @@ export const getProfileBookList = async (username, listType) => {
 };
 
 export const createShowcase = async (payload) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.post(
     `${BASE_URL}profile/showcases`,
     payload,
@@ -781,7 +799,7 @@ export const createShowcase = async (payload) => {
 };
 
 export const updateShowcase = async (id, payload) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.put(
     `${BASE_URL}profile/showcases/${id}`,
     payload,
@@ -791,7 +809,7 @@ export const updateShowcase = async (id, payload) => {
 };
 
 export const deleteShowcase = async (id) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.delete(`${BASE_URL}profile/showcases/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -799,7 +817,7 @@ export const deleteShowcase = async (id) => {
 };
 
 export const reorderShowcases = async (ids) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.put(
     `${BASE_URL}profile/showcases/reorder`,
     { ids },
@@ -809,7 +827,7 @@ export const reorderShowcases = async (ids) => {
 };
 
 export const getPendingAvatars = async () => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await fetch(`${BASE_URL}admin/pending-avatars`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -817,7 +835,7 @@ export const getPendingAvatars = async () => {
 };
 
 export const approveAvatar = async (userId) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   await fetch(`${BASE_URL}admin/pending-avatars/${userId}/approve`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
@@ -825,7 +843,7 @@ export const approveAvatar = async (userId) => {
 };
 
 export const rejectAvatar = async (userId) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   await fetch(`${BASE_URL}admin/pending-avatars/${userId}/reject`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
@@ -833,7 +851,7 @@ export const rejectAvatar = async (userId) => {
 };
 
 export const rateAuthor = async (authorId, rating) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await fetch(`${BASE_URL}authors/${authorId}/rate`, {
     method: "POST",
     headers: {
@@ -846,7 +864,7 @@ export const rateAuthor = async (authorId, rating) => {
 };
 
 export const updateProfile = async (payload) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
 
   const response = await fetch(`${BASE_URL}profile/edit`, {
     method: "PUT",
@@ -871,19 +889,19 @@ export const updateProfile = async (payload) => {
     throw new Error(data?.message || data?.error || "Profil güncellenemedi");
   }
   if (data?.avatarUrl) {
-    sessionStorage.setItem("avatarUrl", resolveMediaUrl(data.avatarUrl));
+    setAuthItem("avatarUrl", resolveMediaUrl(data.avatarUrl));
   }
   if (data?.contributionPoint != null) {
-    sessionStorage.setItem("contributionPoint", String(data.contributionPoint));
+    setAuthItem("contributionPoint", String(data.contributionPoint));
   }
   if (data?.role) {
-    sessionStorage.setItem("userRole", data.role);
+    setAuthItem("userRole", data.role);
   }
   return data || {};
 };
 
 export const uploadAvatar = async (file) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const body = new FormData();
   body.append("file", file);
 
@@ -910,17 +928,17 @@ export const uploadAvatar = async (file) => {
   }
 
   if (data?.avatarUrl) {
-    sessionStorage.setItem("avatarUrl", resolveMediaUrl(data.avatarUrl));
+    setAuthItem("avatarUrl", resolveMediaUrl(data.avatarUrl));
   }
   if (data?.role) {
-    sessionStorage.setItem("userRole", data.role);
+    setAuthItem("userRole", data.role);
   }
   return data || {};
 };
 
 // NOTIFICATIONS
 export const getNotifications = async (limit = 30) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(`${BASE_URL}notifications`, {
     params: { limit },
     headers: { Authorization: `Bearer ${token}` },
@@ -929,7 +947,7 @@ export const getNotifications = async (limit = 30) => {
 };
 
 export const getUnreadNotificationCount = async () => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.get(`${BASE_URL}notifications/unread-count`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -937,7 +955,7 @@ export const getUnreadNotificationCount = async () => {
 };
 
 export const markNotificationsRead = async (ids) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   const response = await axios.post(
     `${BASE_URL}notifications/read`,
     ids?.length ? { ids } : {},
@@ -947,7 +965,7 @@ export const markNotificationsRead = async (ids) => {
 };
 
 export const markNotificationRead = async (id) => {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken();
   await axios.post(
     `${BASE_URL}notifications/${id}/read`,
     {},

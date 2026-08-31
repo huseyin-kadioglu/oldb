@@ -33,6 +33,9 @@ public class BookDto {
     private boolean read;
     private boolean dropped;
     private boolean wonNobelPrize;
+    /** Yazar Nobel sahibi mi (kapak badge'inden bağımsız; yazar profili / kitap sayfası metni) */
+    private boolean authorWonNobelPrize;
+    private Integer authorNobelYear;
 
     @JsonProperty("isEditorChoice")
     private boolean editorChoice;

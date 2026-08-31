@@ -50,7 +50,7 @@ const BooksPublishYear = () => {
         <h1 className="books-year-title">{publishYear}</h1>
         <p className="books-year-sub">
           Bu yılda yayımlanan {books.length} kitap
-          {nobelWinnerBook ? " · Nobel Edebiyat Ödülü sahibi eser vurgulandı" : ""}
+          {nobelWinnerBook ? " · Nobel Edebiyat Ödülü sahibi yazar vurgulandı" : ""}
         </p>
       </header>
 
@@ -88,8 +88,8 @@ const BooksPublishYear = () => {
                 </Link>
               )}
               <p className="nobel-highlight-text">
-                {nobelWinnerAuthor?.name || "Yazar"}, &ldquo;{nobelWinnerBook.title}&rdquo; ile{" "}
-                {publishYear} yılında Nobel Edebiyat Ödülü&apos;nü kazanmıştır.
+                {nobelWinnerAuthor?.name || "Yazar"}, {publishYear} yılında Nobel Edebiyat
+                Ödülü&apos;nü kazanmıştır.
               </p>
               {nobelWinnerBook.description && (
                 <p className="nobel-highlight-desc">{nobelWinnerBook.description}</p>

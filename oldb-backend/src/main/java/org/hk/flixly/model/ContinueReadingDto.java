@@ -16,6 +16,8 @@ public class ContinueReadingDto {
     private Integer pageCount;
     private Integer currentPage;
     private Integer progressPercent;
+    /** İlk ilerleme tarihi — bitirme onayında varsayılan başlangıç */
+    private java.time.LocalDate readingStartedAt;
     /** Son ilerleme / liste güncellemesi */
     private java.time.LocalDateTime lastUpdated;
 }
