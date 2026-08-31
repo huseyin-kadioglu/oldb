@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -51,11 +50,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto dto) {
         UserEntity authenticatedUser = authenticationService.authenticate(dto);
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+        boolean rememberMe = dto.isRememberMe();
+        String jwtToken = jwtService.generateToken(authenticatedUser, rememberMe);
         LoginResponse response = new LoginResponse();
         response.setUsername(authenticatedUser.getProfilName());
         response.setToken(jwtToken);
-        response.setExpiresIn(jwtService.getExpirationTime());
+        response.setExpiresIn(jwtService.getExpirationTime(rememberMe));
         response.setProfileName(authenticatedUser.getProfilName());
         response.setRole(authenticatedUser.getRole());
         response.setAvatarUrl(authenticatedUser.getAvatarUrl());

@@ -1,18 +1,16 @@
 package org.hk.flixly.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Component
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
 
     private String backendUrl = "http://localhost:8080";
     private String frontendUrl = "http://localhost:3000";
-    private String corsAllowedOrigins = "http://localhost:3000";
+    private Cors cors = new Cors();
     private Mail mail = new Mail();
 
     public String getBackendUrl() {
@@ -31,12 +29,12 @@ public class AppProperties {
         this.frontendUrl = frontendUrl;
     }
 
-    public String getCorsAllowedOrigins() {
-        return corsAllowedOrigins;
+    public Cors getCors() {
+        return cors;
     }
 
-    public void setCorsAllowedOrigins(String corsAllowedOrigins) {
-        this.corsAllowedOrigins = corsAllowedOrigins;
+    public void setCors(Cors cors) {
+        this.cors = cors;
     }
 
     public Mail getMail() {
@@ -48,13 +46,15 @@ public class AppProperties {
     }
 
     public List<String> getCorsAllowedOriginsList() {
-        return Arrays.stream(corsAllowedOrigins.split(","))
+        String raw = cors != null && cors.getAllowedOrigins() != null
+                ? cors.getAllowedOrigins()
+                : "http://localhost:3000";
+        return Arrays.stream(raw.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();
     }
 
-    /** Aktivasyon linki backend API üzerinden açılır; ortam URL'si app.backend.url'den gelir. */
     public String activationUrl(String encodedToken) {
         return trimTrailingSlash(backendUrl) + "/api/auth/activate?token=" + encodedToken;
     }
@@ -70,10 +70,21 @@ public class AppProperties {
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
+    public static class Cors {
+        private String allowedOrigins = "http://localhost:3000";
+
+        public String getAllowedOrigins() {
+            return allowedOrigins;
+        }
+
+        public void setAllowedOrigins(String allowedOrigins) {
+            this.allowedOrigins = allowedOrigins;
+        }
+    }
+
     public static class Mail {
         private boolean enabled = false;
         private String from = "OLDB <noreply@localhost>";
-        /** 0 = sınırsız */
         private int dailyCap = 0;
 
         public boolean isEnabled() {

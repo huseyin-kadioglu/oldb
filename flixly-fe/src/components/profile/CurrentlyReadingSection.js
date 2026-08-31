@@ -5,6 +5,8 @@ import CoverImage from "../ui/CoverImage";
 import MinimalDatePicker from "../common/MinimalDatePicker";
 import { createUserActivity } from "../../service/APIService";
 import { relativeTime } from "./profileUtils";
+import COPY from "../../copy";
+import { showToast, toastProfileAction } from "../../utils/uiEvents";
 import "./CurrentlyReadingSection.css";
 
 const todayIso = () => dayjs().format("YYYY-MM-DD");
@@ -18,7 +20,7 @@ const FinishDialog = ({ book, onConfirm, onCancel, saving }) => {
     const start = startDate ? startDate.format("YYYY-MM-DD") : todayIso();
     const end = todayIso();
     if (dayjs(end).isBefore(dayjs(start), "day")) {
-      alert("Bitiş tarihi başlangıçtan önce olamaz.");
+      showToast(COPY.save.dateOrder);
       return;
     }
     onConfirm({ startDate: start, readDate: end });
@@ -62,9 +64,10 @@ const ProgressForm = ({ book, onDone, onCancel, onOfferFinish }) => {
 
   const save = async (e) => {
     e.preventDefault();
+    if (saving) return;
     const next = Number(page);
     if (!Number.isFinite(next) || next < 0) {
-      alert("Geçerli bir sayfa girin.");
+      showToast(COPY.fields.pageInvalid);
       return;
     }
     const pageCount = book.pageCount;
@@ -84,9 +87,10 @@ const ProgressForm = ({ book, onDone, onCancel, onOfferFinish }) => {
         status: "READLIST",
         currentPage: Math.floor(next),
       });
+      showToast(COPY.toast.progress);
       onDone?.();
     } catch {
-      alert("İlerleme kaydedilemedi.");
+      showToast(COPY.toast.statusError);
     } finally {
       setSaving(false);
     }
@@ -143,9 +147,10 @@ const ReadingCard = ({ book, isOwnProfile, onUpdated }) => {
       });
       setFinishing(false);
       setEditing(false);
+      showToast(COPY.toast.finished, toastProfileAction());
       onUpdated?.();
     } catch {
-      alert("Bitirme kaydı oluşturulamadı.");
+      showToast(COPY.toast.statusError);
     } finally {
       setSavingFinish(false);
     }

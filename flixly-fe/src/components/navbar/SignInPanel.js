@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { extractApiErrorMessage, loginAccount } from "../../service/APIService";
+import COPY from "../../copy";
+import { showToast } from "../../utils/uiEvents";
+import { getRememberMePreference } from "../../utils/authSession";
 
 const SignInPanel = ({ onClose, handleToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(getRememberMePreference);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -47,6 +51,7 @@ const SignInPanel = ({ onClose, handleToken }) => {
   };
 
   const handleLogin = async () => {
+    if (loading) return;
     setError("");
     if (!email.trim() || !password) {
       setError("E-posta ve şifre gerekli.");
@@ -58,9 +63,11 @@ const SignInPanel = ({ onClose, handleToken }) => {
       const response = await loginAccount({
         email: email.trim(),
         password,
+        rememberMe,
       });
 
       handleToken(response.token);
+      showToast(COPY.toast.loginOk);
       onClose();
     } catch (err) {
       setError(extractApiErrorMessage(err, "E-posta veya şifre hatalı."));
@@ -76,16 +83,19 @@ const SignInPanel = ({ onClose, handleToken }) => {
         position: "absolute",
         top: 0,
         right: 0,
-        height: "60px", // Navbar yüksekliği
+        height: "auto",
+        minHeight: "60px",
         display: "flex",
-        // Letterboxd'a yakın daha koyu, az belirgin arkaplan
+        flexWrap: "wrap",
         bgcolor: "#1c2128",
         alignItems: "center",
         boxShadow: 3,
         zIndex: 1300,
         paddingLeft: "20px",
-        paddingRight: "10px", // Kapat butonu sağa yaslanacak
-        gap: "10px", // Elemanlar arası boşluk
+        paddingRight: "10px",
+        paddingTop: "8px",
+        paddingBottom: "8px",
+        gap: "10px",
       }}
     >
       {/* TextField'ları daha az yer kaplayacak şekilde "small" yerine "medium"
@@ -128,6 +138,27 @@ const SignInPanel = ({ onClose, handleToken }) => {
           {error}
         </Typography>
       )}
+
+      <FormControlLabel
+        control={
+          <Checkbox
+            size="small"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            sx={{
+              color: "#a0a0a0",
+              p: 0.5,
+              "&.Mui-checked": { color: "var(--color-primary-button)" },
+            }}
+          />
+        }
+        label={COPY.auth.rememberMe}
+        sx={{
+          mr: 0,
+          color: "#a0a0a0",
+          "& .MuiFormControlLabel-label": { fontSize: "0.75rem", whiteSpace: "nowrap" },
+        }}
+      />
 
       <Button
         variant="contained"

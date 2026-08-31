@@ -36,6 +36,8 @@ public class AuthenticationService {
     private final MailService mailService;
     private final AppProperties appProperties;
 
+    private final AppProperties appProperties;
+
     public AuthenticationService(
             UserRepository userRepository,
             AuthenticationManager authenticationManager,

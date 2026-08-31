@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, Button, Box } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookLogActivity from "../BookLogActivity";
 import { createUserActivity } from "../../service/APIService";
 import COPY from "../../copy";
+import { showToast, toastProfileAction } from "../../utils/uiEvents";
 
 /** Persist exclusive log + optional independent library/shopping flags */
 export const persistBookLogPayload = async (payload) => {
@@ -40,8 +41,11 @@ const SelectedBookDialog = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const inFlight = useRef(false);
 
   const handleSubmit = async (payload) => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     try {
       setLoading(true);
       setError(null);
@@ -51,9 +55,11 @@ const SelectedBookDialog = ({
         await persistBookLogPayload(payload);
       }
       selectedBookHandler(null);
+      showToast(COPY.save.success, toastProfileAction());
     } catch (err) {
       setError(COPY.save.errorGeneric);
     } finally {
+      inFlight.current = false;
       setLoading(false);
     }
   };
@@ -61,7 +67,9 @@ const SelectedBookDialog = ({
   return (
     <Dialog
       open={!!open}
-      onClose={() => selectedBookHandler(null)}
+      onClose={() => {
+        if (!loading) selectedBookHandler(null);
+      }}
       maxWidth="sm"
       fullWidth
       slotProps={{
@@ -125,6 +133,7 @@ const SelectedBookDialog = ({
         <BookLogActivity
           selectedBook={selectedBook}
           onSubmit={handleSubmit}
+          submitting={loading}
           initialExclusive={initialExclusive}
           initialLibrary={initialLibrary}
           initialShopping={initialShopping}

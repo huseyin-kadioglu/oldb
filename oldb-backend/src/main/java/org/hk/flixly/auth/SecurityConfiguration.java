@@ -3,6 +3,7 @@ package org.hk.flixly.auth;
 import org.hk.flixly.config.AppProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,12 +39,13 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/**").denyAll()
                         .requestMatchers(
                                 "/books/**",
                                 "/authors/**",
                                 "/search/**",
                                 "/api/auth/**",
-                                "/send-email",
                                 "/community/**",
                                 "/home",
                                 "/home/**",
@@ -51,15 +53,24 @@ public class SecurityConfiguration {
                                 "/gamification/challenges/**",
                                 "/genres/**"
                         ).permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/comments", "/comments/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/profile/*", "/profile/*/list/*", "/profile/*/read-checkins").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/recent").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/activity/follow/*/stats").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/comments", "/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/profile/*", "/profile/*/list/*", "/profile/*/read-checkins").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/activity/recent").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/activity/follow/*/stats").permitAll()
                         .requestMatchers("/activity/**").authenticated()
                         .requestMatchers("/notifications/**").authenticated()
-                        .requestMatchers("/comments/**", "/book-approvals/**", "/author-approvals/**", "/profile/**", "/userActivity/**", "/admin/**", "/gamification/**").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers(
+                                "/comments/**",
+                                "/book-approvals/**",
+                                "/author-approvals/**",
+                                "/profile/**",
+                                "/userActivity/**",
+                                "/admin/**",
+                                "/gamification/**",
+                                "/send-email"
+                        ).authenticated()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -72,7 +83,7 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(appProperties.getCorsAllowedOriginsList());
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 

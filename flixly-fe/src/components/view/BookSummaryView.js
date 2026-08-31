@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useRef, useLayoutEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Rating } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -33,8 +33,8 @@ import {
   getBookSocial,
   isStaffRole,
 } from "../../service/APIService";
-import COPY from "../../copy";
-import { showToast } from "../../utils/uiEvents";
+import COPY, { ghostToastMessage } from "../../copy";
+import { showToast, toastProfileAction } from "../../utils/uiEvents";
 import {
   buildAudienceHints,
   buildFallbackSynopsis,
@@ -97,7 +97,7 @@ const formatReviewDate = (raw) => {
   }
 };
 
-const BookSummaryView = ({ books = [] }) => {
+const BookSummaryView = ({ books = [], token }) => {
   const [author, setAuthor] = useState({});
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -126,8 +126,9 @@ const BookSummaryView = ({ books = [] }) => {
   const [currentPage, setCurrentPage] = useState(0);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const params = useParams();
-  const isLoggedIn = !!sessionStorage.getItem("token");
+  const isLoggedIn = !!token;
 
   const syncBookFlags = useCallback((b) => {
     if (!b) return;
@@ -205,8 +206,41 @@ const BookSummaryView = ({ books = [] }) => {
   );
 
   useEffect(() => {
-    fetchBook();
-  }, [params.bookId]);
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getBookById(params.bookId);
+        if (cancelled) return;
+        const b = data?.book || data;
+        setBook(b);
+        syncBookFlags(b);
+      } catch {
+        if (!cancelled) {
+          setBook(null);
+          setError("Kitap yüklenirken bir hata oluştu.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [params.bookId, syncBookFlags]);
+
+  const skipTokenRefresh = useRef(true);
+  useEffect(() => {
+    if (skipTokenRefresh.current) {
+      skipTokenRefresh.current = false;
+      return;
+    }
+    if (params.bookId) refreshBook(params.bookId);
+    // Login/logout should refresh flags without a full-page skeleton.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   useEffect(() => {
     if (!params.bookId) return;
@@ -239,29 +273,16 @@ const BookSummaryView = ({ books = [] }) => {
     }
   };
 
-  const fetchBook = async () => {
-    try {
-      const data = await getBookById(params.bookId);
-      const b = data?.book || data;
-      setBook(b);
-      syncBookFlags(b);
-    } catch {
-      setError("Kitap yüklenirken bir hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const requireLogin = () => {
     if (!isLoggedIn) {
-      showToast("Bu işlem için giriş yapmalısın.");
+      showToast(COPY.toast.needLogin);
       return false;
     }
     return true;
   };
 
   const handleGhostAction = async (actionType, current) => {
-    if (!requireLogin()) return;
+    if (!requireLogin() || actionLoading) return;
     const next = !current;
     applyLocalFlag(actionType, next);
     setActionLoading(true);
@@ -273,9 +294,18 @@ const BookSummaryView = ({ books = [] }) => {
         action: current ? "REMOVE" : "ADD",
       });
       await refreshBook(book.id);
+      const msg = ghostToastMessage(actionType, next);
+      if (msg) {
+        showToast(
+          msg,
+          next && (actionType === "LIBRARY" || actionType === "READ")
+            ? toastProfileAction(actionType === "LIBRARY" ? "library" : undefined)
+            : {}
+        );
+      }
     } catch {
       applyLocalFlag(actionType, current);
-      showToast("İşlem sırasında bir hata oluştu.");
+      showToast(COPY.toast.errorGeneric);
     } finally {
       setActionLoading(false);
     }
@@ -290,7 +320,7 @@ const BookSummaryView = ({ books = [] }) => {
   }, [isRead, isInReadlist, currentPage]);
 
   const handlePrimary = async (key) => {
-    if (!requireLogin()) return;
+    if (!requireLogin() || actionLoading) return;
     setActionLoading(true);
     try {
       if (key === primaryKey) {
@@ -301,6 +331,7 @@ const BookSummaryView = ({ books = [] }) => {
             actionType: "READ",
             action: "REMOVE",
           });
+          showToast(COPY.toast.readRemoved);
         } else if (isInReadlist) {
           await createUserActivityFromGhostMenu({
             bookId: book.id,
@@ -308,6 +339,7 @@ const BookSummaryView = ({ books = [] }) => {
             actionType: "READLIST",
             action: "REMOVE",
           });
+          showToast(primaryKey === "reading" ? COPY.toast.readingRemoved : COPY.toast.wantRemoved);
         }
       } else if (key === "read") {
         await createUserActivity({
@@ -316,6 +348,7 @@ const BookSummaryView = ({ books = [] }) => {
           status: "READ",
           actionType: "READ",
         });
+        showToast(COPY.toast.read, toastProfileAction());
       } else if (key === "want") {
         await createUserActivity({
           bookId: book.id,
@@ -324,6 +357,7 @@ const BookSummaryView = ({ books = [] }) => {
           actionType: "READLIST",
           currentPage: 0,
         });
+        showToast(COPY.toast.want, toastProfileAction());
       } else if (key === "reading") {
         await createUserActivity({
           bookId: book.id,
@@ -332,21 +366,24 @@ const BookSummaryView = ({ books = [] }) => {
           actionType: "READLIST",
           currentPage: currentPage > 0 ? currentPage : 1,
         });
+        showToast(COPY.toast.reading, toastProfileAction());
       }
       await refreshBook(book.id);
     } catch {
-      showToast("Durum güncellenemedi.");
+      showToast(COPY.toast.statusError);
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleRate = async (_event, value) => {
-    if (!requireLogin()) return;
+    if (!requireLogin() || actionLoading) return;
     const next = value ?? 0;
     const prev = userRating;
+    if (!next) return;
+    const wasRead = isRead;
     setUserRating(next);
-    if (next === 0) return;
+    setActionLoading(true);
     try {
       await createUserActivity({
         bookId: book.id,
@@ -357,9 +394,15 @@ const BookSummaryView = ({ books = [] }) => {
       });
       setIsRead(true);
       await refreshBook(book.id);
+      showToast(
+        wasRead ? COPY.toast.rated(next) : COPY.toast.ratedAndRead(next),
+        toastProfileAction()
+      );
     } catch {
       setUserRating(prev);
-      showToast("Puan kaydedilemedi.");
+      showToast(COPY.toast.rateError);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -368,6 +411,11 @@ const BookSummaryView = ({ books = [] }) => {
     if (payload.rating) setUserRating(payload.rating);
     setLogOpen(false);
     await refreshBook(book.id);
+  };
+
+  const handleBack = () => {
+    if (location.key !== "default") navigate(-1);
+    else navigate("/");
   };
 
   const handleShare = async () => {
@@ -548,7 +596,7 @@ const BookSummaryView = ({ books = [] }) => {
 
   return (
     <div className="book-page">
-      <button type="button" className="folios-back-link" onClick={() => navigate(-1)}>
+      <button type="button" className="folios-back-link" onClick={handleBack}>
         <ArrowBackIcon fontSize="small" /> Geri
       </button>
 

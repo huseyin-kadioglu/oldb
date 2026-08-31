@@ -8,9 +8,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-/**
- * Test ortamında yanlış DB'ye bağlanmayı azaltır (oldb_test beklenir).
- */
 @Component
 @Profile("test")
 public class TestEnvironmentValidator {
@@ -28,15 +25,16 @@ public class TestEnvironmentValidator {
     @EventListener(ApplicationReadyEvent.class)
     public void validate() {
         String datasourceUrl = environment.getProperty("spring.datasource.url", "");
+        if (datasourceUrl.contains("oldb_prod")) {
+            throw new IllegalStateException("Test profili oldb_prod'a bağlanamaz.");
+        }
         if (!datasourceUrl.contains("oldb_test")) {
-            log.warn(
-                    "Test datasource URL 'oldb_test' içermiyor — prod DB'ye bağlanma riski: {}",
-                    datasourceUrl
+            throw new IllegalStateException(
+                    "Test profili yalnızca oldb_test veritabanına bağlanabilir: " + datasourceUrl
             );
         }
-
         log.info(
-                "Test ortamı — DB hedefi doğrulandı, backend={}, frontend={}",
+                "Test ortamı — backend={}, frontend={}",
                 appProperties.getBackendUrl(),
                 appProperties.getFrontendUrl()
         );

@@ -35,19 +35,22 @@ public class MailEnvironmentValidator {
                     "app.mail.enabled=true ancak spring.mail.host boş. MAIL_HOST ortam değişkenini ayarlayın."
             );
         }
-        if (from == null || from.isBlank() || from.contains("noreply@localhost")) {
+        if (from == null || from.isBlank()) {
+            throw new IllegalStateException("MAIL_FROM / app.mail.from zorunlu.");
+        }
+        if (from.contains("noreply@localhost")) {
             log.warn(
-                    "app.mail.from varsayılan veya boş görünüyor ({}). Prod/test için MAIL_FROM ayarlayın.",
+                    "app.mail.from varsayılan görünüyor ({}). Prod/test için MAIL_FROM ayarlayın.",
                     from
             );
         }
 
-        String profile = environment.getProperty("spring.profiles.active", "");
-        log.info("Mail hazır — profil={}, smtp={}:{}, from={}, dailyCap={}",
-                profile,
+        log.info(
+                "Mail hazır — smtp={}:{}, from={}, dailyCap={}",
                 host,
                 environment.getProperty("spring.mail.port", "587"),
                 from,
-                appProperties.getMail().getDailyCap());
+                appProperties.getMail().getDailyCap()
+        );
     }
 }

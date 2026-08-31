@@ -6,6 +6,7 @@ import RatingUtil from "./common/Rating";
 import MinimalDatePicker from "./common/MinimalDatePicker";
 import StatusSelector from "./common/StatusSelector";
 import COPY from "../copy";
+import { showToast } from "../utils/uiEvents";
 
 /** Map UI exclusive key → backend status + currentPage */
 export const mapExclusiveToPayload = (exclusiveKey) => {
@@ -26,6 +27,7 @@ export const mapExclusiveToPayload = (exclusiveKey) => {
 const BookLogActivity = ({
   selectedBook,
   onSubmit,
+  submitting = false,
   initialExclusive = null,
   initialLibrary = false,
   initialShopping = false,
@@ -43,19 +45,20 @@ const BookLogActivity = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (submitting) return;
     if (!exclusiveKey) {
-      alert(COPY.save.needStatus);
+      showToast(COPY.save.needStatus);
       return;
     }
 
     const mapped = mapExclusiveToPayload(exclusiveKey);
     if (!mapped) {
-      alert(COPY.save.needStatus);
+      showToast(COPY.save.needStatus);
       return;
     }
 
     if (isRead && startDate && readDate && readDate.isBefore(startDate, "day")) {
-      alert("Bitiş tarihi başlangıçtan önce olamaz.");
+      showToast(COPY.save.dateOrder);
       return;
     }
 
@@ -153,8 +156,14 @@ const BookLogActivity = ({
       </div>
 
       <div className="log-footer">
-        <Button type="submit" fullWidth variant="contained" className="log-submit-btn">
-          {COPY.save.submit}
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          className="log-submit-btn"
+          disabled={submitting}
+        >
+          {submitting ? COPY.save.submitting : COPY.save.submit}
         </Button>
       </div>
     </form>

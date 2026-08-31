@@ -5,6 +5,10 @@ import App from "./App";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
+import { hydrateAuth } from "./utils/authSession";
+
+hydrateAuth();
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Router>

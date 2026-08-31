@@ -10,9 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-/**
- * Prod ortamında zayıf varsayılanlar ve eksik secret'ları engeller.
- */
 @Component
 @Profile("prod")
 public class ProdEnvironmentValidator {
@@ -33,6 +30,9 @@ public class ProdEnvironmentValidator {
         requireNonBlank("DATABASE_USER", environment.getProperty("spring.datasource.username"));
         requireNonBlank("DATABASE_PASSWORD", environment.getProperty("spring.datasource.password"));
         requireNonBlank("JWT_SECRET_KEY", environment.getProperty("security.jwt.secret-key"));
+        requireNonBlank("MAIL_FROM", environment.getProperty("app.mail.from"));
+        requireNonBlank("APP_BACKEND_URL", environment.getProperty("app.backend.url"));
+        requireNonBlank("APP_FRONTEND_URL", environment.getProperty("app.frontend.url"));
 
         String password = environment.getProperty("spring.datasource.password", "");
         if (FORBIDDEN_PASSWORDS.contains(password.toLowerCase())) {
@@ -57,31 +57,30 @@ public class ProdEnvironmentValidator {
 
         String datasourceUrl = environment.getProperty("spring.datasource.url", "");
         if (!datasourceUrl.contains("oldb_prod")) {
-            log.warn(
-                    "Prod datasource URL 'oldb_prod' içermiyor. Yanlış veritabanına bağlanma riski: {}",
-                    maskJdbcUrl(datasourceUrl)
+            throw new IllegalStateException(
+                    "Prod profili yalnızca oldb_prod veritabanına bağlanabilir."
             );
+        }
+        if (datasourceUrl.contains("oldb_test") || datasourceUrl.contains("oldb_local")) {
+            throw new IllegalStateException("Prod profili test/local veritabanına bağlanamaz.");
+        }
+
+        String backend = environment.getProperty("app.backend.url", "");
+        String frontend = environment.getProperty("app.frontend.url", "");
+        if (backend.contains("localhost") || frontend.contains("localhost")) {
+            throw new IllegalStateException("Prod URL'leri localhost içeremez. APP_BACKEND_URL / APP_FRONTEND_URL ayarlayın.");
         }
 
         if (!datasourceUrl.contains("sslmode=")) {
-            log.warn(
-                    "Prod JDBC URL'de sslmode yok. Yönetilen Postgres için ?sslmode=require ekleyin."
-            );
+            log.warn("Prod JDBC URL'de sslmode yok. Yönetilen Postgres için ?sslmode=require ekleyin.");
         }
 
-        log.info("Prod güvenlik doğrulaması tamam — DB: {}", maskJdbcUrl(datasourceUrl));
+        log.info("Prod güvenlik doğrulaması tamam.");
     }
 
     private static void requireNonBlank(String name, String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalStateException("Prod ortamında " + name + " zorunlu ve boş olamaz.");
         }
-    }
-
-    private static String maskJdbcUrl(String url) {
-        if (url == null || url.length() < 20) {
-            return url;
-        }
-        return url.substring(0, url.indexOf('@') > 0 ? url.indexOf('@') : 30) + "...";
     }
 }
