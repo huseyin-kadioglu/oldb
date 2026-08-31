@@ -132,6 +132,8 @@ const Content = ({ token }) => {
           localStorage.setItem(CHECKIN_HINT_KEY, "1");
           setShowCheckinHint(false);
         }
+      } else {
+        showToast(COPY.checkin.toastUndo);
       }
     } catch {
       setCheckin(previous);

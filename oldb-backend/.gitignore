@@ -34,3 +34,8 @@ build/
 
 ### Uploads ###
 uploads/
+
+### Local secrets (never commit) ###
+src/main/resources/application-local.properties
+.env
+.env.local

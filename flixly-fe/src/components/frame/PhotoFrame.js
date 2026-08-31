@@ -11,7 +11,8 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CoverImage from "../ui/CoverImage";
 import SelectedBookDialog from "../common/SelectedBookDialog";
 import { createUserActivityFromGhostMenu } from "../../service/APIService";
-import COPY from "../../copy";
+import COPY, { ghostToastMessage } from "../../copy";
+import { showToast, toastProfileAction } from "../../utils/uiEvents";
 
 const formatStarRow = (avg) => {
   const n = Math.max(0, Math.min(5, Number(avg) || 0));
@@ -60,6 +61,7 @@ const PhotoFrame = ({
   const [isInLibrary, setIsInLibrary] = useState(!!book?.inLibrary);
   const [isRead, setIsRead] = useState(!!book?.read);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     setIsLiked(!!book?.liked);
@@ -75,22 +77,39 @@ const PhotoFrame = ({
 
   const requireAuth = () => {
     if (!token) {
-      alert("Bu işlem için giriş yapın.");
+      showToast(COPY.toast.needLogin);
       return false;
     }
     return true;
   };
 
-  const toggleGhost = (actionType, current, setState) => {
-    if (!requireAuth()) return;
+  const toggleGhost = async (actionType, current, setState) => {
+    if (!requireAuth() || busy) return;
     const next = !current;
-    createUserActivityFromGhostMenu({
-      bookId: book.id,
-      authorId: book.authorId,
-      actionType,
-      action: next ? "ADD" : "REMOVE",
-    });
+    setBusy(true);
     setState(next);
+    try {
+      await createUserActivityFromGhostMenu({
+        bookId: book.id,
+        authorId: book.authorId,
+        actionType,
+        action: next ? "ADD" : "REMOVE",
+      });
+      const msg = ghostToastMessage(actionType, next);
+      if (msg) {
+        showToast(
+          msg,
+          next && (actionType === "LIBRARY" || actionType === "READ")
+            ? toastProfileAction(actionType === "LIBRARY" ? "library" : undefined)
+            : {}
+        );
+      }
+    } catch {
+      setState(current);
+      showToast(COPY.toast.errorGeneric);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const stop = (e) => {
@@ -110,6 +129,7 @@ const PhotoFrame = ({
         type="button"
         className="qa-btn"
         data-active={isLiked}
+        disabled={busy}
         title="Beğen"
         aria-label="Beğen"
         onClick={(e) => {
@@ -124,6 +144,7 @@ const PhotoFrame = ({
         type="button"
         className="qa-btn"
         data-active={isInLibrary}
+        disabled={busy}
         title="Kütüphaneye ekle"
         aria-label="Kütüphaneye ekle"
         onClick={(e) => {
@@ -138,6 +159,7 @@ const PhotoFrame = ({
         type="button"
         className="qa-btn"
         data-active={isRead}
+        disabled={busy}
         title="Okundu"
         aria-label="Okundu"
         onClick={(e) => {

@@ -33,6 +33,7 @@ const CreateAccountModal = ({ isOpen, onClose, setSuccessDialogOpen }) => {
   };
 
   const handleCreateAccount = async () => {
+    if (loading) return;
     if (!username.trim() || !email.trim() || !password) {
       setFeedbackDialog({
         title: "Eksik Bilgi",

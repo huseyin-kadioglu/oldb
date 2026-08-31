@@ -1,0 +1,25 @@
+# Copy to application-local.properties (gitignored).
+# cp application-local.properties.example application-local.properties
+
+security.jwt.secret-key=bG9jYWwtZGV2LW9ubHktand0LXNlY3JldC1yb3RhdGUtMzI=
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/oldb_local
+spring.datasource.username=myuser
+spring.datasource.password=mypassword
+spring.jpa.hibernate.ddl-auto=update
+
+# Mailpit — http://localhost:8025
+spring.mail.host=localhost
+spring.mail.port=1025
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=false
+spring.mail.properties.mail.smtp.starttls.enable=false
+spring.mail.properties.mail.smtp.starttls.required=false
+app.mail.from=OLDB Local <noreply@localhost>
+app.mail.enabled=true
+app.mail.daily-cap=0
+
+app.backend.url=http://localhost:8080
+app.frontend.url=http://localhost:3000
+app.cors.allowed-origins=http://localhost:3000

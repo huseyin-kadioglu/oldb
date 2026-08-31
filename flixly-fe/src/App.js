@@ -2,7 +2,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import React, { useCallback, useEffect, useState } from "react";
 
 import "./App.css";
-import { getBooks } from "./service/APIService";
+import { getBooks, logout } from "./service/APIService";
 import Content from "./components/content/Content";
 import NavigationBar from "./components/navbar/NavigationBar";
 import ProfilePage from "./components/profile/ProfilPage";
@@ -27,6 +27,7 @@ import BadgesPage from "./components/pages/BadgesPage";
 import ErrorDialog from "./components/common/ErrorDialog";
 import GenericMessageDialog from "./components/common/GenericMessageDialog";
 import AppToast from "./components/common/AppToast";
+import { getAuthToken, hydrateAuth } from "./utils/authSession";
 
 const needsCatalogPath = (path) =>
   path.startsWith("/books") ||
@@ -43,17 +44,28 @@ const App = () => {
   const [booksLoading, setBooksLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(null);
-  const [token, setToken] = useState(sessionStorage.getItem("token"));
+  const [token, setToken] = useState(() => hydrateAuth());
+
+  useEffect(() => {
+    const syncAuth = () => setToken(getAuthToken());
+    window.addEventListener("oldb:logout", syncAuth);
+    window.addEventListener("oldb:session-expired", syncAuth);
+    document.addEventListener("visibilitychange", syncAuth);
+    const timer = window.setInterval(syncAuth, 60_000);
+    return () => {
+      window.removeEventListener("oldb:logout", syncAuth);
+      window.removeEventListener("oldb:session-expired", syncAuth);
+      document.removeEventListener("visibilitychange", syncAuth);
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const handleLogout = () => {
-    sessionStorage.clear();
-    localStorage.clear();
-    setToken(null);
+    logout();
   };
 
   const handleToken = (nextToken) => {
     setToken(nextToken);
-    sessionStorage.setItem("token", nextToken);
   };
 
   const handleDialog = (state) => {
@@ -113,7 +125,7 @@ const App = () => {
           <Route path="/books/year/:publishYear" element={<BooksPublishYear />} />
           <Route path="/search/:searchTerm" element={<SearchView books={books} />} />
           <Route path="/discover" element={<DiscoverPage />} />
-          <Route path="/book/:bookId" element={<BookSummaryView books={books} />} />
+          <Route path="/book/:bookId" element={<BookSummaryView books={books} token={token} />} />
           <Route path="/author/:authorId" element={<Author />} />
           <Route path="/addAuthor" element={<AuthorContributeForm />} />
           <Route path="/bookContribute" element={<BookContributeForm />} />

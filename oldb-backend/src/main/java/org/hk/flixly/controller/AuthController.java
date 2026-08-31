@@ -1,5 +1,6 @@
 package org.hk.flixly.controller;
 
+import org.hk.flixly.config.AppProperties;
 import org.hk.flixly.model.LoginResponse;
 import org.hk.flixly.model.LoginUserDto;
 import org.hk.flixly.model.RegisterUserDto;
@@ -11,23 +12,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    // Base URL config üzerinden de gelebilir
-    private static final String FRONTEND_URL = "http://localhost:3000";
-    private static final String LOGIN_URL = FRONTEND_URL + "/login";
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private final AppProperties appProperties;
 
     public AuthController(
             JwtService jwtService,
-            AuthenticationService authenticationService
+            AuthenticationService authenticationService,
+            AppProperties appProperties
     ) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
+        this.appProperties = appProperties;
     }
 
     @PostMapping("/signup")
@@ -50,11 +50,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto dto) {
         UserEntity authenticatedUser = authenticationService.authenticate(dto);
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+        boolean rememberMe = dto.isRememberMe();
+        String jwtToken = jwtService.generateToken(authenticatedUser, rememberMe);
         LoginResponse response = new LoginResponse();
         response.setUsername(authenticatedUser.getProfilName());
         response.setToken(jwtToken);
-        response.setExpiresIn(jwtService.getExpirationTime());
+        response.setExpiresIn(jwtService.getExpirationTime(rememberMe));
         response.setProfileName(authenticatedUser.getProfilName());
         response.setRole(authenticatedUser.getRole());
         response.setAvatarUrl(authenticatedUser.getAvatarUrl());
@@ -89,7 +90,7 @@ public class AuthController {
                 .append("<div class='card'>")
                 .append("<h2>🎉 Hesabınız Aktifleştirildi</h2>")
                 .append("<p>Artık giriş yapabilirsiniz.</p>")
-                .append("<a href='").append(LOGIN_URL).append("'>Giriş Yap</a>")
+                .append("<a href='").append(appProperties.loginUrl()).append("'>Giriş Yap</a>")
                 .append("</div>")
                 .append("</body></html>")
                 .toString();

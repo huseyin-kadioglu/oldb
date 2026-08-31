@@ -7,12 +7,14 @@ import DoNotDisturbAltIcon from "@mui/icons-material/DoNotDisturbAlt";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 
+import COPY from "../../copy";
+
 export const ACTIVITY_STATUSES = [
-  { value: "READ", icon: <MenuBookIcon />, label: "Okundu" },
-  { value: "READLIST", icon: <BookmarkAddedIcon />, label: "Okuma Listesi" },
-  { value: "LIBRARY", icon: <LibraryBooksIcon />, label: "Kütüphanemde" },
-  { value: "SHOPPING", icon: <ShoppingCartIcon />, label: "Alınacaklar" },
-  { value: "DROPPED", icon: <DoNotDisturbAltIcon />, label: "Bırakıldı" },
+  { value: "READ", icon: <MenuBookIcon />, label: COPY.status.read },
+  { value: "READLIST", icon: <BookmarkAddedIcon />, label: COPY.status.want },
+  { value: "LIBRARY", icon: <LibraryBooksIcon />, label: COPY.other.library },
+  { value: "SHOPPING", icon: <ShoppingCartIcon />, label: COPY.other.shopping },
+  { value: "DROPPED", icon: <DoNotDisturbAltIcon />, label: COPY.status.dropped },
 ];
 
 const StatusSelector = ({ value, onChange, libraryFormat, onLibraryFormatChange }) => {

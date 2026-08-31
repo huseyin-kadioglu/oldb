@@ -6,8 +6,9 @@ import RatingUtil from "./common/Rating";
 import MinimalDatePicker from "./common/MinimalDatePicker";
 import StatusSelector from "./common/StatusSelector";
 import COPY from "../copy";
+import { showToast } from "../utils/uiEvents";
 
-const BookLogActivity = ({ selectedBook, onSubmit }) => {
+const BookLogActivity = ({ selectedBook, onSubmit, submitting = false }) => {
   const [activityStatus, setActivityStatus] = useState(null);
   const [libraryFormat, setLibraryFormat] = useState("PHYSICAL");
   const [rating, setRating] = useState(null);
@@ -19,13 +20,14 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (submitting) return;
     if (!activityStatus) {
-      alert(COPY.save.needStatus);
+      showToast(COPY.save.needStatus);
       return;
     }
 
     if (isRead && startDate && readDate && readDate.isBefore(startDate, "day")) {
-      alert("Bitiş tarihi başlangıçtan önce olamaz.");
+      showToast(COPY.save.dateOrder);
       return;
     }
 
@@ -116,8 +118,14 @@ const BookLogActivity = ({ selectedBook, onSubmit }) => {
       </div>
 
       <div className="log-footer">
-        <Button type="submit" fullWidth variant="contained" className="log-submit-btn">
-          {COPY.save.submit}
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          className="log-submit-btn"
+          disabled={submitting}
+        >
+          {submitting ? COPY.save.submitting : COPY.save.submit}
         </Button>
       </div>
     </form>
