@@ -2,6 +2,18 @@
 
 **Oldb**, kullanıcıların kitap ekleyip takip edebildiği, profiller oluşturabildiği ve kitaplar hakkında detaylı bilgi alabileceği modern bir React tabanlı web uygulamasıdır.
 
+Tek workspace (önerilen):
+
+```text
+oldb/
+  oldb-backend/   # API + PostgreSQL
+  flixly-fe/      # web
+  oldb-mobile/    # Expo (iOS/Android)
+```
+
+Mobil ve web **aynı veritabanını** API üzerinden paylaşır. Ayrı dağınık kopyalar yerine bu tek clone’u kullan.
+Yerel çalıştırma: [`DEV.md`](DEV.md).
+
 ![image](https://github.com/user-attachments/assets/d2a28a74-3c3f-4184-a3e7-949892c2e323)
 
 ---
@@ -69,10 +81,20 @@ cd oldb-backend
 ./mvnw spring-boot:run
 ```
 
-### Frontend
+### Frontend (web)
 
 ```bash
 cd oldb-frontend   # geçiş sürecinde klasör adı flixly-fe olabilir
 npm install
 npm start
 ```
+
+### Mobile (Expo)
+
+```bash
+cd oldb-mobile
+npm install
+npx expo start
+```
+
+See [`oldb-mobile/README.md`](oldb-mobile/README.md) for Expo Go / iPhone setup.
