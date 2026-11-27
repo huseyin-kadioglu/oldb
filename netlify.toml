@@ -1,0 +1,17 @@
+# Web (CRA) lives in flixly-fe. The Netlify UI was set to `docker compose up`,
+# which cannot run on Netlify builders. This file is the source of truth.
+[build]
+  base = "flixly-fe"
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # CRA treats ESLint warnings as errors when CI=true; keep preview builds green.
+  CI = "false"
+
+# React Router (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

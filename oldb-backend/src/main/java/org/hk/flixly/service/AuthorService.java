@@ -55,6 +55,7 @@ public class AuthorService {
         if (userId != null) {
             List<UserBookMapEntity> maps = userBookMapRepository.findByUserId(userId);
             userStatusMap = maps.stream()
+                    .filter(m -> m.getBookId() != null)
                     .collect(Collectors.groupingBy(
                             UserBookMapEntity::getBookId,
                             Collectors.mapping(UserBookMapEntity::getStatus, Collectors.toSet())

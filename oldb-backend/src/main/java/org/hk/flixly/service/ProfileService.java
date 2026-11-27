@@ -492,8 +492,8 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
         String storedPath = avatarStorageService.store(userEntity.getId(), file);
-        // Herkes yükler; görünür olması için admin onayı gerekir
-        userEntity.setPendingAvatarUrl(storedPath);
+        userEntity.setAvatarUrl(storedPath);
+        userEntity.setPendingAvatarUrl(null);
         userRepository.save(userEntity);
         return buildProfileInfo(userEntity);
     }

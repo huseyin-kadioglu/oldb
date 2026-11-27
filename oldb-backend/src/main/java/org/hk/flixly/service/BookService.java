@@ -39,6 +39,15 @@ public class BookService {
         this.activityRepository = activityRepository;
     }
 
+    private static Map<Long, Set<String>> indexUserBookStatuses(List<UserBookMapEntity> maps) {
+        return maps.stream()
+                .filter(m -> m.getBookId() != null)
+                .collect(Collectors.groupingBy(
+                        UserBookMapEntity::getBookId,
+                        Collectors.mapping(UserBookMapEntity::getStatus, Collectors.toSet())
+                ));
+    }
+
     /** bookId -> [avgRating, ratingCount] */
     private Map<Long, double[]> buildRatingMap() {
         List<Object[]> rows = activityRepository.findBookRatingStats();
@@ -123,11 +132,7 @@ public class BookService {
     public BookResponse getAllBooks(Long id) {
         List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(id);
 
-        Map<Long, Set<String>> userBookStatusMap = userBookMaps.stream()
-                .collect(Collectors.groupingBy(
-                        UserBookMapEntity::getBookId,
-                        Collectors.mapping(UserBookMapEntity::getStatus, Collectors.toSet())
-                ));
+        Map<Long, Set<String>> userBookStatusMap = indexUserBookStatuses(userBookMaps);
 
         Map<Long, Map<String, Integer>> bookStatusCountsMap = mapTotalStats();
         Map<Long, double[]> ratingMap = buildRatingMap();
@@ -315,11 +320,7 @@ public class BookService {
         Map<Long, Set<String>> userBookStatusMap = Collections.emptyMap();
         if (userId != null) {
             List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userId);
-            userBookStatusMap = userBookMaps.stream()
-                    .collect(Collectors.groupingBy(
-                            UserBookMapEntity::getBookId,
-                            Collectors.mapping(UserBookMapEntity::getStatus, Collectors.toSet())
-                    ));
+            userBookStatusMap = indexUserBookStatuses(userBookMaps);
         }
 
         Map<Long, Map<String, Integer>> bookStatusCountsMap = mapTotalStats();
@@ -337,11 +338,7 @@ public class BookService {
         Map<Long, Set<String>> userBookStatusMap = Collections.emptyMap();
         if (userId != null) {
             List<UserBookMapEntity> userBookMaps = bookMapRepository.findByUserId(userId);
-            userBookStatusMap = userBookMaps.stream()
-                    .collect(Collectors.groupingBy(
-                            UserBookMapEntity::getBookId,
-                            Collectors.mapping(UserBookMapEntity::getStatus, Collectors.toSet())
-                    ));
+            userBookStatusMap = indexUserBookStatuses(userBookMaps);
         }
 
         Map<Long, Map<String, Integer>> bookStatusCountsMap = mapTotalStats();

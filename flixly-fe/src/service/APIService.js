@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/"; // Backend URL
+const BASE_URL = (process.env.REACT_APP_API_URL || "http://localhost:8080").replace(
+  /\/?$/,
+  "/"
+);
 
 /** Relative /uploads/... yollarını absolute URL'e çevirir */
 export const resolveMediaUrl = (url) => {
