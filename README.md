@@ -2,6 +2,18 @@
 
 **Oldb**, kullanıcıların kitap ekleyip takip edebildiği, profiller oluşturabildiği ve kitaplar hakkında detaylı bilgi alabileceği modern bir React tabanlı web uygulamasıdır.
 
+Tek workspace (önerilen):
+
+```text
+oldb/
+  oldb-backend/   # API + PostgreSQL
+  flixly-fe/      # web
+  oldb-mobile/    # Expo (iOS/Android)
+```
+
+Mobil ve web **aynı veritabanını** API üzerinden paylaşır. Ayrı dağınık kopyalar yerine bu tek clone’u kullan.
+Yerel çalıştırma: [`DEV.md`](DEV.md).
+
 ![image](https://github.com/user-attachments/assets/d2a28a74-3c3f-4184-a3e7-949892c2e323)
 
 ---
