@@ -1,0 +1,99 @@
+{
+  "brand": {
+    "name": "OLDB"
+  },
+  "tabs": {
+    "home": "Ana Sayfa",
+    "discover": "Keşfet",
+    "library": "Kütüphane",
+    "profile": "Profil"
+  },
+  "auth": {
+    "welcome": "Kişisel kütüphanene hoş geldin",
+    "login": "Giriş yap",
+    "signup": "Hesap oluştur",
+    "email": "E-posta",
+    "password": "Şifre",
+    "fullName": "Ad soyad",
+    "username": "Kullanıcı adı",
+    "noAccount": "Hesabın yok mu?",
+    "hasAccount": "Zaten hesabın var mı?",
+    "logout": "Çıkış yap",
+    "loginRequired": "Devam etmek için giriş yap.",
+    "signupSuccess": "Hesabın oluşturuldu. E-postandaki aktivasyon bağlantısını kontrol et."
+  },
+  "home": {
+    "greeting": "Merhaba{{name}}",
+    "currentlyReading": "Şu an okunan",
+    "updateProgress": "İlerlemeyi güncelle",
+    "noCurrentBook": "Şu an okuduğun bir kitap yok. Keşfet’ten bir kitap başlat.",
+    "streak": "Okuma serisi",
+    "streakDays": "{{count}} gün",
+    "yearlyGoal": "{{year}} hedefi",
+    "goalProgress": "{{read}} / {{goal}} kitap",
+    "checkIn": "Bugün okudum",
+    "checkedIn": "Bugün işaretlendi",
+    "pageOf": "{{current}} / {{total}} sayfa",
+    "percent": "%{{value}}"
+  },
+  "discover": {
+    "title": "Keşfet",
+    "searchPlaceholder": "Kitap veya yazar ara",
+    "empty": "Sonuç bulunamadı.",
+    "loadMore": "Daha fazla"
+  },
+  "library": {
+    "title": "Kütüphanem",
+    "empty": "Bu rafta henüz kitap yok.",
+    "shelves": {
+      "reading": "Okunuyor",
+      "want": "Okunacak",
+      "completed": "Okundu",
+      "library": "Kütüphanem",
+      "shopping": "Alınacaklar",
+      "dropped": "Bırakılanlar",
+      "favorites": "Favoriler"
+    }
+  },
+  "book": {
+    "pages": "{{count}} sayfa",
+    "published": "{{year}}",
+    "isbn": "ISBN {{isbn}}",
+    "publisher": "{{name}}",
+    "averageRating": "Ort. {{rating}}",
+    "synopsis": "Özet",
+    "startReading": "Okumaya başla",
+    "markWant": "Okuma listesine ekle",
+    "markRead": "Okundu işaretle",
+    "addLibrary": "Kütüphaneme ekle",
+    "favorite": "Favorile",
+    "noDescription": "Bu kitap için özet henüz yok."
+  },
+  "progress": {
+    "title": "Sayfa güncelle",
+    "currentPage": "Bulunduğun sayfa",
+    "save": "Kaydet",
+    "finish": "Bitirdim",
+    "invalidPage": "Geçerli bir sayfa numarası gir."
+  },
+  "profile": {
+    "title": "Profil",
+    "settings": "Ayarlar",
+    "statsBooks": "Okunan",
+    "statsPages": "Sayfa",
+    "statsStreak": "Seri",
+    "guestHint": "Profilini ve raflarını görmek için giriş yap."
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "apiHint": "API adresi EXPO_PUBLIC_API_URL ile ayarlanır.",
+    "language": "Dil"
+  },
+  "common": {
+    "loading": "Yükleniyor…",
+    "retry": "Yeniden dene",
+    "cancel": "İptal",
+    "error": "Bir hata oluştu.",
+    "save": "Kaydet"
+  }
+}

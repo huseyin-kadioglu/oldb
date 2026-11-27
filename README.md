@@ -69,10 +69,20 @@ cd oldb-backend
 ./mvnw spring-boot:run
 ```
 
-### Frontend
+### Frontend (web)
 
 ```bash
 cd oldb-frontend   # geçiş sürecinde klasör adı flixly-fe olabilir
 npm install
 npm start
 ```
+
+### Mobile (Expo)
+
+```bash
+cd oldb-mobile
+npm install
+npx expo start
+```
+
+See [`oldb-mobile/README.md`](oldb-mobile/README.md) for Expo Go / iPhone setup.

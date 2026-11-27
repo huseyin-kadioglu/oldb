@@ -1,0 +1,99 @@
+{
+  "brand": {
+    "name": "OLDB"
+  },
+  "tabs": {
+    "home": "Home",
+    "discover": "Discover",
+    "library": "Library",
+    "profile": "Profile"
+  },
+  "auth": {
+    "welcome": "Welcome to your personal library",
+    "login": "Sign in",
+    "signup": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "username": "Username",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "logout": "Sign out",
+    "loginRequired": "Sign in to continue.",
+    "signupSuccess": "Account created. Check your email for the activation link."
+  },
+  "home": {
+    "greeting": "Hello{{name}}",
+    "currentlyReading": "Currently reading",
+    "updateProgress": "Update progress",
+    "noCurrentBook": "No book in progress. Start one from Discover.",
+    "streak": "Reading streak",
+    "streakDays": "{{count}} days",
+    "yearlyGoal": "{{year}} goal",
+    "goalProgress": "{{read}} / {{goal}} books",
+    "checkIn": "I read today",
+    "checkedIn": "Checked in today",
+    "pageOf": "{{current}} / {{total}} pages",
+    "percent": "{{value}}%"
+  },
+  "discover": {
+    "title": "Discover",
+    "searchPlaceholder": "Search books or authors",
+    "empty": "No results found.",
+    "loadMore": "Load more"
+  },
+  "library": {
+    "title": "My library",
+    "empty": "No books on this shelf yet.",
+    "shelves": {
+      "reading": "Reading",
+      "want": "Want to read",
+      "completed": "Completed",
+      "library": "Owned",
+      "shopping": "Shopping",
+      "dropped": "Dropped",
+      "favorites": "Favorites"
+    }
+  },
+  "book": {
+    "pages": "{{count}} pages",
+    "published": "{{year}}",
+    "isbn": "ISBN {{isbn}}",
+    "publisher": "{{name}}",
+    "averageRating": "Avg {{rating}}",
+    "synopsis": "Synopsis",
+    "startReading": "Start reading",
+    "markWant": "Add to reading list",
+    "markRead": "Mark as read",
+    "addLibrary": "Add to library",
+    "favorite": "Favorite",
+    "noDescription": "No synopsis available yet."
+  },
+  "progress": {
+    "title": "Update page",
+    "currentPage": "Current page",
+    "save": "Save",
+    "finish": "Finished",
+    "invalidPage": "Enter a valid page number."
+  },
+  "profile": {
+    "title": "Profile",
+    "settings": "Settings",
+    "statsBooks": "Read",
+    "statsPages": "Pages",
+    "statsStreak": "Streak",
+    "guestHint": "Sign in to see your profile and shelves."
+  },
+  "settings": {
+    "title": "Settings",
+    "apiHint": "API URL is configured via EXPO_PUBLIC_API_URL.",
+    "language": "Language"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "error": "Something went wrong.",
+    "save": "Save"
+  }
+}
