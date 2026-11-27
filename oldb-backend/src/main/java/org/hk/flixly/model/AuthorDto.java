@@ -1,5 +1,6 @@
 package org.hk.flixly.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.hk.flixly.model.entity.BookEntity;
@@ -20,10 +21,12 @@ public class AuthorDto {
     private boolean wonNobelPrize;
     /** Nobel aldığı yıl */
     private Integer nobelYear;
-    /** Ham kitap listesi (geriye uyumluluk) */
+    /** Ham kitap listesi (geriye uyumluluk) — BookEntity Hibernate grafiği JSON'a yazılmaz */
+    @JsonIgnore
     private List<BookEntity> bookWrittenBy;
     /** Kullanıcı durumlarıyla zenginleştirilmiş kitaplar */
     private List<BookDto> books;
+    @JsonIgnore
     private List<BookEntity> haveBeenReadByTheUser;
     private int userReadCount;
     /** Kullanıcının kütüphanesindeki (LIBRARY) kitap sayısı */

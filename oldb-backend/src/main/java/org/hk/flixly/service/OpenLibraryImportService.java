@@ -260,14 +260,24 @@ public class OpenLibraryImportService {
             author = new AuthorEntity();
             author.setName(name);
             author.setOpenLibraryKey(olKey);
-            author.setPortrait("https://ui-avatars.com/api/?name="
-                    + URLEncoder.encode(name, StandardCharsets.UTF_8)
-                    + "&background=1a1a1a&color=d4af37&size=256");
+            author.setPortrait(portraitUrl(olKey, name));
             author = authorRepository.save(author);
             cache.put(cacheKey + "#new", author);
-        } else if (olKey != null && author.getOpenLibraryKey() == null) {
-            author.setOpenLibraryKey(olKey);
-            author = authorRepository.save(author);
+        } else {
+            boolean dirty = false;
+            if (olKey != null && author.getOpenLibraryKey() == null) {
+                author.setOpenLibraryKey(olKey);
+                dirty = true;
+            }
+            if (needsGeneratedPortrait(author.getPortrait())) {
+                author.setPortrait(portraitUrl(
+                        author.getOpenLibraryKey() != null ? author.getOpenLibraryKey() : olKey,
+                        name));
+                dirty = true;
+            }
+            if (dirty) {
+                author = authorRepository.save(author);
+            }
         }
         cache.put(cacheKey, author);
         return author;
@@ -464,6 +474,29 @@ public class OpenLibraryImportService {
                 .isbn(isbn)
                 .genreSuggestions(genres)
                 .build();
+    }
+
+    /** Open Library author photos; generated avatars only as a last resort. */
+    private static String portraitUrl(String olKey, String name) {
+        String olid = openLibraryAuthorId(olKey);
+        if (olid != null) {
+            return "https://covers.openlibrary.org/a/olid/" + olid + "-L.jpg";
+        }
+        return "https://ui-avatars.com/api/?name="
+                + URLEncoder.encode(name == null || name.isBlank() ? "Author" : name, StandardCharsets.UTF_8)
+                + "&background=1a1a1a&color=d4af37&size=256";
+    }
+
+    private static boolean needsGeneratedPortrait(String portrait) {
+        return portrait == null || portrait.isBlank() || portrait.contains("ui-avatars.com");
+    }
+
+    private static String openLibraryAuthorId(String olKey) {
+        if (olKey == null || olKey.isBlank()) return null;
+        String trimmed = olKey.trim();
+        int slash = trimmed.lastIndexOf('/');
+        String id = slash >= 0 ? trimmed.substring(slash + 1) : trimmed;
+        return id.startsWith("OL") ? id : null;
     }
 
     private JsonNode fetchJson(String url) throws Exception {
