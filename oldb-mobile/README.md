@@ -40,7 +40,7 @@ Copy `.env.example` to `.env` inside `oldb-mobile/`:
 
 Find your Mac IP: System Settings → Network, or `ipconfig getifaddr en0`.
 
-### 3. Start Expo
+### 3. Start Expo (recommended on your Mac)
 
 ```bash
 cd oldb-mobile
@@ -48,14 +48,22 @@ npm install
 npx expo start
 ```
 
+Press `s` if needed until the terminal says **Using Expo Go**.
+
 ### 4. Open on your iPhone
 
-1. Install **Expo Go** from the App Store.
+1. Install **Expo Go** from the App Store (SDK must match the project — currently Expo SDK 58).
 2. Ensure phone and Mac are on the **same Wi‑Fi**.
-3. Scan the QR code from the terminal / Expo Dev Tools with the Camera app (or Expo Go).
-4. Sign in with an activated OLDB account.
+3. Scan the QR code from the terminal with Camera / Expo Go.
+4. Sign in with an activated OLDB account (backend must be running).
 
 If the app cannot reach the API: check firewall, confirm `EXPO_PUBLIC_API_URL`, and restart `npx expo start` after changing `.env`.
+
+### Expo Go checklist
+
+- Project is Expo managed (no custom native modules beyond Expo Go–compatible packages).
+- `npx expo-doctor` should report no issues.
+- Use `npm run start:tunnel` only if LAN QR does not connect (requires Expo login or `@expo/ngrok`).
 
 ## Scripts
 
