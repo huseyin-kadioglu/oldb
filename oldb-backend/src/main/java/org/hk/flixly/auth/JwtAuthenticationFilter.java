@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import io.jsonwebtoken.JwtException;
 import org.hk.flixly.service.JwtService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,10 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final String SESSION_EXPIRED_BODY =
+            "{\"message\":\"Oturumun süresi doldu. Tekrar giriş yap.\",\"code\":\"SESSION_EXPIRED\"}";
+    private static final String SERVER_ERROR_BODY =
+            "{\"message\":\"İstek tamamlanamadı.\",\"code\":\"SERVER_ERROR\"}";
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     private final JwtService jwtService;
@@ -73,14 +78,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             filterChain.doFilter(request, response);
+        } catch (JwtException exception) {
+            // Expired or malformed tokens used to fall through to sendError(500).
+            // With include-message=always that response body is "No message available".
+            log.warn("Rejected JWT on {} {}: {}", request.getMethod(), request.getRequestURI(), exception.getClass().getSimpleName());
+            writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, SESSION_EXPIRED_BODY);
         } catch (Exception exception) {
             log.error("Authenticated request failed: {} {}", request.getMethod(), request.getRequestURI(), exception);
             if (!response.isCommitted()) {
                 handlerExceptionResolver.resolveException(request, response, null, exception);
             }
             if (!response.isCommitted()) {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                writeJson(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, SERVER_ERROR_BODY);
             }
         }
+    }
+
+    private void writeJson(HttpServletResponse response, int status, String json) throws IOException {
+        if (response.isCommitted()) {
+            return;
+        }
+        response.setStatus(status);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json");
+        response.getWriter().write(json);
     }
 }
