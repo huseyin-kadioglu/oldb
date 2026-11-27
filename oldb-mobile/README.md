@@ -28,17 +28,26 @@ cd oldb-backend && ./mvnw spring-boot:run
 
 API must listen on port `8080`.
 
-### 2. Configure API URL
+### 2. Configure API URL (same DB as web)
+
+Mobile does **not** ship its own database. It talks to `oldb-backend`, which uses the same PostgreSQL as the web app.
 
 Copy `.env.example` to `.env` inside `oldb-mobile/`:
 
 | Device | `EXPO_PUBLIC_API_URL` |
 |---|---|
-| iOS Simulator | `http://localhost:8080` |
+| Same PC browser | `http://localhost:8080` |
 | Android Emulator | `http://10.0.2.2:8080` |
-| Physical iPhone | `http://YOUR_MAC_LAN_IP:8080` (same Wi‑Fi) |
+| Physical iPhone | `http://YOUR_PC_LAN_IP:8080` (same Wi‑Fi) |
 
-Find your Mac IP: System Settings → Network, or `ipconfig getifaddr en0`.
+Example for this network: `http://192.168.1.102:8080`
+
+Local founder login (seeded by backend `AdminBootstrap`):
+
+- Email: `huseyinavnikadioglu@gmail.com`
+- Password: `test`
+
+Start Postgres + backend before logging in from the phone.
 
 ### 3. Start Expo (recommended on your Mac)
 
